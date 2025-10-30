@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Photography Portfolio</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">📸 Admin Dashboard</div>
+            <button id="logoutBtn" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Admin Container -->
+    <div class="admin-container">
+        <!-- Add Photo Section -->
+        <section class="admin-section">
+            <h2>Add New Photo</h2>
+            <form id="addPhotoForm" class="photo-form">
+                <div class="form-group">
+                    <label for="photoTitle">Title *</label>
+                    <input type="text" id="photoTitle" placeholder="Enter photo title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="photoDescription">Description *</label>
+                    <textarea id="photoDescription" placeholder="Enter photo description" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="photoFile">Upload Image *</label>
+                    <input type="file" id="photoFile" accept="image/*" required>
+                    <small>Supported formats: JPG, PNG, GIF, WebP (Max 32MB)</small>
+                </div>
+
+                <div class="form-group">
+                    <label id="uploadStatus" class="upload-status"></label>
+                </div>
+
+                <button type="submit" class="btn-primary">Add Photo</button>
+            </form>
+        </section>
+
+        <!-- Photos Management Section -->
+        <section class="admin-section">
+            <h2>Manage Photos</h2>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search photos by title or description...">
+            </div>
+
+            <div class="photos-table-wrapper">
+                <table class="photos-table" id="photosTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="photosTableBody">
+                        <!-- Photos will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Admin Pagination -->
+            <div class="admin-pagination">
+                <button id="adminPrevBtn" class="btn-pagination">← Previous</button>
+                <span id="adminPageInfo" class="page-info">Page 1</span>
+                <button id="adminNextBtn" class="btn-pagination">Next →</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Photo</h2>
+            <form id="editPhotoForm" class="photo-form">
+                <input type="hidden" id="editPhotoId">
+                
+                <div class="form-group">
+                    <label for="editPhotoTitle">Title *</label>
+                    <input type="text" id="editPhotoTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPhotoDescription">Description *</label>
+                    <textarea id="editPhotoDescription" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPhotoFile">Upload New Image (Optional)</label>
+                    <input type="file" id="editPhotoFile" accept="image/*">
+                    <small>Leave empty to keep current image</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                    <button type="button" class="btn-secondary" id="closeEditBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Spinner -->
+    <div id="loading" class="spinner"></div>
+
+    <!-- Scripts -->
+    <script src="config.js?v=2"></script>
+    <script src="supabase-client.js?v=2"></script>
+    <script src="imgbb-upload.js?v=2"></script>
+    <script src="admin.js?v=2"></script>
+</body>
+</html>

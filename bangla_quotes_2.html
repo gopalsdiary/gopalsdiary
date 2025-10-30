@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gopals Diary - Beautiful Gallery</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">📸 Gopals Diary</div>
+            <a href="index.html" class="login-btn">Back to Home</a>
+        </div>
+    </nav>
+
+        <!-- Image Preview Modal -->
+        <div id="imageModal" class="modal">
+            <div class="modal-content image-modal-content">
+                <span id="imageModalClose" class="close">&times;</span>
+                <img id="modalImage" src="" alt="Preview" />
+                <h3 id="modalTitle"></h3>
+                <p id="modalDescription"></p>
+                <div class="modal-actions">
+                    <a id="downloadBtn" href="" download class="btn-download">Download</a>
+                </div>
+            </div>
+        </div>
+
+    <!-- Main Gallery Container -->
+    <div class="container">
+        <div class="gallery-header">
+            <h1>Photography Gallery</h1>
+            <p>A collection of beautiful moments</p>
+        </div>
+
+        <!-- Gallery Grid -->
+        <div id="gallery" class="gallery-grid">
+            <!-- Photos will be loaded here -->
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="spinner"></div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button id="prevBtn" class="btn-pagination">← Previous</button>
+            <div id="pageNumbers" class="page-numbers"></div>
+            <button id="nextBtn" class="btn-pagination">Next →</button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Link (visible only to logged-in admins) -->
+    <div id="adminPanel" class="admin-panel" style="display: none;">
+        <a href="admin.html" class="btn-primary">Admin Dashboard</a>
+        <button id="logoutBtn" class="btn-logout">Logout</button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js?v=2"></script>
+    <script src="supabase-client.js?v=2"></script>
+    <script src="gallery.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gopals Diary - Beautiful Gallery</title>
+	<link rel="icon" type="image/svg+xml" href="favicon.svg">
+	<link rel="stylesheet" href="styles.css">
+	<meta name="description" content="A simple and beautiful photography portfolio by Gopals Diary.">
+</head>
+<body>
+	<!-- Navigation Bar -->
+	<nav class="navbar">
+		<div class="navbar-container">
+			<div class="logo">📸 Gopals Diary</div>
+			<button id="loginBtn" class="login-btn">Login</button>
+		</div>
+	</nav>
+
+	<!-- Login Modal -->
+	<div id="loginModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h2>Admin Login</h2>
+			<form id="loginForm">
+				<input type="text" id="username" placeholder="Email or Username" required>
+				<input type="password" id="password" placeholder="Password" required>
+				<button type="submit" class="btn-primary">Login</button>
+			</form>
+			<p id="loginError" class="error-message"></p>
+			<p style="font-size: 0.85rem; color: #666; margin-top: 10px;">
+				Use your admin credentials to log in.
+			</p>
+		</div>
+	</div>
+
+	<!-- Image Preview Modal -->
+	<div id="imageModal" class="modal">
+		<div class="modal-content image-modal-content">
+			<span id="imageModalClose" class="close">&times;</span>
+			<img id="modalImage" src="" alt="Preview" />
+			<h3 id="modalTitle"></h3>
+			<p id="modalDescription"></p>
+			<div class="modal-actions">
+				<a id="downloadBtn" href="" download class="btn-download">Download</a>
+			</div>
+		</div>
+	</div>
+
+	<!-- Main Gallery Container -->
+	<div class="container">
+		<div class="gallery-header">
+			<h1>Photography Gallery</h1>
+			<p>A collection of beautiful moments</p>
+			<div class="hero-actions">
+				<a href="bangla_quotes_2.html" class="btn-secondary">Bangla quotes 2</a>
+			</div>
+		</div>
+
+		
+
+
+
+	<!-- Admin Dashboard Link (visible only to logged-in admins) -->
+	<div id="adminPanel" class="admin-panel" style="display: none;">
+		<a href="admin.html" class="btn-primary">Admin Dashboard</a>
+		<button id="logoutBtn" class="btn-logout">Logout</button>
+	</div>
+
+	<!-- Bottom-Center Login Button (visible only when logged out) -->
+	<div id="loginPanel" class="admin-panel bottom-center" style="display: none;">
+		<button id="loginFloatingBtn" class="btn-primary">Login</button>
+	</div>
+
+	<!-- Scripts -->
+	<script src="config.js?v=2"></script>
+	<script src="supabase-client.js?v=2"></script>
+	<script src="gallery.js?v=2"></script>
+</body>
+</html>
