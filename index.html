@@ -3,78 +3,1057 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Gopals Diary - Beautiful Gallery</title>
+	<title>Gopals Diary - Instagram Profile</title>
 	<link rel="icon" type="image/svg+xml" href="favicon.svg">
-	<link rel="stylesheet" href="styles.css">
-	<meta name="description" content="A simple and beautiful photography portfolio by Gopals Diary.">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			background: #fafafa;
+			color: #262626;
+		}
+
+		.profile-container {
+			max-width: 935px;
+			margin: 0 auto;
+			padding: 20px;
+		}
+
+		/* Header */
+		.profile-header {
+			display: grid;
+			grid-template-columns: 150px 1fr;
+			gap: 40px;
+			margin: 40px 0;
+			padding-bottom: 40px;
+			border-bottom: 1px solid #dbdbdb;
+		}
+
+		.profile-avatar {
+			display: flex;
+			justify-content: center;
+		}
+
+		.profile-avatar img {
+			width: 150px;
+			height: 150px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 3px solid #fff;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		.profile-info {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.profile-username {
+			font-size: 28px;
+			font-weight: 300;
+			margin-bottom: 10px;
+		}
+
+		.profile-stats {
+			display: flex;
+			gap: 40px;
+			margin-bottom: 20px;
+			font-size: 14px;
+		}
+
+		.stat-item {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.stat-number {
+			font-weight: 600;
+			font-size: 18px;
+		}
+
+		.profile-bio {
+			margin-top: 15px;
+			font-size: 14px;
+			line-height: 1.5;
+		}
+
+		.profile-link {
+			color: #0095f6;
+			text-decoration: none;
+			font-weight: 600;
+		}
+
+		.profile-link:hover {
+			text-decoration: underline;
+		}
+
+		/* Buttons Section */
+		.profile-buttons {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			flex-wrap: wrap;
+		}
+
+		.btn {
+			padding: 10px 30px;
+			border: 1px solid #dbdbdb;
+			background: white;
+			color: #262626;
+			border-radius: 4px;
+			font-weight: 600;
+			cursor: pointer;
+			font-size: 14px;
+			transition: all 0.3s ease;
+		}
+
+		.btn:hover {
+			background: #f0f0f0;
+		}
+
+		.btn-primary {
+			background: #0095f6;
+			color: white;
+			border: none;
+		}
+
+		.btn-primary:hover {
+			background: #0081d4;
+		}
+
+		.btn-orange {
+			background: #f09031;
+			color: white;
+			border: none;
+		}
+
+		.btn-orange:hover {
+			background: #ff9933;
+		}
+
+		/* Highlights Section */
+		.highlights-section {
+			margin: 40px 0;
+		}
+
+		.highlights-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: #999;
+			margin-bottom: 15px;
+		}
+
+		.highlights {
+			display: flex;
+			gap: 20px;
+			overflow-x: auto;
+			padding-bottom: 10px;
+		}
+
+		.highlight-item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 8px;
+			cursor: pointer;
+			transition: transform 0.3s ease;
+		}
+
+		.highlight-item:hover {
+			transform: scale(1.05);
+		}
+
+		.highlight-circle {
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border: 2px solid #dbdbdb;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 40px;
+		}
+
+		.highlight-name {
+			font-size: 12px;
+			text-align: center;
+			max-width: 100px;
+		}
+
+		/* Gallery Grid */
+		.gallery-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			margin: 40px 0;
+		}
+
+		.gallery-item {
+			aspect-ratio: 1;
+			background: #f0f0f0;
+			border-radius: 8px;
+			overflow: hidden;
+			cursor: pointer;
+			transition: transform 0.3s ease;
+		}
+
+		.gallery-item:hover {
+			transform: scale(1.02);
+		}
+
+		.gallery-item img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			cursor: pointer;
+		}
+
+		/* Lightbox for gallery images */
+		.lightbox {
+			display: none;
+			position: fixed;
+			z-index: 1200;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.95);
+			overflow: auto;
+		}
+
+		.lightbox.active {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.lightbox-content {
+			position: relative;
+			max-width: 95%;
+			max-height: 90vh;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 30px;
+			background: white;
+			border-radius: 12px;
+			overflow: hidden;
+		}
+
+		.lightbox-image-container {
+			flex: 0 0 auto;
+			max-width: 60%;
+			max-height: 85vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #f0f0f0;
+			border-radius: 8px;
+		}
+
+		.lightbox-image {
+			max-width: 100%;
+			max-height: 85vh;
+			object-fit: contain;
+		}
+
+		.lightbox-info {
+			flex: 0 0 auto;
+			width: 300px;
+			max-height: 85vh;
+			display: flex;
+			flex-direction: column;
+			padding: 20px;
+			overflow-y: auto;
+		}
+
+		.lightbox-title {
+			font-size: 18px;
+			font-weight: 600;
+			color: #262626;
+			margin-bottom: 10px;
+			line-height: 1.4;
+		}
+
+		.lightbox-description {
+			font-size: 14px;
+			color: #65676b;
+			line-height: 1.5;
+			margin-bottom: 15px;
+		}
+
+		.lightbox-divider {
+			height: 1px;
+			background: #e5e5e5;
+			margin: 15px 0;
+		}
+
+		.lightbox-close {
+			position: absolute;
+			top: 20px;
+			right: 30px;
+			font-size: 40px;
+			font-weight: bold;
+			color: #262626;
+			cursor: pointer;
+			z-index: 1300;
+			transition: color 0.3s ease;
+			width: 50px;
+			height: 50px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.lightbox-close:hover {
+			color: #8e8e8e;
+			background: rgba(0, 0, 0, 0.1);
+			border-radius: 50%;
+		}
+
+		.lightbox-nav {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			font-size: 36px;
+			color: #262626;
+			cursor: pointer;
+			padding: 20px;
+			user-select: none;
+			transition: all 0.3s ease;
+			z-index: 1300;
+			width: 50px;
+			height: 50px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.lightbox-nav:hover {
+			background: rgba(0, 0, 0, 0.1);
+			border-radius: 50%;
+		}
+
+		.lightbox-prev {
+			left: 10px;
+		}
+
+		.lightbox-next {
+			right: 10px;
+		}
+
+		.lightbox-counter {
+			color: #8e8e8e;
+			font-size: 12px;
+			margin-top: auto;
+			padding-top: 15px;
+			border-top: 1px solid #e5e5e5;
+		}
+
+		/* Responsive lightbox */
+		@media (max-width: 1024px) {
+			.lightbox-content {
+				flex-direction: column;
+				gap: 20px;
+			}
+
+			.lightbox-image-container {
+				max-width: 100%;
+				max-height: 50vh;
+			}
+
+			.lightbox-info {
+				width: 100%;
+				max-height: 30vh;
+			}
+		}
+
+		/* Tabs */
+		.tabs {
+			display: flex;
+			gap: 40px;
+			border-top: 1px solid #dbdbdb;
+			margin: 40px 0 0 0;
+		}
+
+		.tab {
+			padding: 16px 0;
+			font-size: 12px;
+			font-weight: 600;
+			color: #8e8e8e;
+			border-top: 1px solid transparent;
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.tab.active {
+			color: #262626;
+			border-top-color: #262626;
+		}
+
+		/* Modal for highlights */
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.7);
+			overflow: auto;
+		}
+
+		.modal-content-highlight {
+			background-color: white;
+			margin: 5% auto;
+			padding: 20px;
+			border-radius: 8px;
+			width: 90%;
+			max-width: 600px;
+			max-height: 90vh;
+			overflow-y: auto;
+			position: relative;
+		}
+
+		.modal-close {
+			position: absolute;
+			top: 15px;
+			right: 20px;
+			font-size: 28px;
+			font-weight: bold;
+			color: #aaa;
+			cursor: pointer;
+		}
+
+		.modal-close:hover {
+			color: #000;
+		}
+
+		.modal-gallery {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 10px;
+			margin-top: 15px;
+		}
+
+		.modal-gallery img {
+			width: 100%;
+			height: 200px;
+			object-fit: cover;
+			border-radius: 8px;
+			cursor: pointer;
+		}
+
+		.modal-gallery img:hover {
+			opacity: 0.8;
+		}
+
+		.tab-content {
+			display: none;
+		}
+
+		.tab-content.active {
+			display: block;
+		}
+
+		.loading {
+			text-align: center;
+			padding: 40px;
+			color: #999;
+		}
+
+		@media (max-width: 768px) {
+			.profile-header {
+				grid-template-columns: 1fr;
+				gap: 20px;
+				text-align: center;
+			}
+
+			.profile-avatar img {
+				width: 120px;
+				height: 120px;
+			}
+
+			.profile-stats {
+				justify-content: center;
+				gap: 30px;
+			}
+
+			.gallery-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 15px;
+			}
+
+			.highlights {
+				gap: 15px;
+			}
+
+			.highlight-circle {
+				width: 80px;
+				height: 80px;
+				font-size: 32px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.profile-container {
+				padding: 10px;
+			}
+
+			.profile-header {
+				margin: 20px 0;
+				padding-bottom: 20px;
+			}
+
+			.profile-username {
+				font-size: 20px;
+			}
+
+			.profile-stats {
+				gap: 20px;
+				font-size: 12px;
+			}
+
+			.stat-number {
+				font-size: 16px;
+			}
+
+			.gallery-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 10px;
+			}
+
+			.profile-buttons {
+				gap: 8px;
+			}
+
+			.btn {
+				padding: 8px 15px;
+				font-size: 12px;
+			}
+		}
+	</style>
 </head>
 <body>
-	<!-- Navigation Bar -->
-	<nav class="navbar">
-		<div class="navbar-container">
-			<div class="logo">📸 Gopals Diary</div>
-			<button id="loginBtn" class="login-btn">Login</button>
-		</div>
-	</nav>
+	<div class="profile-container">
+		<!-- Profile Header -->
+		<div class="profile-header">
+			<!-- Avatar -->
+			<div class="profile-avatar">
+				<img src="https://i.ibb.co.com/HDFLdgBM/gopals-diary.jpg" alt="Gopals Diary">
+			</div>
 
-	<!-- Login Modal -->
-	<div id="loginModal" class="modal">
-		<div class="modal-content">
-			<span class="close">&times;</span>
-			<h2>Admin Login</h2>
-			<form id="loginForm">
-				<input type="text" id="username" placeholder="Email or Username" required>
-				<input type="password" id="password" placeholder="Password" required>
-				<button type="submit" class="btn-primary">Login</button>
-			</form>
-			<p id="loginError" class="error-message"></p>
-			<p style="font-size: 0.85rem; color: #666; margin-top: 10px;">
-				Use your admin credentials to log in.
-			</p>
-		</div>
-	</div>
+			<!-- Profile Info -->
+			<div class="profile-info">
+				<h1 class="profile-username">gopals_diary <span style="color: #0095f6; font-size: 18px;">✓</span></h1>
 
-	<!-- Image Preview Modal -->
-	<div id="imageModal" class="modal">
-		<div class="modal-content image-modal-content">
-			<span id="imageModalClose" class="close">&times;</span>
-			<img id="modalImage" src="" alt="Preview" />
-			<h3 id="modalTitle"></h3>
-			<p id="modalDescription"></p>
-			<div class="modal-actions">
-				<a id="downloadBtn" href="" download class="btn-download">Download</a>
+				<div class="profile-stats">
+					<div class="stat-item">
+						<span class="stat-number">203</span>
+						<span>posts</span>
+					</div>
+					<div class="stat-item">
+						<span class="stat-number">11K</span>
+						<span>followers</span>
+					</div>
+					<div class="stat-item">
+						<span class="stat-number">275</span>
+						<span>following</span>
+					</div>
+				</div>
+
+				<div class="profile-bio">
+					<p><strong>#Aesthetically || (B.Sc, M.Sc)^ #Mathematics💗& LL.B</strong></p>
+					<p>Believe in the creation!</p>
+					<p>আমার, প্রিয় বল প্রিয় বল ডেকে 💗😘</p>
+					<p><a href="https://sites.google.com/view/gopals-diary" class="profile-link" target="_blank">sites.google.com/view/gopals-diary</a></p>
+				</div>
+
+				<!-- Buttons -->
+				<div class="profile-buttons">
+					<a href="bangla_quotes_1.html" class="btn btn-orange">Bangla Quotes</a>
+					<a href="bangla_quotes_2.html" class="btn btn-orange">Bangla Quotes 2</a>
+					<a href="photography_1.html" class="btn btn-orange">📸 Photography</a>
+					<a href="photography_2.html" class="btn btn-orange">📸 Photography 2</a>
+
+					<a href="https://instagram.com/gopals_diary" target="_blank" class="btn">↗️ Follow</a>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<!-- Main Gallery Container -->
-	<div class="container">
-		<div class="gallery-header">
-			<h1>Photography Gallery</h1>
-			<p>A collection of beautiful moments</p>
-			<div class="hero-actions">
-				<a href="bangla_quotes_2.html" class="btn-secondary">Bangla quotes 2</a>
+		<!-- Highlights Section -->
+		<div class="highlights-section">
+			<div class="highlights-title">HIGHLIGHTS</div>
+			<div class="highlights">
+				<div class="highlight-item" onclick="openHighlightModal('tea')">
+					<div class="highlight-circle">🍵</div>
+					<div class="highlight-name">Tea 💗</div>
+				</div>
+				<div class="highlight-item" onclick="openHighlightModal('book')">
+					<div class="highlight-circle">📕</div>
+					<div class="highlight-name">বই 📖</div>
+				</div>
+			<div class="highlight-item" onclick="openHighlightModal('photography')">
+				<div class="highlight-circle">📸</div>
+				<div class="highlight-name">Photography</div>
+			</div>
+			<div class="highlight-item" onclick="openHighlightModal('mydiary')">
+				<div class="highlight-circle">📔</div>
+				<div class="highlight-name">My Diary</div>
+			</div>
+			<div class="highlight-item" onclick="openHighlightModal('story11')">
+				<div class="highlight-circle">📖</div>
+				<div class="highlight-name">Story 11</div>
+			</div>
+			<div class="highlight-item" onclick="openHighlightModal('story10')">
+				<div class="highlight-circle">🏖️</div>
+				<div class="highlight-name">Story 10</div>
+			</div>
+			<div class="highlight-item" onclick="openHighlightModal('photo2')">
+				<div class="highlight-circle">🎭</div>
+				<div class="highlight-name">2: Photography</div>
+			</div>
 			</div>
 		</div>
 
-		
+		<!-- Modals for Highlights -->
+		<div id="teaModal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('tea')">&times;</span>
+				<h3>Tea 💗</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/JjPzY2dw/20200504-162309000-i-OS.png" alt="Tea 1">
+				</div>
+			</div>
+		</div>
 
+		<div id="bookModal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('book')">&times;</span>
+				<h3>বই 📖</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/v6YQ6S0f/Screenshot-20230515-024051-Parallel-App.jpg" alt="Book 1">
+				</div>
+			</div>
+		</div>
 
+		<div id="photographyModal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('photography')">&times;</span>
+				<h3>Photography</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/v6FzWvmZ/DSC3240.jpg" alt="Photo 1">
+				</div>
+			</div>
+		</div>
 
-	<!-- Admin Dashboard Link (visible only to logged-in admins) -->
-	<div id="adminPanel" class="admin-panel" style="display: none;">
-		<a href="admin.html" class="btn-primary">Admin Dashboard</a>
-		<button id="logoutBtn" class="btn-logout">Logout</button>
+		<div id="mydiaryModal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('mydiary')">&times;</span>
+				<h3>My Diary</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/h3dSFg3/20210120-141139987-i-OS.jpg" alt="Diary 1">
+				</div>
+			</div>
+		</div>
+
+		<div id="story11Modal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('story11')">&times;</span>
+				<h3>Story 11</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/TBVwYmmR/1755328562-1684699982584.jpg" alt="Story 11">
+				</div>
+			</div>
+		</div>
+
+		<div id="story10Modal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('story10')">&times;</span>
+				<h3>Story 10</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/RprzwVhJ/lost-memoris-1729700907404.jpg" alt="Story 10">
+				</div>
+			</div>
+		</div>
+
+		<div id="photo2Modal" class="modal">
+			<div class="modal-content-highlight">
+				<span class="modal-close" onclick="closeHighlightModal('photo2')">&times;</span>
+				<h3>2: Photography</h3>
+				<div class="modal-gallery">
+					<img src="https://i.ibb.co.com/TM9y26SW/DSC0312.jpg" alt="Photo 2">
+				</div>
+			</div>
+		</div>
+
+		<!-- Tabs -->
+		<div class="tabs">
+			<div class="tab active" data-section="POSTS">📷 POSTS</div>
+			<div class="tab" data-section="REELS">🎬 REELS</div>
+			<div class="tab" data-section="SAVED">❤️ SAVED</div>
+			<div class="tab" data-section="TAGGED">👤 TAGGED</div>
+		</div>
+
+		<!-- Gallery Grids for each section -->
+		<div class="tab-content active" id="postsGrid">
+			<div class="gallery-grid" id="galleryGrid-POSTS">
+				<div class="loading">লোডিং...</div>
+			</div>
+		</div>
+
+		<div class="tab-content" id="reelsGrid">
+			<div class="gallery-grid" id="galleryGrid-REELS">
+				<div class="loading">লোডিং...</div>
+			</div>
+		</div>
+
+		<div class="tab-content" id="savedGrid">
+			<div class="gallery-grid" id="galleryGrid-SAVED">
+				<div class="loading">লোডিং...</div>
+			</div>
+		</div>
+
+		<div class="tab-content" id="taggedGrid">
+			<div class="gallery-grid" id="galleryGrid-TAGGED">
+				<div class="loading">লোডিং...</div>
+			</div>
+		</div>
+
+		<!-- Lightbox for viewing images -->
+		<div id="lightbox" class="lightbox">
+			<span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+			<span class="lightbox-nav lightbox-prev" onclick="prevImage()">&#10094;</span>
+			<div class="lightbox-content">
+				<div class="lightbox-image-container">
+					<img id="lightboxImage" class="lightbox-image" src="" alt="Image">
+				</div>
+				<div class="lightbox-info">
+					<div class="lightbox-title" id="lightboxTitle">ছবির শিরোনাম</div>
+					<div class="lightbox-description" id="lightboxDescription">ছবির বিবরণ</div>
+					<div class="lightbox-divider"></div>
+					<div class="lightbox-counter">
+						<span id="imageCounter">1</span> / <span id="totalCounter">1</span>
+					</div>
+				</div>
+			</div>
+			<span class="lightbox-nav lightbox-next" onclick="nextImage()">&#10095;</span>
+		</div>
 	</div>
 
-	<!-- Bottom-Center Login Button (visible only when logged out) -->
-	<div id="loginPanel" class="admin-panel bottom-center" style="display: none;">
-		<button id="loginFloatingBtn" class="btn-primary">Login</button>
-	</div>
+	<script>
+		// Supabase Configuration
+		const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+		const TABLE_NAME = 'post_site';
 
-	<!-- Scripts -->
-	<script src="config.js?v=2"></script>
-	<script src="supabase-client.js?v=2"></script>
-	<script src="gallery.js?v=2"></script>
+		// SupabaseClient class
+		class SupabaseClient {
+			constructor(url, key) {
+				this.url = url;
+				this.key = key;
+			}
+
+			async getPostsBySections() {
+				try {
+					const url = `${this.url}/rest/v1/${TABLE_NAME}?select=*&order=created_at.desc`;
+					console.log('Fetching from:', url);
+					
+					const response = await fetch(url, {
+						headers: {
+							'apikey': this.key,
+							'Authorization': `Bearer ${this.key}`,
+							'Content-Type': 'application/json',
+							'Accept': 'application/json'
+						},
+						mode: 'cors'
+					});
+
+					if (!response.ok) {
+						const errorText = await response.text();
+						console.error('API Error:', response.status, errorText);
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+
+					const posts = await response.json();
+					console.log('Posts fetched:', posts);
+					
+					// Group posts by section
+					const sections = {
+						'POSTS': [],
+						'REELS': [],
+						'SAVED': [],
+						'TAGGED': []
+					};
+
+					posts.forEach(post => {
+						const section = post.section ? post.section.toUpperCase().trim() : 'TAGGED';
+						// If section doesn't match known sections, put in TAGGED
+						if (sections.hasOwnProperty(section)) {
+							sections[section].push(post);
+						} else {
+							sections['TAGGED'].push(post);
+						}
+					});
+
+					console.log('Organized sections:', sections);
+					return sections;
+				} catch (error) {
+					console.error('Error fetching posts:', error);
+					return {
+						'POSTS': [],
+						'REELS': [],
+						'SAVED': [],
+						'TAGGED': []
+					};
+				}
+			}
+		}
+
+		const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+		// Load and organize posts
+		async function loadPosts() {
+			const sections = await supabase.getPostsBySections();
+			
+			// Render each section
+			Object.keys(sections).forEach(section => {
+				renderGallery(section, sections[section]);
+			});
+		}
+
+		// Render gallery for a section
+		function renderGallery(section, posts) {
+			const gridId = `galleryGrid-${section}`;
+			const grid = document.getElementById(gridId);
+			
+			if (!grid) return;
+
+			if (posts.length === 0) {
+				grid.innerHTML = '<div class="loading">এই বিভাগে কোন পোস্ট নেই</div>';
+				return;
+			}
+
+			// Store posts data globally
+			currentPostsData = posts;
+
+			grid.innerHTML = posts.map((post, index) => {
+				const escapedTitle = (post.title || '').replace(/"/g, '&quot;');
+				const postDataJson = JSON.stringify(post);
+				
+				return `
+					<div class="gallery-item" title="${escapedTitle}">
+						<img src="${post.image_url}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" onerror="this.src='https://via.placeholder.com/300?text=Image+Error'">
+					</div>
+				`;
+			}).join('');
+
+			// Add click event listeners
+			grid.querySelectorAll('.gallery-image').forEach((img, idx) => {
+				img.addEventListener('click', function() {
+					const index = parseInt(this.getAttribute('data-post-index'));
+					const total = parseInt(this.getAttribute('data-total'));
+					const postDataJson = this.getAttribute('data-post');
+					const postData = JSON.parse(postDataJson);
+					openLightbox(this.src, index, total, postData);
+				});
+			});
+		}
+
+		// Lightbox variables
+		let currentLightboxImages = [];
+		let currentImageIndex = 0;
+		let currentPostsData = [];
+
+		// Open lightbox
+		function openLightbox(imageSrc, index, total, postData) {
+			const lightbox = document.getElementById('lightbox');
+			const lightboxImage = document.getElementById('lightboxImage');
+			const lightboxTitle = document.getElementById('lightboxTitle');
+			const lightboxDescription = document.getElementById('lightboxDescription');
+			const imageCounter = document.getElementById('imageCounter');
+			const totalCounter = document.getElementById('totalCounter');
+
+			lightboxImage.src = imageSrc;
+			lightboxTitle.textContent = postData.title || 'শিরোনাম নেই';
+			lightboxDescription.textContent = postData.description || 'বিবরণ নেই';
+			currentImageIndex = index;
+			currentLightboxImages = Array.from(document.querySelectorAll('.tab-content.active .gallery-item img'));
+			
+			imageCounter.textContent = index + 1;
+			totalCounter.textContent = total;
+			
+			lightbox.classList.add('active');
+			document.body.style.overflow = 'hidden';
+		}
+
+		// Close lightbox
+		function closeLightbox() {
+			const lightbox = document.getElementById('lightbox');
+			lightbox.classList.remove('active');
+			document.body.style.overflow = 'auto';
+		}
+
+		// Next image in lightbox
+		function nextImage() {
+			if (currentLightboxImages.length === 0) return;
+			
+			currentImageIndex = (currentImageIndex + 1) % currentLightboxImages.length;
+			const nextImageSrc = currentLightboxImages[currentImageIndex].src;
+			const nextPostData = currentPostsData[currentImageIndex];
+			const lightboxImage = document.getElementById('lightboxImage');
+			const lightboxTitle = document.getElementById('lightboxTitle');
+			const lightboxDescription = document.getElementById('lightboxDescription');
+			const imageCounter = document.getElementById('imageCounter');
+			
+			lightboxImage.src = nextImageSrc;
+			lightboxTitle.textContent = nextPostData.title || 'শিরোনাম নেই';
+			lightboxDescription.textContent = nextPostData.description || 'বিবরণ নেই';
+			imageCounter.textContent = currentImageIndex + 1;
+		}
+
+		// Previous image in lightbox
+		function prevImage() {
+			if (currentLightboxImages.length === 0) return;
+			
+			currentImageIndex = (currentImageIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
+			const prevImageSrc = currentLightboxImages[currentImageIndex].src;
+			const prevPostData = currentPostsData[currentImageIndex];
+			const lightboxImage = document.getElementById('lightboxImage');
+			const lightboxTitle = document.getElementById('lightboxTitle');
+			const lightboxDescription = document.getElementById('lightboxDescription');
+			const imageCounter = document.getElementById('imageCounter');
+			
+			lightboxImage.src = prevImageSrc;
+			lightboxTitle.textContent = prevPostData.title || 'শিরোনাম নেই';
+			lightboxDescription.textContent = prevPostData.description || 'বিবরণ নেই';
+			imageCounter.textContent = currentImageIndex + 1;
+		}
+
+		// Close lightbox on ESC key
+		document.addEventListener('keydown', function(event) {
+			if (event.key === 'Escape') {
+				closeLightbox();
+			}
+			if (event.key === 'ArrowRight') {
+				nextImage();
+			}
+			if (event.key === 'ArrowLeft') {
+				prevImage();
+			}
+		});
+
+		// Close lightbox when clicking outside
+		document.getElementById('lightbox').addEventListener('click', function(event) {
+			if (event.target === this) {
+				closeLightbox();
+			}
+		});
+
+		// Tab switching
+		document.querySelectorAll('.tab').forEach(tab => {
+			tab.addEventListener('click', function() {
+				const section = this.getAttribute('data-section');
+				
+				// Update active tab
+				document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+				this.classList.add('active');
+				
+				// Update active tab content
+				document.querySelectorAll('.tab-content').forEach(content => {
+					content.classList.remove('active');
+				});
+				
+				const sectionMap = {
+					'POSTS': 'postsGrid',
+					'REELS': 'reelsGrid',
+					'SAVED': 'savedGrid',
+					'TAGGED': 'taggedGrid'
+				};
+				
+				const contentId = sectionMap[section];
+				if (contentId) {
+					document.getElementById(contentId).classList.add('active');
+				}
+			});
+		});
+
+		// Highlight Modal Functions
+		function openHighlightModal(type) {
+			const modalMap = {
+				'tea': 'teaModal',
+				'book': 'bookModal',
+				'photography': 'photographyModal',
+				'mydiary': 'mydiaryModal',
+				'story11': 'story11Modal',
+				'story10': 'story10Modal',
+				'photo2': 'photo2Modal'
+			};
+			const modalId = modalMap[type];
+			if (modalId) {
+				document.getElementById(modalId).style.display = 'block';
+			}
+		}
+
+		function closeHighlightModal(type) {
+			const modalMap = {
+				'tea': 'teaModal',
+				'book': 'bookModal',
+				'photography': 'photographyModal',
+				'mydiary': 'mydiaryModal',
+				'story11': 'story11Modal',
+				'story10': 'story10Modal',
+				'photo2': 'photo2Modal'
+			};
+			const modalId = modalMap[type];
+			if (modalId) {
+				document.getElementById(modalId).style.display = 'none';
+			}
+		}
+
+		// Close modal when clicking outside
+		window.addEventListener('click', function(event) {
+			const teaModal = document.getElementById('teaModal');
+			const bookModal = document.getElementById('bookModal');
+			const photographyModal = document.getElementById('photographyModal');
+			const mydiaryModal = document.getElementById('mydiaryModal');
+			const story11Modal = document.getElementById('story11Modal');
+			const story10Modal = document.getElementById('story10Modal');
+			const photo2Modal = document.getElementById('photo2Modal');
+			
+			if (event.target === teaModal) {
+				teaModal.style.display = 'none';
+			}
+			if (event.target === bookModal) {
+				bookModal.style.display = 'none';
+			}
+			if (event.target === photographyModal) {
+				photographyModal.style.display = 'none';
+			}
+			if (event.target === mydiaryModal) {
+				mydiaryModal.style.display = 'none';
+			}
+			if (event.target === story11Modal) {
+				story11Modal.style.display = 'none';
+			}
+			if (event.target === story10Modal) {
+				story10Modal.style.display = 'none';
+			}
+			if (event.target === photo2Modal) {
+				photo2Modal.style.display = 'none';
+			}
+		});
+
+		// Load posts when page loads
+		document.addEventListener('DOMContentLoaded', loadPosts);
+	</script>
 </body>
 </html>
