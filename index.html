@@ -92,9 +92,8 @@
 	</script>
 	
 	<!-- Security Headers -->
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https://vbfckjroisrhplrpqzkd.supabase.co; font-src 'self' data:; frame-src 'self';">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https://vbfckjroisrhplrpqzkd.supabase.co https://i.ibb.co.com; font-src 'self' data:; frame-src 'self';">
 	<meta http-equiv="X-Content-Type-Options" content="nosniff">
-	<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 	<meta name="referrer" content="no-referrer-when-downgrade">
 	<style>
 		* {
@@ -601,6 +600,30 @@
 			border-top: 1px solid #e5e5e5;
 		}
 
+		.lightbox-download-btn {
+			background: linear-gradient(135deg, #ff99cc 0%, #ffb3d9 100%);
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 6px;
+			cursor: pointer;
+			font-weight: 600;
+			font-size: 14px;
+			transition: all 0.3s ease;
+			width: 100%;
+			margin: 10px 0;
+		}
+
+		.lightbox-download-btn:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(255, 153, 204, 0.4);
+			background: linear-gradient(135deg, #ff88bb 0%, #ffa3c9 100%);
+		}
+
+		.lightbox-download-btn:active {
+			transform: translateY(0);
+		}
+
 		/* Responsive lightbox */
 		@media (max-width: 1024px) {
 			.lightbox-content {
@@ -1072,6 +1095,7 @@
 					<div class="lightbox-title" id="lightboxTitle">Description</div>
 					<div class="lightbox-description" id="lightboxDescription">Description</div>
 					<div class="lightbox-divider"></div>
+					<button class="lightbox-download-btn" onclick="downloadImage()">⬇️ Download</button>
 					<div class="lightbox-counter">
 						<span id="imageCounter">1</span> / <span id="totalCounter">1</span>
 					</div>
@@ -1325,6 +1349,74 @@
 				closeLightbox();
 			}
 		});
+
+		// Download image function - Simple and Direct
+		function downloadImage() {
+			const imageUrl = document.getElementById('lightboxImage').src;
+			const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
+			
+			if (!imageUrl) {
+				alert('ছবি পাওয়া যায়নি');
+				return;
+			}
+			
+			try {
+				// Extract file extension from URL or use jpg as default
+				let filename = imageTitle;
+				
+				// Get extension from URL if possible
+				const urlParts = imageUrl.split('.');
+				let extension = '.jpg';
+				
+				if (urlParts.length > 1) {
+					const possibleExt = urlParts[urlParts.length - 1].split(/[?#]/)[0];
+					if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(possibleExt.toLowerCase())) {
+						extension = '.' + possibleExt;
+					}
+				}
+				
+				if (!filename.includes('.')) {
+					filename = filename + extension;
+				}
+				
+				// Method 1: Try using fetch with no-cors mode
+				fetch(imageUrl, { mode: 'no-cors' })
+					.then(response => response.blob())
+					.then(blob => {
+						const blobUrl = URL.createObjectURL(blob);
+						triggerDownload(blobUrl, filename);
+						URL.revokeObjectURL(blobUrl);
+					})
+					.catch(() => {
+						// Method 2: Direct link download
+						triggerDownload(imageUrl, filename);
+					});
+				
+			} catch (error) {
+				console.error('Download error:', error);
+				// Fallback: Direct download
+				const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
+				const imageUrl = document.getElementById('lightboxImage').src;
+				triggerDownload(imageUrl, imageTitle);
+			}
+		}
+		
+		// Helper function to trigger download
+		function triggerDownload(url, filename) {
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = filename;
+			link.style.display = 'none';
+			document.body.appendChild(link);
+			
+			// Trigger click
+			link.click();
+			
+			// Cleanup
+			setTimeout(() => {
+				document.body.removeChild(link);
+			}, 100);
+		}
 
 		// Tab switching
 		document.querySelectorAll('.tab').forEach(tab => {
