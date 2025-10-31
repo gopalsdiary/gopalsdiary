@@ -68,3 +68,16 @@ class ImgBBUploader {
 
 // Initialize ImgBB uploader
 const imgbbUploader = new ImgBBUploader(IMGBB_API_KEY);
+
+// Helper function to upload image to ImgBB
+async function uploadToImgBB(file) {
+    try {
+        console.log('📤 Uploading to ImgBB:', file.name);
+        const url = await imgbbUploader.uploadImage(file);
+        console.log('✅ Upload successful:', url);
+        return url;
+    } catch (error) {
+        console.error('❌ Upload failed:', error.message);
+        throw error;
+    }
+}

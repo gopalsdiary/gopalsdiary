@@ -583,7 +583,8 @@
         <aside class="sidebar">
             <h3>📚 Select Table</h3>
             <div class="table-grid">
-                <button class="table-btn active" onclick="selectTable('bangla_quotes_1')">Bangla 1</button>
+                <button class="table-btn active" onclick="selectTable('post_site')">Posts</button>
+                <button class="table-btn" onclick="selectTable('bangla_quotes_1')">Bangla 1</button>
                 <button class="table-btn" onclick="selectTable('bangla_quotes_2')">Bangla 2</button>
                 <button class="table-btn" onclick="selectTable('bangla_quotes_3')">Bangla 3</button>
                 <button class="table-btn" onclick="selectTable('bangla_quotes_4')">Bangla 4</button>
@@ -591,13 +592,14 @@
                 <button class="table-btn" onclick="selectTable('photography_2')">Photo 2</button>
                 <button class="table-btn" onclick="selectTable('photography_3')">Photo 3</button>
                 <button class="table-btn" onclick="selectTable('photography_4')">Photo 4</button>
-                <button class="table-btn" onclick="selectTable('post_site')">Posts</button>
                 <button class="table-btn" onclick="selectTable('dotted_illustration_1')">Dotted 1</button>
                 <button class="table-btn" onclick="selectTable('dotted_illustration_2')">Dotted 2</button>
                 <button class="table-btn" onclick="selectTable('illustration_1')">Illus 1</button>
                 <button class="table-btn" onclick="selectTable('illustration_2')">Illus 2</button>
                 <button class="table-btn" onclick="selectTable('english_quote_1')">English 1</button>
                 <button class="table-btn" onclick="selectTable('english_quote_2')">English 2</button>
+                <h3 style="width:100%; margin-top:10px;">⚙ Settings</h3>
+                <button class="table-btn" onclick="selectTable('id_password')">Credentials</button>
             </div>
         </aside>
 
@@ -613,13 +615,13 @@
                 </div>
                 <form id="addPhotoForm" class="photo-form">
                     <div class="form-group">
-                        <label for="photoTitle">Title *</label>
-                        <input type="text" id="photoTitle" placeholder="Enter title" required>
+                        <label for="photoTitle">Title</label>
+                        <input type="text" id="photoTitle" placeholder="Enter title">
                     </div>
 
                     <div class="form-group">
-                        <label for="photoDescription">Description *</label>
-                        <textarea id="photoDescription" placeholder="Enter description" required></textarea>
+                        <label for="photoDescription">Description</label>
+                        <textarea id="photoDescription" placeholder="Enter description"></textarea>
                     </div>
 
                     <!-- Dropdown Section for Post Site -->
@@ -641,9 +643,15 @@
                     </div>
 
                     <div class="form-group full">
-                        <label for="photoFile">Upload Image *</label>
-                        <input type="file" id="photoFile" accept="image/*" required>
+                        <label for="photoFile">Upload Image (File) or Direct URL</label>
+                        <input type="file" id="photoFile" accept="image/*">
                         <small>Supported formats: JPG, PNG, GIF, WebP (Max 32MB)</small>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="photoUrl">Image URL (Direct Link)</label>
+                        <input type="url" id="photoUrl" placeholder="https://example.com/image.jpg">
+                        <small>Tip: If upload fails or you already have a direct link, paste it here. At least one is required: file or URL.</small>
                     </div>
 
                     <div class="form-group full">
@@ -660,7 +668,7 @@
 
         <!-- Photos Management Section -->
         <section class="admin-section">
-            <h2>📷 Manage Items</h2>
+            <h2 id="sectionTitle">📷 Manage Items</h2>
             
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Search by title or description...">
@@ -685,13 +693,13 @@
                 <input type="hidden" id="editPhotoId">
                 
                 <div class="form-group full">
-                    <label for="editPhotoTitle">Title *</label>
-                    <input type="text" id="editPhotoTitle" required>
+                    <label for="editPhotoTitle">Title</label>
+                    <input type="text" id="editPhotoTitle">
                 </div>
 
                 <div class="form-group full">
-                    <label for="editPhotoDescription">Description *</label>
-                    <textarea id="editPhotoDescription" required></textarea>
+                    <label for="editPhotoDescription">Description</label>
+                    <textarea id="editPhotoDescription"></textarea>
                 </div>
 
                 <div class="form-group full" id="editSectionGroupDropdown" style="display: none;">
@@ -716,6 +724,12 @@
                     <small>Leave empty to keep current image</small>
                 </div>
 
+                <div class="form-group full">
+                    <label for="editPhotoUrl">Image URL (Direct Link) - Optional</label>
+                    <input type="url" id="editPhotoUrl" placeholder="https://example.com/image.jpg">
+                    <small>Paste a direct image URL to replace the current image without upload.</small>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Save Changes</button>
                     <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
@@ -729,7 +743,7 @@
     <script src="supabase-client.js?v=2"></script>
     <script src="imgbb-upload.js?v=2"></script>
     <script>
-        let currentTable = 'bangla_quotes_1';
+        let currentTable = 'post_site';
         const tableNames = {
             'bangla_quotes_1': 'Bangla Quotes 1',
             'bangla_quotes_2': 'Bangla Quotes 2',
@@ -746,6 +760,7 @@
             'illustration_2': 'Illustration 2',
             'english_quote_1': 'English Quote 1',
             'english_quote_2': 'English Quote 2',
+            'id_password': 'Credentials',
         };
 
         const tablesWithSection = ['post_site', 'photography_1', 'photography_2', 'photography_3', 'photography_4', 'dotted_illustration_1', 'dotted_illustration_2', 'illustration_1', 'illustration_2', 'english_quote_1', 'english_quote_2'];
@@ -817,6 +832,20 @@
             document.getElementById('addPhotoForm').reset();
             document.getElementById('uploadStatus').classList.remove('success', 'error');
             
+            // Toggle Add button and section title for credentials view
+            const addBtn = document.getElementById('addNewBtn');
+            const isCredentials = currentTable === 'id_password';
+            if (addBtn) addBtn.style.display = isCredentials ? 'none' : 'inline-block';
+
+            const titleEl = document.getElementById('sectionTitle');
+            if (titleEl) titleEl.textContent = isCredentials ? '⚙ Settings — Credentials' : '📷 Manage Items';
+
+            // Update search placeholder (informational; search is global)
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = isCredentials ? 'Search by user_id...' : 'Search by title or description...';
+            }
+
             loadPhotos();
         }
 
@@ -861,7 +890,7 @@
 
                 // Small delay for smooth transition
                 requestAnimationFrame(() => {
-                    displayPhotos();
+                    renderCurrentView();
                     createPagination();
                     grid.style.opacity = '1';
                     loading?.classList.remove('active');
@@ -871,6 +900,15 @@
                 grid.innerHTML = `<p style="color: red; grid-column: 1/-1;">Error loading items: ${error.message}</p>`;
                 grid.style.opacity = '1';
                 loading?.classList.remove('active');
+            }
+        }
+
+        // Render router for current table
+        function renderCurrentView() {
+            if (currentTable === 'id_password') {
+                displayCredentials();
+            } else {
+                displayPhotos();
             }
         }
 
@@ -920,6 +958,48 @@
             });
         }
 
+        // Display id_password table (read-only)
+        function displayCredentials() {
+            const grid = document.getElementById('photosGrid');
+
+            if (allPhotos.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">No items yet</p>';
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginated = allPhotos.slice(startIndex, endIndex);
+
+            // Build a simple table
+            const rows = paginated.map((row) => `
+                <tr>
+                    <td>${row.user_id || ''}</td>
+                    <td>${row.password || ''}</td>
+                    <td>${row.created_at ? new Date(row.created_at).toLocaleString() : ''}</td>
+                </tr>
+            `).join('');
+
+            const tableHtml = `
+                <div style="grid-column: 1/-1; overflow:auto; background:#fff; border:1px solid #e5e5e5; border-radius:8px;">
+                    <table class="credentials-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#fafafa;">
+                                <th style="text-align:left; padding:10px; border-bottom:1px solid #eee; min-width:200px;">User ID</th>
+                                <th style="text-align:left; padding:10px; border-bottom:1px solid #eee; min-width:200px;">Password</th>
+                                <th style="text-align:left; padding:10px; border-bottom:1px solid #eee; min-width:180px;">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            grid.innerHTML = tableHtml;
+        }
+
         // Escape quotes for onclick
         function escapeQuotes(str) {
             return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -945,7 +1025,7 @@
             prevBtn.onclick = () => {
                 if (currentPage > 1) {
                     currentPage--;
-                    displayPhotos();
+                    renderCurrentView();
                     createPagination();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
@@ -966,7 +1046,7 @@
             nextBtn.onclick = () => {
                 if (currentPage < totalPages) {
                     currentPage++;
-                    displayPhotos();
+                    renderCurrentView();
                     createPagination();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
@@ -1002,26 +1082,40 @@
             }
             
             const file = document.getElementById('photoFile').files[0];
+            const directUrlInput = (document.getElementById('photoUrl')?.value || '').trim();
             const statusEl = document.getElementById('uploadStatus');
 
-            if (!title || !description || !file) {
-                statusEl.textContent = '❌ Please fill all required fields';
-                statusEl.classList.add('error');
-                statusEl.classList.remove('success');
-                return;
-            }
 
             try {
-                statusEl.textContent = '⏳ Uploading...';
+                statusEl.textContent = '';
                 statusEl.classList.remove('error', 'success');
 
-                // Upload to ImgBB
-                const imageUrl = await uploadToImgBB(file);
+                let imageUrl = null;
+                // Determine image URL: try file upload first, else use direct URL
+                if (file) {
+                    statusEl.textContent = '⏳ Uploading image...';
+                    try {
+                        imageUrl = await uploadToImgBB(file);
+                    } catch (err) {
+                        console.warn('Upload failed, will try direct URL if provided:', err?.message);
+                        if (directUrlInput) {
+                            imageUrl = directUrlInput;
+                        } else {
+                            throw err;
+                        }
+                    }
+                } else if (directUrlInput) {
+                    imageUrl = directUrlInput;
+                } else {
+                    statusEl.textContent = '❌ Please upload a file or provide a direct image URL';
+                    statusEl.classList.add('error');
+                    return;
+                }
 
-                // Insert to Supabase
+                // Insert to Supabase using REST API
                 const insertData = {
-                    title,
-                    description,
+                    title: title || null,
+                    description: description || null,
                     image_url: imageUrl,
                 };
 
@@ -1029,11 +1123,25 @@
                     insertData.section = section;
                 }
 
-                const { error } = await supabase
-                    .from(currentTable)
-                    .insert([insertData]);
+                // Use REST API for insert with proper headers
+                const accessToken = localStorage.getItem('supabase_access_token');
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?select=*`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=representation',
+                    },
+                    body: JSON.stringify(insertData),
+                });
 
-                if (error) throw error;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to add item');
+                }
+
+                const result = await response.json();
 
                 statusEl.textContent = '✅ Item added successfully!';
                 statusEl.classList.add('success');
@@ -1057,6 +1165,8 @@
             document.getElementById('editPhotoId').value = id;
             document.getElementById('editPhotoTitle').value = title;
             document.getElementById('editPhotoDescription').value = description;
+            const editUrlInput = document.getElementById('editPhotoUrl');
+            if (editUrlInput) editUrlInput.value = '';
             
             // Set section value based on table type
             if (tablesWithDropdownSection.includes(currentTable)) {
@@ -1093,33 +1203,56 @@
             }
             
             const file = document.getElementById('editPhotoFile').files[0];
+            const editDirectUrlInput = (document.getElementById('editPhotoUrl')?.value || '').trim();
 
             try {
                 let imageUrl = null;
 
                 if (file) {
-                    imageUrl = await uploadToImgBB(file);
+                    try {
+                        imageUrl = await uploadToImgBB(file);
+                    } catch (err) {
+                        console.warn('Edit upload failed, will try direct URL if provided:', err?.message);
+                        if (editDirectUrlInput) {
+                            imageUrl = editDirectUrlInput;
+                        } else {
+                            throw err;
+                        }
+                    }
+                } else if (editDirectUrlInput) {
+                    imageUrl = editDirectUrlInput;
                 }
 
                 const updateData = {
-                    title,
-                    description,
+                    title: title || null,
+                    description: description || null,
                 };
 
                 if (imageUrl) {
                     updateData.image_url = imageUrl;
                 }
 
-                if (tablesWithSection.includes(currentTable)) {
+                if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {
                     updateData.section = section;
                 }
 
-                const { error } = await supabase
-                    .from(currentTable)
-                    .update(updateData)
-                    .eq('image_iid', id);
+                // Use REST API for update with proper headers
+                const accessToken = localStorage.getItem('supabase_access_token');
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?image_iid=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=representation',
+                    },
+                    body: JSON.stringify(updateData),
+                });
 
-                if (error) throw error;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to update item');
+                }
 
                 closeEditModal();
                 loadPhotos();
@@ -1133,12 +1266,21 @@
             if (!confirm('Are you sure you want to delete this item?')) return;
 
             try {
-                const { error } = await supabase
-                    .from(currentTable)
-                    .delete()
-                    .eq('image_iid', id);
+                // Use REST API for delete with proper headers
+                const accessToken = localStorage.getItem('supabase_access_token');
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?image_iid=eq.${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
+                    },
+                });
 
-                if (error) throw error;
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete item');
+                }
 
                 loadPhotos();
             } catch (error) {
@@ -1157,6 +1299,8 @@
             const textField = document.getElementById('photoSectionText');
             if (dropdownField) dropdownField.value = '';
             if (textField) textField.value = '';
+            const photoUrlField = document.getElementById('photoUrl');
+            if (photoUrlField) photoUrlField.value = '';
             
             document.getElementById('uploadStatus').innerHTML = '';
             document.getElementById('uploadStatus').classList.remove('success', 'error');

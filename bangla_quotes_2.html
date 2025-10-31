@@ -1036,21 +1036,61 @@
         }
 
         // Download image function
-        function downloadImage() {
+        async function downloadImage() {
             const imageUrl = document.getElementById('lightboxImage').src;
-            const imageTitle = document.getElementById('lightboxTitle').textContent;
+            const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
             
-            if (!imageUrl) return;
+            if (!imageUrl) {
+                alert('Image not found');
+                return;
+            }
             
-            // Create a temporary link element
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = imageTitle || 'image';
-            
-            // Append to body, trigger download, then remove
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            try {
+                // Fetch the image as a blob
+                const response = await fetch(imageUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                
+                // Get file extension from URL or blob type
+                let filename = imageTitle;
+                if (!filename.includes('.')) {
+                    const contentType = blob.type;
+                    const ext = contentType === 'image/jpeg' ? '.jpg' : 
+                               contentType === 'image/png' ? '.png' : 
+                               contentType === 'image/gif' ? '.gif' : 
+                               contentType === 'image/webp' ? '.webp' : '.jpg';
+                    filename = filename + ext;
+                }
+                
+                // Create blob URL and download
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Clean up
+                URL.revokeObjectURL(blobUrl);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Download failed. Trying alternative method...');
+                
+                // Fallback: Direct download attempt
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = imageTitle || 'image';
+                link.setAttribute('target', '_blank');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
         }
 
         // Close lightbox on ESC key
