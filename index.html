@@ -308,15 +308,18 @@
 		}
 
 		.btn {
-			padding: 10px 30px;
+			padding: 12px 30px;
 			border: 1px solid #dbdbdb;
 			background: white;
 			color: #262626;
-			border-radius: 4px;
+			border-radius: 8px;
 			font-weight: 600;
 			cursor: pointer;
 			font-size: 14px;
 			transition: all 0.3s ease;
+			text-decoration: none;
+			display: inline-block;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		}
 
 		.btn:hover {
@@ -350,6 +353,10 @@
 			margin-top: 20px;
 			flex-wrap: wrap;
 			justify-content: center;
+			width: 100%;
+			max-width: 800px;
+			margin-left: auto;
+			margin-right: auto;
 		}
 
 		.btn-orange {
@@ -783,17 +790,40 @@
 			.profile-buttons {
 				gap: 8px;
 			}
+			
+			/* Tablet buttons adjustment */
+			.buttons-section {
+				gap: 10px;
+			}
+			
+			.buttons-section .btn {
+				flex: 1 1 calc(50% - 10px);
+				min-width: 140px;
+			}
+		}
 
+		@media (max-width: 600px) {
 			.btn {
-				padding: 8px 15px;
-				font-size: 12px;
-				min-height: 44px; /* comfortable tap size */
+				padding: 12px 20px;
+				font-size: 13px;
+				min-height: 48px; /* comfortable tap size */
+				font-weight: 600;
 			}
 
 			/* Make nav button rows wrap nicely on phones */
+			.buttons-section {
+				gap: 8px;
+				padding: 0 10px;
+				max-width: 100%;
+			}
+			
 			.buttons-section .btn {
 				flex: 1 1 calc(50% - 8px);
 				text-align: center;
+				min-width: 0;
+				white-space: normal;
+				line-height: 1.4;
+				word-wrap: break-word;
 			}
 		}
 
@@ -802,7 +832,19 @@
 				grid-template-columns: repeat(3, 1fr);
 				gap: 3px;
 			}
-			.buttons-section .btn { flex: 1 1 100%; }
+			
+			.buttons-section {
+				gap: 8px;
+				padding: 0 10px;
+			}
+			
+			.buttons-section .btn { 
+				flex: 1 1 100%;
+				max-width: 100%;
+				min-width: 0;
+				padding: 14px 16px;
+				font-size: 14px;
+			}
 		}
 	</style>
 </head>
@@ -1017,10 +1059,10 @@
 		</div>
 	</div>
 
-	<div class="profile-buttons" style="justify-content: center; flex-direction: column; align-items: center; text-align: center; margin-top: 60px;">
-		<h2 style="font-size: 24px; margin-bottom: 10px; color: #262626;">✨ All Creations Available Here</h2>
-		<p style="font-size: 16px; color: #666; margin-bottom: 5px;">Free to use and share with attribution</p>
-		<p style="font-size: 14px; color: #999;">বাংলা কোটস, ফটোগ্রাফি, ইলাস্ট্রেশন - সব ফ্রি ব্যবহার করুন</p>
+	<div class="profile-buttons" style="justify-content: center; flex-direction: column; align-items: center; text-align: center; margin-top: 60px; padding: 0 15px;">
+		<h2 style="font-size: 24px; margin-bottom: 10px; color: #262626; font-weight: 700;">✨ All Creations Available Here</h2>
+		<p style="font-size: 16px; color: #666; margin-bottom: 5px; font-weight: 500;">Free to use and share with attribution</p>
+		<p style="font-size: 14px; color: #999; margin-bottom: 20px;">বাংলা কোটস, ফটোগ্রাফি, ইলাস্ট্রেশন - সব ফ্রি ব্যবহার করুন</p>
 
 		<div class="buttons-section">
 			<a href="bangla_quotes_1.html" class="btn btn-orange">Bangla Quotes</a>

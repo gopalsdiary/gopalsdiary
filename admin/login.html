@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -72,7 +72,7 @@
 			margin-bottom: 30px;
 		}
 
-		.instagram-logo {
+		.quotes-logo {
 			width: 100px;
 			height: auto;
 			max-height: 150px;
@@ -81,7 +81,7 @@
 			display: block;
 		}
 
-		.instagram-text {
+		.quotes-text {
 			font-size: 40px;
 			font-weight: 300;
 			font-style: italic;
@@ -320,7 +320,7 @@
 				padding: 20px;
 			}
 
-			.instagram-text {
+			.quotes-text {
 				font-size: 32px;
 			}
 		}
@@ -350,7 +350,7 @@
 		<!-- Login Form -->
 		<div class="login-form-wrapper">
 			<div class="logo-section">
-				<img src="instagram.png" alt="Instagram" class="instagram-logo">
+				<img src="gopalsdiary.png" alt="quotes" class="quotes-logo">
 			</div>
 
 			<form id="loginForm" onsubmit="handleLogin(event)">
@@ -406,7 +406,7 @@
 				<span class="close-btn" onclick="closeSignupModal()">&times;</span>
 				
 				<div class="logo-section" style="margin-bottom: 25px;">
-					<img src="instagram.png" alt="Instagram" class="instagram-logo" style="width: 80px; height: auto;">
+					<img src="quotes.png" alt="quotes" class="quotes-logo" style="width: 80px; height: auto;">
 				</div>
 
 				<h2 style="text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 20px; color: #262626;">Create Account</h2>
@@ -415,8 +415,8 @@
 					<div class="form-group">
 						<input 
 							type="text" 
-							id="signupInstagramId" 
-							placeholder="Instagram ID" 
+							id="signupquotesId" 
+							placeholder="quotes ID" 
 							required
 						>
 					</div>
@@ -563,7 +563,7 @@
 		async function handleSignup(event) {
 			event.preventDefault();
 
-			const instagramId = document.getElementById('signupInstagramId').value.trim();
+			const quotesId = document.getElementById('signupquotesId').value.trim();
 			const password = document.getElementById('signupPassword').value;
 			const signupBtn = document.getElementById('signupBtn');
 			const errorMsg = document.getElementById('signupErrorMsg');
@@ -574,7 +574,7 @@
 			successMsg.classList.remove('show');
 
 			// Validate
-			if (!instagramId || !password) {
+			if (!quotesId || !password) {
 				errorMsg.textContent = '❌ Please fill all fields';
 				errorMsg.classList.add('show');
 				return;
@@ -590,7 +590,7 @@
 			signupBtn.disabled = true;
 			signupBtn.innerHTML = '<span class="loading"></span>Creating account...';
 
-			console.log('📝 Creating account for:', instagramId);
+			console.log('📝 Creating account for:', quotesId);
 
 			try {
 				// Save signup data to Supabase id_password table
@@ -602,7 +602,7 @@
 						'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
 					},
 					body: JSON.stringify({
-						user_id: instagramId,
+						user_id: quotesId,
 						password: password,
 					}),
 				});
