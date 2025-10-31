@@ -130,16 +130,16 @@
 		.profile-container {
 			max-width: 935px;
 			margin: 0 auto;
-			padding: 20px;
+			padding: 10px;
 		}
 
 		/* Header */
 		.profile-header {
 			display: grid;
 			grid-template-columns: 150px 1fr;
-			gap: 40px;
-			margin: 40px 0;
-			padding-bottom: 40px;
+			gap: 20px;
+			margin: 20px 0;
+			padding-bottom: 20px;
 			border-bottom: 1px solid #dbdbdb;
 		}
 
@@ -174,7 +174,7 @@
 		.profile-username {
 			font-size: 28px;
 			font-weight: 300;
-			margin-bottom: 10px;
+			margin-bottom: 8px;
 			display: flex;
 			align-items: center;
 			gap: 8px;
@@ -257,9 +257,10 @@
 
 		.profile-stats {
 			display: flex;
-			gap: 40px;
-			margin-bottom: 20px;
+			gap: 25px;
+			margin-bottom: 15px;
 			font-size: 14px;
+			align-items: center;
 		}
 
 		.stat-item {
@@ -272,8 +273,16 @@
 			font-size: 18px;
 		}
 
+		.btn-follow-inline {
+			margin-left: 10px;
+			padding: 6px 12px;
+			font-size: 13px;
+			width: auto;
+			min-width: auto;
+		}
+
 		.profile-bio {
-			margin-top: 15px;
+			margin-top: 8px;
 			font-size: 14px;
 			line-height: 1.5;
 		}
@@ -374,14 +383,14 @@
 
 		/* Highlights Section */
 		.highlights-section {
-			margin: 40px 0;
+			margin: 20px 0;
 		}
 
 		.highlights-title {
 			font-size: 14px;
 			font-weight: 600;
 			color: #999;
-			margin-bottom: 15px;
+			margin-bottom: 10px;
 		}
 
 		.highlights {
@@ -715,13 +724,13 @@
 		@media (max-width: 768px) {
 			.profile-header {
 				grid-template-columns: 1fr;
-				gap: 20px;
+				gap: 15px;
 				text-align: center;
 			}
 
 			.profile-header-top {
 				justify-content: center;
-				margin-bottom: 15px;
+				margin-bottom: 10px;
 			}
 
 			.profile-avatar img {
@@ -731,7 +740,17 @@
 
 			.profile-stats {
 				justify-content: center;
-				gap: 30px;
+				gap: 20px;
+				flex-wrap: wrap;
+			}
+
+			.btn-follow-inline {
+				margin-left: 0;
+				margin-top: 8px;
+				width: auto;
+				max-width: none;
+				padding: 6px 14px;
+				font-size: 12px;
 			}
 
 			.gallery-grid {
@@ -761,12 +780,12 @@
 
 		@media (max-width: 480px) {
 			.profile-container {
-				padding: 10px;
+				padding: 8px;
 			}
 
 			.profile-header {
-				margin: 20px 0;
-				padding-bottom: 20px;
+				margin: 10px 0;
+				padding-bottom: 15px;
 			}
 
 			.profile-username {
@@ -774,12 +793,19 @@
 			}
 
 			.profile-stats {
-				gap: 20px;
+				gap: 15px;
 				font-size: 12px;
 			}
 
 			.stat-number {
 				font-size: 16px;
+			}
+
+			.btn-follow-inline {
+				font-size: 12px;
+				padding: 5px 12px;
+				width: auto;
+				min-width: auto;
 			}
 
 			.gallery-grid {
@@ -883,6 +909,7 @@
 						<span class="stat-number">275</span>
 						<span>following</span>
 					</div>
+					<a href="https://instagram.com/gopals_diary" target="_blank" class="btn btn-follow-inline">Follow</a>
 				</div>
 
 				<div class="profile-bio">
@@ -890,11 +917,6 @@
 					<p>Believe in the creation!</p>
 					<p>আমার, প্রিয় বল প্রিয় বল ডেকে 💗😘</p>
 					<p><a href="https://sites.google.com/view/gopals-diary" class="profile-link" target="_blank">sites.google.com/view/gopals-diary</a></p>
-				</div>
-
-				<!-- Buttons -->
-				<div class="profile-buttons">
-					<a href="https://instagram.com/gopals_diary" target="_blank" class="btn">Follow</a>
 				</div>
 			</div>
 		</div>
