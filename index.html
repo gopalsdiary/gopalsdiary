@@ -221,6 +221,28 @@
 			background: #ff9933;
 		}
 
+		/* Buttons section - inline display */
+		.buttons-section {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.btn-orange {
+			background: #f09031;
+		}
+
+		.btn-pink {
+			background: #ffb3d9;
+			color: #262626;
+		}
+
+		.btn-pink:hover {
+			background: #ff99cc;
+		}
+
 		/* Highlights Section */
 		.highlights-section {
 			margin: 40px 0;
@@ -677,11 +699,6 @@
 
 				<!-- Buttons -->
 				<div class="profile-buttons">
-					<a href="bangla_quotes_1.html" class="btn btn-orange">Bangla Quotes</a>
-					<a href="bangla_quotes_2.html" class="btn btn-orange">Bangla Quotes 2</a>
-					<a href="photography_1.html" class="btn btn-orange">📸 Photography</a>
-					<a href="photography_2.html" class="btn btn-orange">📸 Photography 2</a>
-
 					<a href="https://instagram.com/gopals_diary" target="_blank" class="btn">↗️ Follow</a>
 				</div>
 			</div>
@@ -804,25 +821,25 @@
 		<!-- Gallery Grids for each section -->
 		<div class="tab-content active" id="postsGrid">
 			<div class="gallery-grid" id="galleryGrid-POSTS">
-				<div class="loading">লোডিং...</div>
+				<div class="loading">loading...</div>
 			</div>
 		</div>
 
 		<div class="tab-content" id="reelsGrid">
 			<div class="gallery-grid" id="galleryGrid-REELS">
-				<div class="loading">লোডিং...</div>
+				<div class="loading">loading...</div>
 			</div>
 		</div>
 
 		<div class="tab-content" id="savedGrid">
 			<div class="gallery-grid" id="galleryGrid-SAVED">
-				<div class="loading">লোডিং...</div>
+				<div class="loading">loading...</div>
 			</div>
 		</div>
 
 		<div class="tab-content" id="taggedGrid">
 			<div class="gallery-grid" id="galleryGrid-TAGGED">
-				<div class="loading">লোডিং...</div>
+				<div class="loading">loading...</div>
 			</div>
 		</div>
 
@@ -835,8 +852,8 @@
 					<img id="lightboxImage" class="lightbox-image" src="" alt="Image">
 				</div>
 				<div class="lightbox-info">
-					<div class="lightbox-title" id="lightboxTitle">ছবির শিরোনাম</div>
-					<div class="lightbox-description" id="lightboxDescription">ছবির বিবরণ</div>
+					<div class="lightbox-title" id="lightboxTitle">Description</div>
+					<div class="lightbox-description" id="lightboxDescription">Description</div>
 					<div class="lightbox-divider"></div>
 					<div class="lightbox-counter">
 						<span id="imageCounter">1</span> / <span id="totalCounter">1</span>
@@ -845,6 +862,41 @@
 			</div>
 			<span class="lightbox-nav lightbox-next" onclick="nextImage()">&#10095;</span>
 		</div>
+	</div>
+
+	<div class="profile-buttons" style="justify-content: center; flex-direction: column; align-items: center; text-align: center;">
+		<p>All Creation here</p>
+		<p>You can re-use these content.</p>
+
+		<div class="buttons-section">
+			<a href="bangla_quotes_1.html" class="btn btn-orange">Bangla Quotes</a>
+			<a href="bangla_quotes_2.html" class="btn btn-pink">Bangla Quotes 2</a>
+			<a href="bangla_quotes_3.html" class="btn btn-orange">Bangla Quotes 3</a>
+			<a href="bangla_quotes_4.html" class="btn btn-pink">Bangla Quotes 4</a>
+		</div>
+
+		<div class="buttons-section">
+			<a href="photography_1.html" class="btn btn-orange">Photography</a>
+			<a href="photography_2.html" class="btn btn-pink">Photography 2</a>
+			<a href="photography_3.html" class="btn btn-orange">Photography 3</a>
+			<a href="photography_4.html" class="btn btn-pink">Photography 4</a>
+		</div>
+
+		<div class="buttons-section">
+			<a href="english_quotes_1.html" class="btn btn-orange">English Quotes</a>
+			<a href="english_quotes_2.html" class="btn btn-pink">English Quotes 2</a>
+		</div>
+
+		<div class="buttons-section">
+			<a href="illustration_1.html" class="btn btn-orange">Illustration</a>
+			<a href="illustration_2.html" class="btn btn-pink">Illustration 2</a>
+		</div>
+
+		<div class="buttons-section">
+			<a href="dotted_illustration_1.html" class="btn btn-orange">Dotted Illustration</a>
+			<a href="dotted_illustration_2.html" class="btn btn-pink">Dotted Illustration 2</a>
+		</div>
+
 	</div>
 
 	<script>

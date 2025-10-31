@@ -974,8 +974,8 @@
             const totalCounter = document.getElementById('totalCounter');
 
             lightboxImage.src = imageSrc;
-            lightboxTitle.textContent = photoData.title || 'শিরোনাম নেই';
-            lightboxDescription.textContent = photoData.description || 'বিবরণ নেই';
+            lightboxTitle.textContent = photoData.title || 'gopals_diary';
+            lightboxDescription.textContent = photoData.description || '-';
             currentImageIndex = index;
             
             // Get all photo cards from current gallery
@@ -1010,8 +1010,8 @@
             const imageCounter = document.getElementById('imageCounter');
             
             lightboxImage.src = nextImageSrc;
-            lightboxTitle.textContent = photoData.title || 'শিরোনাম নেই';
-            lightboxDescription.textContent = photoData.description || 'বিবরণ নেই';
+            lightboxTitle.textContent = photoData.title || 'gopals_diary';
+            lightboxDescription.textContent = photoData.description || '-';
             imageCounter.textContent = currentImageIndex + 1;
         }
 
@@ -1030,8 +1030,8 @@
             const imageCounter = document.getElementById('imageCounter');
             
             lightboxImage.src = prevImageSrc;
-            lightboxTitle.textContent = photoData.title || 'শিরোনাম নেই';
-            lightboxDescription.textContent = photoData.description || 'বিবরণ নেই';
+            lightboxTitle.textContent = photoData.title || 'goapls_diary';
+            lightboxDescription.textContent = photoData.description || '-';
             imageCounter.textContent = currentImageIndex + 1;
         }
 
@@ -1121,7 +1121,8 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, m => map[m]);
+            const str = (text === null || text === undefined) ? '' : String(text);
+            return str.replace(/[&<>"']/g, m => map[m]);
         }
 
         function updatePaginationInfo() {
