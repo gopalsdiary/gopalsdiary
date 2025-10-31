@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gopals Diary - Admin Login</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+			background: #fff;
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 20px;
+		}
+
+		.login-container {
+			display: flex;
+			gap: 30px;
+			max-width: 950px;
+			width: 100%;
+			align-items: center;
+		}
+
+		.phone-mockup {
+			flex: 1;
+			display: none;
+			justify-content: center;
+			align-items: center;
+		}
+
+		@media (min-width: 900px) {
+			.phone-mockup {
+				display: flex;
+			}
+
+			body {
+				background: #fafafa;
+			}
+		}
+
+		.phone-frame {
+			width: 280px;
+			height: 560px;
+			background: white;
+			border-radius: 40px;
+			border: 12px solid #000;
+			padding: 12px;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.phone-frame::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 150px;
+			height: 25px;
+			background: #000;
+			border-radius: 0 0 30px 30px;
+			z-index: 10;
+		}
+
+		.phone-screen {
+			width: 100%;
+			height: 100%;
+			background: white;
+			border-radius: 32px;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.carousel-container {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.carousel-image {
+			position: absolute;
+			width: 70%;
+			height: 70%;
+			object-fit: cover;
+			border-radius: 16px;
+			opacity: 0;
+			transition: opacity 0.8s ease-in-out;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+		}
+
+		.carousel-image.active {
+			opacity: 1;
+		}
+
+		.carousel-image:nth-child(1) {
+			transform: rotate(-12deg) translateX(-80px) translateY(-20px);
+		}
+
+		.carousel-image.active:nth-child(1) {
+			transform: rotate(-12deg) translateX(0) translateY(0);
+		}
+
+		.carousel-image:nth-child(2) {
+			transform: rotate(-5deg) translateX(50px) translateY(30px);
+		}
+
+		.carousel-image.active:nth-child(2) {
+			transform: rotate(0deg) translateX(0) translateY(0);
+		}
+
+		.carousel-image:nth-child(3) {
+			transform: rotate(8deg) translateX(-60px) translateY(50px);
+		}
+
+		.carousel-image.active:nth-child(3) {
+			transform: rotate(0deg) translateX(0) translateY(0);
+		}
+
+		.carousel-dots {
+			position: absolute;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			gap: 8px;
+			z-index: 5;
+		}
+
+		.carousel-dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.5);
+			cursor: pointer;
+			transition: background 0.3s;
+		}
+
+		.carousel-dot.active {
+			background: white;
+		}
+
+		.login-form-wrapper {
+			flex: 1;
+			background: white;
+			border: 1px solid #e5e5e5;
+			border-radius: 0;
+			padding: 40px 40px;
+			box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+			max-width: 380px;
+			width: 100%;
+		}
+
+		@media (max-width: 899px) {
+			.login-form-wrapper {
+				max-width: 100%;
+				border: 1px solid #e5e5e5;
+				border-radius: 0;
+			}
+		}
+
+		.logo-section {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.instagram-text {
+			font-size: 28px;
+			font-weight: 300;
+			font-style: italic;
+			color: #000;
+			font-family: 'Brush Script MT', cursive, -apple-system;
+			letter-spacing: -1px;
+			margin-bottom: 10px;
+		}
+
+		.subtitle {
+			font-size: 13px;
+			color: #999;
+			font-weight: 600;
+			display: none;
+		}
+
+		.form-group {
+			margin-bottom: 8px;
+		}
+
+		.form-group input {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #dbdbdb;
+			border-radius: 4px;
+			font-size: 13px;
+			background: #fafafa;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+			transition: border-color 0.2s;
+		}
+
+		.form-group input:focus {
+			outline: none;
+			border-color: #bbb;
+			background: white;
+		}
+
+		.form-group label {
+			display: none;
+			font-size: 12px;
+			color: #999;
+			margin-bottom: 5px;
+		}
+
+		.login-button {
+			width: 100%;
+			padding: 8px;
+			background: #0095f6;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			transition: background 0.2s ease;
+			margin-top: 10px;
+		}
+
+		.login-button:hover {
+			background: #0080d8;
+		}
+
+		.login-button:disabled {
+			background: #e0e0e0;
+			cursor: not-allowed;
+		}
+
+		.divider {
+			text-align: center;
+			margin: 15px 0;
+			position: relative;
+			color: #999;
+			font-size: 13px;
+			font-weight: 600;
+		}
+
+		.divider::before,
+		.divider::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			width: 46%;
+			height: 1px;
+			background: #dbdbdb;
+		}
+
+		.divider::before {
+			left: 0;
+		}
+
+		.divider::after {
+			right: 0;
+		}
+
+		.footer-text {
+			text-align: center;
+			font-size: 13px;
+			color: #262626;
+			margin-top: 15px;
+		}
+
+		.footer-link {
+			color: #0095f6;
+			text-decoration: none;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		.footer-link:hover {
+			color: #0080d8;
+		}
+
+		.error-message {
+			color: #f44236;
+			font-size: 12px;
+			margin-top: 10px;
+			padding: 10px;
+			background: #ffebee;
+			border-radius: 4px;
+			display: none;
+			border-left: 3px solid #f44236;
+		}
+
+		.error-message.show {
+			display: block;
+		}
+
+		.success-message {
+			color: #4caf50;
+			font-size: 12px;
+			margin-top: 10px;
+			padding: 10px;
+			background: #e8f5e9;
+			border-radius: 4px;
+			display: none;
+			border-left: 3px solid #4caf50;
+		}
+
+		.success-message.show {
+			display: block;
+		}
+
+		.loading {
+			display: inline-block;
+			width: 12px;
+			height: 12px;
+			border: 2px solid #f3f3f3;
+			border-top: 2px solid #0095f6;
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+			margin-right: 8px;
+			vertical-align: middle;
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+		@media (max-width: 768px) {
+			.login-container {
+				flex-direction: column;
+				gap: 0;
+			}
+
+			.login-form-wrapper {
+				padding: 30px 20px;
+				width: 100%;
+				border-top: 1px solid #e5e5e5;
+			}
+
+			.instagram-text {
+				font-size: 24px;
+			}
+
+			body {
+				background: #fff;
+			}
+
+			@media (max-width: 480px) {
+				.login-form-wrapper {
+					padding: 20px 16px;
+				}
+
+				.logo-section {
+					margin-bottom: 20px;
+				}
+
+				.instagram-text {
+					font-size: 20px;
+				}
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="login-container">
+		<!-- Phone Mockup with Image Carousel -->
+		<div class="phone-mockup">
+			<div class="phone-frame">
+				<div class="phone-screen">
+					<div class="carousel-container">
+						<!-- Sample carousel images (will be replaced with user images) -->
+						<img class="carousel-image active" src="https://i.ibb.co.com/HDFLdgBM/gopals-diary.jpg" alt="Slide 1">
+						<img class="carousel-image" src="https://i.ibb.co.com/JjPzY2dw/20200504-162309000-i-OS.png" alt="Slide 2">
+						<img class="carousel-image" src="https://i.ibb.co.com/v6FzWvmZ/DSC3240.jpg" alt="Slide 3">
+					</div>
+					<div class="carousel-dots">
+						<div class="carousel-dot active" onclick="changeSlide(0)"></div>
+						<div class="carousel-dot" onclick="changeSlide(1)"></div>
+						<div class="carousel-dot" onclick="changeSlide(2)"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Login Form -->
+		<div class="login-form-wrapper">
+			<div class="logo-section">
+				<div class="instagram-text">Instagram</div>
+				<div class="subtitle">Admin Login</div>
+			</div>
+
+			<form id="loginForm" onsubmit="handleLogin(event)">
+				<div class="form-group">
+					<label for="email">Email or username</label>
+					<input 
+						type="email" 
+						id="email" 
+						placeholder="Phone number, username, or email" 
+						required
+						autocomplete="email"
+					>
+				</div>
+
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input 
+						type="password" 
+						id="password" 
+						placeholder="Password" 
+						required
+						autocomplete="current-password"
+					>
+				</div>
+
+				<button type="submit" class="login-button" id="loginBtn">
+					Log in
+				</button>
+
+				<div class="error-message" id="errorMsg"></div>
+				<div class="success-message" id="successMsg"></div>
+			</form>
+
+			<div class="divider">OR</div>
+
+			<div class="footer-text" style="margin: 20px 0;">
+				<a href="https://www.facebook.com" class="footer-link" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+					👤 Log in with Facebook
+				</a>
+			</div>
+
+			<div class="footer-text" style="margin-top: 20px; font-size: 13px;">
+				<a href="#" class="footer-link">Forgot password?</a>
+			</div>
+
+			<div class="footer-text" style="margin-top: 20px; border-top: 1px solid #e5e5e5; padding-top: 20px;">
+				Don't have an account? <a href="#" class="footer-link">Sign up</a>
+			</div>
+
+			<div class="footer-text" style="font-size: 11px; line-height: 1.5; color: #999; margin-top: 20px; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+				📖 <strong>Help:</strong><br>
+				<a href="SETUP_GUIDE.md" class="footer-link" target="_blank">Setup Guide</a> | 
+				<a href="TROUBLESHOOT_LOGIN.md" class="footer-link" target="_blank">Troubleshoot</a>
+			</div>
+
+			<div class="footer-text" style="margin-top: 20px;">
+				<a href="../index.html" class="footer-link">← Back to Home</a>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let currentSlide = 0;
+		const slides = document.querySelectorAll('.carousel-image');
+		const dots = document.querySelectorAll('.carousel-dot');
+		const totalSlides = slides.length;
+
+		// Auto-rotate carousel
+		function autoRotateCarousel() {
+			changeSlide((currentSlide + 1) % totalSlides);
+		}
+
+		// Change slide
+		function changeSlide(index) {
+			// Remove active class
+			slides[currentSlide].classList.remove('active');
+			dots[currentSlide].classList.remove('active');
+
+			// Add active class to new slide
+			currentSlide = index;
+			slides[currentSlide].classList.add('active');
+			dots[currentSlide].classList.add('active');
+		}
+
+		// Auto-rotate every 5 seconds
+		setInterval(autoRotateCarousel, 5000);
+
+		// Supabase Configuration
+		const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+
+		// Supabase Client
+		class SupabaseAuth {
+			constructor(url, key) {
+				this.url = url;
+				this.key = key;
+			}
+
+			async signInWithPassword(email, password) {
+				try {
+					const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'apikey': this.key,
+						},
+						body: JSON.stringify({
+							email: email,
+							password: password,
+						}),
+					});
+
+					const data = await response.json();
+
+					if (!response.ok) {
+						throw new Error(data.error_description || data.error || 'Login failed');
+					}
+
+					// Supabase returns session and user at root level
+					if (data.access_token && data.user) {
+						const session = {
+							access_token: data.access_token,
+							refresh_token: data.refresh_token,
+							user: data.user,
+						};
+						
+						localStorage.setItem('supabase_session', JSON.stringify(session));
+						localStorage.setItem('supabase_user', JSON.stringify(data.user));
+						localStorage.setItem('supabase_access_token', data.access_token);
+						
+						return {
+							success: true,
+							user: data.user,
+							session: session,
+						};
+					}
+
+					throw new Error('No access token returned from Supabase');
+				} catch (error) {
+					return {
+						success: false,
+						error: error.message,
+					};
+				}
+			}
+		}
+
+		const supabase = new SupabaseAuth(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+		// Handle Login
+		async function handleLogin(event) {
+			event.preventDefault();
+
+			const email = document.getElementById('email').value.trim();
+			const password = document.getElementById('password').value;
+			const loginBtn = document.getElementById('loginBtn');
+			const errorMsg = document.getElementById('errorMsg');
+			const successMsg = document.getElementById('successMsg');
+
+			// Clear messages
+			errorMsg.classList.remove('show');
+			successMsg.classList.remove('show');
+
+			// Validate
+			if (!email || !password) {
+				errorMsg.textContent = '❌ Please fill all fields';
+				errorMsg.classList.add('show');
+				return;
+			}
+
+			// Disable button and show loading
+			loginBtn.disabled = true;
+			loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
+
+			console.log('🔐 Attempting login with:', email);
+
+			// Attempt login
+			const result = await supabase.signInWithPassword(email, password);
+
+			console.log('📋 Login response:', result);
+
+			if (result.success) {
+				console.log('✅ Login successful! User:', result.user);
+				successMsg.textContent = '✅ Login successful! Redirecting...';
+				successMsg.classList.add('show');
+
+				// Redirect after 1 second
+				setTimeout(() => {
+					window.location.href = 'admin_dashboard.html';
+				}, 1000);
+			} else {
+				console.error('❌ Login failed:', result.error);
+				errorMsg.textContent = `❌ ${result.error}`;
+				errorMsg.classList.add('show');
+				loginBtn.disabled = false;
+				loginBtn.innerHTML = 'Log in';
+			}
+		}
+
+		// Check if already logged in
+		window.addEventListener('load', function() {
+			const session = localStorage.getItem('supabase_session');
+			if (session) {
+				// User already logged in, redirect to dashboard
+				window.location.href = 'admin_dashboard.html';
+			}
+		});
+
+		// Enter key to submit
+		document.getElementById('loginForm').addEventListener('keypress', function(event) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				document.getElementById('loginBtn').click();
+			}
+		});
+	</script>
+</body>
+</html>
