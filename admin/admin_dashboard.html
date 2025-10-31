@@ -253,8 +253,14 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: #0080d8;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .btn-secondary {
@@ -739,9 +745,329 @@
     </div>
 
     <!-- Scripts -->
-    <script src="config.js?v=2"></script>
-    <script src="supabase-client.js?v=2"></script>
-    <script src="imgbb-upload.js?v=2"></script>
+    <script>
+        // ============================================
+        // CONFIG - All Configuration Variables
+        // ============================================
+        const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+        const IMGBB_API_KEY = '8acc6387f6db72f5ad40d366165b1916';
+        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
+        const PHOTOS_PER_PAGE = 50;
+
+        // ============================================
+        // IMGBB UPLOADER - Image Upload Functionality
+        // ============================================
+        class ImgBBUploader {
+            constructor(apiKey) {
+                this.apiKey = apiKey;
+                this.apiUrl = IMGBB_API_URL;
+            }
+
+            async uploadImage(file) {
+                if (!this.isValidImageFile(file)) {
+                    throw new Error('Invalid file format. Please upload an image file.');
+                }
+
+                if (file.size > 33554432) { // 32MB in bytes
+                    throw new Error('File size exceeds 32MB limit.');
+                }
+
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('key', this.apiKey);
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Upload failed: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error?.message || 'Upload failed');
+                    }
+
+                    return data.data.url;
+                } catch (error) {
+                    console.error('ImgBB upload error:', error);
+                    throw new Error(`Failed to upload image: ${error.message}`);
+                }
+            }
+
+            isValidImageFile(file) {
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                return validTypes.includes(file.type);
+            }
+
+            getFileSizeInMB(file) {
+                return (file.size / (1024 * 1024)).toFixed(2);
+            }
+        }
+
+        const imgbbUploader = new ImgBBUploader(IMGBB_API_KEY);
+
+        async function uploadToImgBB(file) {
+            try {
+                console.log('📤 Uploading to ImgBB:', file.name);
+                const url = await imgbbUploader.uploadImage(file);
+                console.log('✅ Upload successful:', url);
+                return url;
+            } catch (error) {
+                console.error('❌ Upload failed:', error.message);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // SUPABASE CLIENT - Database Operations
+        // ============================================
+        class SupabaseClient {
+            constructor(url, anonKey) {
+                if (!url) throw new Error('Supabase URL is required');
+                if (!anonKey) throw new Error('Supabase API key is required');
+                
+                this.url = url;
+                this.anonKey = anonKey;
+            }
+
+            async request(method, path, options = {}) {
+                if (!this.anonKey) {
+                    console.error('API key missing! this.anonKey:', this.anonKey);
+                    throw new Error('No API key found in request - SupabaseClient not properly initialized');
+                }
+                
+                const url = `${this.url}/rest/v1${path}`;
+                
+                const session = this.getSession();
+                const authToken = session?.access_token || this.anonKey;
+                
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'apikey': this.anonKey,
+                    'Authorization': `Bearer ${authToken}`,
+                    'Prefer': 'return=representation',
+                };
+
+                if (options.headers) {
+                    Object.assign(headers, options.headers);
+                }
+
+                const config = {
+                    method,
+                    headers,
+                };
+
+                if (options.body) {
+                    config.body = JSON.stringify(options.body);
+                }
+
+                const response = await fetch(url, config);
+                
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    console.error('Request failed:', error);
+                    throw new Error(error.message || `Request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (options.returnFullResponse) {
+                    return { data, response };
+                }
+                
+                return data;
+            }
+
+            async signIn(email, password) {
+                const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': this.anonKey,
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.error_description || error.message || 'Login failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.access_token) {
+                    localStorage.setItem('supabase_access_token', data.access_token);
+                    localStorage.setItem('supabase_user', JSON.stringify(data.user));
+                }
+                
+                return data;
+            }
+
+            async signOut() {
+                localStorage.removeItem('supabase_access_token');
+                localStorage.removeItem('supabase_user');
+                localStorage.removeItem('supabase_session');
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUsername');
+            }
+
+            getSession() {
+                const token = localStorage.getItem('supabase_access_token');
+                const user = localStorage.getItem('supabase_user');
+                
+                if (token && user) {
+                    return {
+                        access_token: token,
+                        user: JSON.parse(user),
+                    };
+                }
+                
+                return null;
+            }
+
+            isAuthenticated() {
+                return !!localStorage.getItem('supabase_access_token');
+            }
+
+            from(tableName) {
+                return new TableQuery(this, tableName);
+            }
+        }
+
+        class TableQuery {
+            constructor(client, tableName) {
+                this.client = client;
+                this.tableName = tableName;
+                this.filters = [];
+                this.orderByColumn = null;
+                this.orderAsc = true;
+                this.selectColumns = '*';
+                this.insertData = null;
+                this.updateData = null;
+                this._isSelectMode = false;
+            }
+
+            select(columns = '*') {
+                this.selectColumns = columns;
+                this._isSelectMode = true;
+                const self = this;
+                const executePromise = this._execute('GET', null);
+                
+                executePromise.order = function(column, options = {}) {
+                    self.orderByColumn = column;
+                    self.orderAsc = options.ascending !== false;
+                    return self._execute('GET', null);
+                };
+                
+                return executePromise;
+            }
+
+            order(column, options = {}) {
+                this.orderByColumn = column;
+                this.orderAsc = options.ascending !== false;
+                if (this._isSelectMode) {
+                    return this._execute('GET', null);
+                }
+                return this;
+            }
+
+            eq(column, value) {
+                this.filters.push({ column, operator: 'eq', value });
+                return this;
+            }
+
+            async _execute(method = 'GET', data = null) {
+                try {
+                    let url = `${this.client.url}/rest/v1/${this.tableName}`;
+                    const params = new URLSearchParams();
+
+                    params.append('select', this.selectColumns);
+
+                    if (this.filters.length > 0) {
+                        this.filters.forEach(f => {
+                            params.append(`${f.column}`, `${f.operator}.${f.value}`);
+                        });
+                    }
+
+                    if (this.orderByColumn) {
+                        const orderDir = this.orderAsc ? 'asc' : 'desc';
+                        params.append('order', `${this.orderByColumn}.${orderDir}`);
+                    }
+
+                    if (params.toString()) {
+                        url += '?' + params.toString();
+                    }
+
+                    const session = this.client.getSession();
+                    const authToken = session?.access_token || this.client.anonKey;
+
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'apikey': this.client.anonKey,
+                        'Authorization': `Bearer ${authToken}`,
+                    };
+
+                    if (method !== 'GET') {
+                        headers['Prefer'] = 'return=representation';
+                    }
+
+                    const config = {
+                        method,
+                        headers,
+                    };
+
+                    if (data) {
+                        config.body = JSON.stringify(data);
+                    }
+
+                    const response = await fetch(url, config);
+                    const responseData = await response.json();
+
+                    if (!response.ok) {
+                        console.error('Query error:', responseData);
+                        return { 
+                            data: null, 
+                            error: responseData.message || responseData.error || 'Request failed'
+                        };
+                    }
+
+                    return { data: responseData, error: null };
+                } catch (error) {
+                    console.error('Query exception:', error);
+                    return { data: null, error: error.message };
+                }
+            }
+
+            async insert(records) {
+                const data = Array.isArray(records) ? records : [records];
+                return this._execute('POST', data);
+            }
+
+            async update(updates) {
+                return this._execute('PATCH', updates);
+            }
+
+            async delete() {
+                return this._execute('DELETE');
+            }
+        }
+
+        // Initialize Supabase client
+        const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================
+        // MAIN APPLICATION CODE
+        // ============================================
+    </script>
     <script>
         let currentTable = 'post_site';
         const tableNames = {
@@ -786,17 +1112,73 @@
             return { grid: gridElement, loading: loadingElement };
         }
 
+        // ============================================
+        // TOKEN VALIDATION - Check if JWT is expired
+        // ============================================
+        function isTokenExpired(token) {
+            if (!token) return true;
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const exp = payload.exp * 1000; // Convert to milliseconds
+                const now = Date.now();
+                
+                // Token expires soon (within 5 minutes)
+                return now >= (exp - 300000);
+            } catch (error) {
+                console.error('Error checking token expiry:', error);
+                return true;
+            }
+        }
+
+        // ============================================
+        // GLOBAL ERROR HANDLER - Handle Auth Errors
+        // ============================================
+        function handleAuthError(error) {
+            console.error('🚨 Authentication error:', error);
+            localStorage.removeItem('supabase_access_token');
+            localStorage.removeItem('supabase_user');
+            localStorage.removeItem('supabase_session');
+            alert('Your session has expired. Please login again.');
+            window.location.href = 'login.html';
+        }
+
+        // Check if error is authentication related
+        function isAuthError(error) {
+            const errorStr = String(error?.message || error || '').toLowerCase();
+            return errorStr.includes('jwt') || 
+                   errorStr.includes('expired') || 
+                   errorStr.includes('401') ||
+                   errorStr.includes('unauthorized') ||
+                   errorStr.includes('invalid');
+        }
+
         // Check authentication
         window.addEventListener('load', function() {
             const session = localStorage.getItem('supabase_session');
             const accessToken = localStorage.getItem('supabase_access_token');
             
-            if (!session || !accessToken) {
+            // Debug: Log authentication status
+            console.log('🔐 Auth Check:', {
+                hasSession: !!session,
+                hasToken: !!accessToken,
+                tokenLength: accessToken ? accessToken.length : 0,
+                tokenPreview: accessToken ? accessToken.substring(0, 20) + '...' : 'null'
+            });
+            
+            // Check if token exists and is valid
+            if (!session || !accessToken || isTokenExpired(accessToken)) {
+                console.warn('⚠️ No valid session or token expired. Redirecting to login.');
+                localStorage.removeItem('supabase_access_token');
+                localStorage.removeItem('supabase_user');
+                localStorage.removeItem('supabase_session');
                 window.location.href = 'login.html';
-            } else {
-                const user = JSON.parse(localStorage.getItem('supabase_user'));
-                document.getElementById('userEmail').textContent = `👤 ${user.email}`;
+                return;
             }
+            
+            const user = JSON.parse(localStorage.getItem('supabase_user'));
+            document.getElementById('userEmail').textContent = `👤 ${user.email}`;
+            console.log('✅ Authentication successful:', user.email);
 
             loadPhotos();
         });
@@ -881,7 +1263,13 @@
                     .select('*')
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    if (isAuthError(error)) {
+                        handleAuthError(error);
+                        return;
+                    }
+                    throw error;
+                }
 
                 // Store all photos and calculate total
                 allPhotos = data || [];
@@ -897,7 +1285,14 @@
                 });
             } catch (error) {
                 console.error('Error loading photos:', error);
-                grid.innerHTML = `<p style="color: red; grid-column: 1/-1;">Error loading items: ${error.message}</p>`;
+                
+                // Check for auth errors
+                if (isAuthError(error)) {
+                    handleAuthError(error);
+                    return;
+                }
+                
+                grid.innerHTML = `<p style="color: red; grid-column: 1/-1;">Error loading items: ${error.message || error}</p>`;
                 grid.style.opacity = '1';
                 loading?.classList.remove('active');
             }
@@ -1084,9 +1479,16 @@
             const file = document.getElementById('photoFile').files[0];
             const directUrlInput = (document.getElementById('photoUrl')?.value || '').trim();
             const statusEl = document.getElementById('uploadStatus');
-
+            
+            // Get submit button
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
 
             try {
+                // Disable button and show uploading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Uploading...';
+                
                 statusEl.textContent = '';
                 statusEl.classList.remove('error', 'success');
 
@@ -1109,6 +1511,8 @@
                 } else {
                     statusEl.textContent = '❌ Please upload a file or provide a direct image URL';
                     statusEl.classList.add('error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
                     return;
                 }
 
@@ -1125,19 +1529,43 @@
 
                 // Use REST API for insert with proper headers
                 const accessToken = localStorage.getItem('supabase_access_token');
+                
+                // Check if token exists
+                if (!accessToken) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    throw new Error('No access token found. Please login again.');
+                }
+                
+                // Debug: Log request details
+                console.log('📤 POST Request:', {
+                    table: currentTable,
+                    hasToken: !!accessToken,
+                    tokenLength: accessToken.length,
+                    url: `${SUPABASE_URL}/rest/v1/${currentTable}`
+                });
+                
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?select=*`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Prefer': 'return=representation',
                     },
                     body: JSON.stringify(insertData),
                 });
 
                 if (!response.ok) {
+                    // Handle 401 Unauthorized - redirect to login
+                    if (response.status === 401) {
+                        handleAuthError('Token expired');
+                        return;
+                    }
+                    
                     const errorData = await response.json();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
                     throw new Error(errorData.message || 'Failed to add item');
                 }
 
@@ -1148,15 +1576,24 @@
                 statusEl.classList.remove('error');
 
                 document.getElementById('addPhotoForm').reset();
+                
+                // Re-enable button after success
                 setTimeout(() => {
                     statusEl.classList.remove('success');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    closeAddModal();
                     loadPhotos();
-                }, 2000);
+                }, 1500);
 
             } catch (error) {
                 statusEl.textContent = `❌ Error: ${error.message}`;
                 statusEl.classList.add('error');
                 statusEl.classList.remove('success');
+                
+                // Re-enable button on error
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
             }
         });
 
@@ -1238,18 +1675,30 @@
 
                 // Use REST API for update with proper headers
                 const accessToken = localStorage.getItem('supabase_access_token');
+                
+                // Check if token exists
+                if (!accessToken) {
+                    throw new Error('No access token found. Please login again.');
+                }
+                
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?image_iid=eq.${id}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Prefer': 'return=representation',
                     },
                     body: JSON.stringify(updateData),
                 });
 
                 if (!response.ok) {
+                    // Handle 401 Unauthorized - redirect to login
+                    if (response.status === 401) {
+                        handleAuthError('Token expired');
+                        return;
+                    }
+                    
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to update item');
                 }
@@ -1268,16 +1717,28 @@
             try {
                 // Use REST API for delete with proper headers
                 const accessToken = localStorage.getItem('supabase_access_token');
+                
+                // Check if token exists
+                if (!accessToken) {
+                    throw new Error('No access token found. Please login again.');
+                }
+                
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?image_iid=eq.${id}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${accessToken || SUPABASE_ANON_KEY}`,
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                 });
 
                 if (!response.ok) {
+                    // Handle 401 Unauthorized - redirect to login
+                    if (response.status === 401) {
+                        handleAuthError('Token expired');
+                        return;
+                    }
+                    
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Failed to delete item');
                 }

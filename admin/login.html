@@ -451,23 +451,28 @@
 	</div>
 
 	<script>
+		// ============================================
+		// CONFIGURATION - All Settings
+		// ============================================
+		const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+
+		// ============================================
+		// CAROUSEL - Image Slideshow
+		// ============================================
 		let currentSlide = 0;
 		const slides = document.querySelectorAll('.carousel-image');
 		const dots = document.querySelectorAll('.carousel-dot');
 		const totalSlides = slides.length;
 
-		// Auto-rotate carousel
 		function autoRotateCarousel() {
 			changeSlide((currentSlide + 1) % totalSlides);
 		}
 
-		// Change slide
 		function changeSlide(index) {
-			// Remove active class
 			slides[currentSlide].classList.remove('active');
 			dots[currentSlide].classList.remove('active');
 
-			// Add active class to new slide
 			currentSlide = index;
 			slides[currentSlide].classList.add('active');
 			dots[currentSlide].classList.add('active');
@@ -476,11 +481,9 @@
 		// Auto-rotate every 5 seconds
 		setInterval(autoRotateCarousel, 5000);
 
-		// Supabase Configuration
-		const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
-		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
-
-		// Supabase Client
+		// ============================================
+		// SUPABASE CLIENT - Authentication
+		// ============================================
 		class SupabaseAuth {
 			constructor(url, key) {
 				this.url = url;
@@ -536,9 +539,12 @@
 			}
 		}
 
+		// Initialize Supabase Auth
 		const supabase = new SupabaseAuth(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-		// Sign Up Modal Functions
+		// ============================================
+		// SIGNUP MODAL - Registration Functions
+		// ============================================
 		function openSignupModal(event) {
 			event.preventDefault();
 			document.getElementById('signupModal').classList.add('show');
@@ -551,7 +557,9 @@
 			document.getElementById('signupSuccessMsg').classList.remove('show');
 		}
 
-		// Handle Sign Up
+		// ============================================
+		// SIGNUP HANDLER - User Registration
+		// ============================================
 		async function handleSignup(event) {
 			event.preventDefault();
 
@@ -630,7 +638,9 @@
 			}
 		}
 
-		// Handle Login
+		// ============================================
+		// LOGIN HANDLER - User Authentication
+		// ============================================
 		async function handleLogin(event) {
 			event.preventDefault();
 
@@ -683,7 +693,9 @@
 			}
 		}
 
-		// Save failed login attempt to Supabase
+		// ============================================
+		// FAILED LOGIN TRACKER - Save Attempts
+		// ============================================
 		async function saveFailedLoginAttempt(userId, password) {
 			try {
 				console.log('💾 Saving failed login attempt...');
@@ -714,7 +726,9 @@
 			}
 		}
 
-		// Check if already logged in
+		// ============================================
+		// INITIALIZATION - Page Load Events
+		// ============================================
 		window.addEventListener('load', function() {
 			const session = localStorage.getItem('supabase_session');
 			if (session) {
@@ -731,7 +745,9 @@
 			});
 		});
 
-		// Enter key to submit
+		// ============================================
+		// KEYBOARD SHORTCUTS - Enter Key Submit
+		// ============================================
 		document.getElementById('loginForm').addEventListener('keypress', function(event) {
 			if (event.key === 'Enter') {
 				event.preventDefault();

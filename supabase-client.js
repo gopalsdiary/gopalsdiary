@@ -137,7 +137,7 @@ class SupabaseClient {
         
         // Store session
         if (data.access_token) {
-            localStorage.setItem('supabase_token', data.access_token);
+            localStorage.setItem('supabase_access_token', data.access_token);
             localStorage.setItem('supabase_user', JSON.stringify(data.user));
             // Don't overwrite this.anonKey - keep it as the original anon key
         }
@@ -147,8 +147,9 @@ class SupabaseClient {
 
     // AUTH - Sign out
     async signOut() {
-        localStorage.removeItem('supabase_token');
+        localStorage.removeItem('supabase_access_token');
         localStorage.removeItem('supabase_user');
+        localStorage.removeItem('supabase_session');
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminUsername');
         // No need to reset this.anonKey - it stays as the original anon key
@@ -156,7 +157,7 @@ class SupabaseClient {
 
     // Get current session
     getSession() {
-        const token = localStorage.getItem('supabase_token');
+        const token = localStorage.getItem('supabase_access_token');
         const user = localStorage.getItem('supabase_user');
         
         if (token && user) {
@@ -172,7 +173,7 @@ class SupabaseClient {
 
     // AUTH - Check if user is authenticated
     isAuthenticated() {
-        return !!localStorage.getItem('supabase_token');
+        return !!localStorage.getItem('supabase_access_token');
     }
 
     // NEW: from() method for Supabase-like API

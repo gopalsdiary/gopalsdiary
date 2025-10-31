@@ -13,10 +13,28 @@
 			box-sizing: border-box;
 		}
 
+		html, body {
+			width: 100%;
+			overflow-x: hidden; /* prevent accidental horizontal scroll on small screens */
+		}
+
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 			background: #fafafa;
 			color: #262626;
+		}
+
+		/* Make all embeds/media scale to container */
+		img, video, iframe {
+			max-width: 100%;
+			height: auto;
+		}
+
+		/* Keep iframes nicely proportioned when used */
+		iframe {
+			aspect-ratio: 16/9;
+			width: 100%;
+			border: 0;
 		}
 
 		.profile-container {
@@ -98,6 +116,8 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			min-width: 44px; /* touch target size */
+			min-height: 44px; /* touch target size */
 		}
 
 		.settings-button:hover {
@@ -168,6 +188,12 @@
 			line-height: 1.5;
 		}
 
+		/* Avoid long links causing overflow on mobile */
+		.profile-bio, .profile-bio a {
+			word-break: break-word;
+			overflow-wrap: anywhere;
+		}
+
 		.profile-link {
 			color: #0095f6;
 			text-decoration: none;
@@ -184,6 +210,11 @@
 			gap: 10px;
 			margin-top: 20px;
 			flex-wrap: wrap;
+		}
+
+		/* Center the Follow button inside the profile header only (doesn't affect other .profile-buttons uses) */
+		.profile-header .profile-buttons {
+			justify-content: center;
 		}
 
 		.btn {
@@ -488,7 +519,13 @@
 			gap: 40px;
 			border-top: 1px solid #dbdbdb;
 			margin: 40px 0 0 0;
+			overflow-x: auto; /* allow horizontal scroll if needed */
+			white-space: nowrap;
+			-ms-overflow-style: none; /* IE/Edge */
+			scrollbar-width: none; /* Firefox */
 		}
+
+		.tabs::-webkit-scrollbar { display: none; }
 
 		.tab {
 			padding: 16px 0;
@@ -498,6 +535,7 @@
 			border-top: 1px solid transparent;
 			cursor: pointer;
 			transition: all 0.3s ease;
+			flex: 0 0 auto; /* prevent squishing when tabs overflow */
 		}
 
 		.tab.active {
@@ -604,6 +642,15 @@
 				gap: 15px;
 			}
 
+			/* Make highlight modal grid single-column on tablets/phones */
+			.modal-gallery {
+				grid-template-columns: 1fr;
+			}
+
+			.modal-gallery img {
+				height: auto;
+			}
+
 			.highlights {
 				gap: 15px;
 			}
@@ -650,7 +697,21 @@
 			.btn {
 				padding: 8px 15px;
 				font-size: 12px;
+				min-height: 44px; /* comfortable tap size */
 			}
+
+			/* Make nav button rows wrap nicely on phones */
+			.buttons-section .btn {
+				flex: 1 1 calc(50% - 8px);
+				text-align: center;
+			}
+		}
+
+		@media (max-width: 360px) {
+			.gallery-grid {
+				grid-template-columns: 1fr; /* fallback to 1 column on very narrow devices */
+			}
+			.buttons-section .btn { flex: 1 1 100%; }
 		}
 	</style>
 </head>
