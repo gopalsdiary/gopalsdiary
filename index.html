@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="p:domain_verify" content="3029165a71810ac1a9765c1a8bbb137e"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="p:domain_verify" content="3029165a71810ac1a9765c1a8bbb137e"/>
+	
+	<!-- Security Headers -->
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https://vbfckjroisrhplrpqzkd.supabase.co; font-src 'self' data:; frame-src 'self';">
+	<meta http-equiv="X-Content-Type-Options" content="nosniff">
+	<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+	<meta name="referrer" content="no-referrer-when-downgrade">
+	
 	<title>Gopals Diary - Instagram Profile</title>
 	<link rel="icon" type="image/svg+xml" href="favicon.svg">
 	<style>
@@ -325,7 +332,7 @@
 			max-width: 100px;
 		}
 
-		/* Gallery Grid */
+		/* Gallery Grid - Always 3 columns on all devices */
 		.gallery-grid {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
@@ -638,8 +645,8 @@
 			}
 
 			.gallery-grid {
-				grid-template-columns: repeat(2, 1fr);
-				gap: 15px;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 10px;
 			}
 
 			/* Make highlight modal grid single-column on tablets/phones */
@@ -686,8 +693,8 @@
 			}
 
 			.gallery-grid {
-				grid-template-columns: repeat(2, 1fr);
-				gap: 10px;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 5px;
 			}
 
 			.profile-buttons {
@@ -709,7 +716,8 @@
 
 		@media (max-width: 360px) {
 			.gallery-grid {
-				grid-template-columns: 1fr; /* fallback to 1 column on very narrow devices */
+				grid-template-columns: repeat(3, 1fr);
+				gap: 3px;
 			}
 			.buttons-section .btn { flex: 1 1 100%; }
 		}

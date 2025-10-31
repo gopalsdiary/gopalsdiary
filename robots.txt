@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://gopalsdiary.com/sitemap.xml
+
+# Disallow admin area
+Disallow: /admin/
