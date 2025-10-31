@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -6,8 +6,8 @@
     
     <!-- SEO Meta Tags -->
     <title>বাংলা কোটস ১ - Gopals Diary | Bengali Quotes Collection</title>
-    <meta name="description" content="বাংলা কোটস - সুন্দর বাংলা উক্তি, অনুপ্রেরণামূলক কথা, জীবনের উপদেশ। Download free Bengali quotes, motivational quotes, life quotes from Gopals Diary.">
-    <meta name="keywords" content="বাংলা কোটস, bangla quotes, বাংলা উক্তি, bengali quotes, অনুপ্রেরণা, motivation bangla, জীবনের উপদেশ, bangla kobita, gopals diary, গোপালস ডায়েরি">
+    <meta name="description" content="বাংলা কোটস - সুন্দর বাংলা উক্তি, অনুপ্রেরণামূলক কথা, জীবনের উপদেশ। Download free Bengali quotes, motivational quotes from Gopals Diary.">
+    <meta name="keywords" content="বাংলা কোটস, bangla quotes, বাংলা উক্তি, bengali quotes, অনুপ্রেরণা, motivation bangla, gopals diary, গোপালস ডায়েরি">
     <meta name="author" content="Gopals Diary">
     <meta name="robots" content="index, follow">
     <meta name="language" content="Bengali">
@@ -15,8 +15,8 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://gopalsdiary.netlify.app/bangla_quotes_1.html">
-    <meta property="og:title" content="বাংলা কোটস ১ - Gopals Diary | Bengali Quotes Collection">
-    <meta property="og:description" content="সুন্দর বাংলা উক্তি, অনুপ্রেরণামূলক কথা এবং জীবনের উপদেশ। Free download Bengali quotes from Gopals Diary.">
+    <meta property="og:title" content="????? ???? ? - Gopals Diary | Bengali Quotes Collection">
+    <meta property="og:description" content="?????? ????? ?????, ?????????????? ??? ??? ?????? ?????? Free download Bengali quotes from Gopals Diary.">
     <meta property="og:image" content="https://gopalsdiary.netlify.app/favicon.svg">
     <meta property="og:locale" content="bn_BD">
     <meta property="og:site_name" content="Gopals Diary">
@@ -24,8 +24,8 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://gopalsdiary.netlify.app/bangla_quotes_1.html">
-    <meta name="twitter:title" content="বাংলা কোটস ১ - Gopals Diary">
-    <meta name="twitter:description" content="সুন্দর বাংলা উক্তি, অনুপ্রেরণামূলক কথা এবং জীবনের উপদেশ">
+    <meta name="twitter:title" content="????? ???? ? - Gopals Diary">
+    <meta name="twitter:description" content="?????? ????? ?????, ?????????????? ??? ??? ?????? ?????">
     <meta name="twitter:image" content="https://gopalsdiary.netlify.app/favicon.svg">
     
     <!-- Canonical URL -->
@@ -37,8 +37,8 @@
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": "বাংলা কোটস ১ - Gopals Diary",
-      "description": "সুন্দর বাংলা উক্তি, অনুপ্রেরণামূলক কথা এবং জীবনের উপদেশের সংগ্রহ",
+      "name": "????? ???? ? - Gopals Diary",
+      "description": "?????? ????? ?????, ?????????????? ??? ??? ?????? ??????? ??????",
       "url": "https://gopalsdiary.netlify.app/bangla_quotes_1.html",
       "inLanguage": "bn",
       "publisher": {
@@ -457,32 +457,29 @@
         /* Gallery Grid */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 0.8rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 1.5rem;
             will-change: contents;
         }
 
         .photo-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
             cursor: pointer;
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            perspective: 1000px;
+            aspect-ratio: 1;
         }
 
         .photo-card:hover {
-            transform: translateY(-5px) translateZ(0);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
         }
 
         .photo-image {
             width: 100%;
-            height: 130px;
+            height: 100%;
             overflow: hidden;
             background: #f0f0f0;
             will-change: transform;
@@ -502,31 +499,7 @@
         }
 
         .photo-info {
-            padding: 0.65rem;
-        }
-
-        .photo-info h3 {
-            font-size: 0.85rem;
-            margin-bottom: 0.3rem;
-            color: #333;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .photo-info p {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 0.3rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .photo-info small {
-            color: #999;
-            font-size: 0.8rem;
+            display: none;
         }
 
         /* Pagination */
@@ -696,8 +669,8 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                gap: 0.7rem;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
             }
 
             .gallery-header h1 {
@@ -729,8 +702,8 @@
 
         @media (max-width: 480px) {
             .gallery-grid {
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-                gap: 0.6rem;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
             }
 
             .gallery-header h1 {
@@ -740,24 +713,6 @@
             .container {
                 padding: 0 0.75rem;
                 margin: 0.8rem auto;
-            }
-
-            .photo-image {
-                height: 100px;
-            }
-
-            .photo-info {
-                padding: 0.5rem;
-            }
-
-            .photo-info h3 {
-                font-size: 0.75rem;
-                margin-bottom: 0.2rem;
-            }
-
-            .photo-info p {
-                font-size: 0.7rem;
-                margin-bottom: 0.2rem;
             }
 
             .login-btn {
@@ -1258,3 +1213,4 @@
     </script>
 </body>
 </html>
+
