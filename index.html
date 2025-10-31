@@ -950,7 +950,7 @@
 					<p><strong>#Aesthetically || (B.Sc, M.Sc)^ #Mathematics💗& LL.B</strong></p>
 					<p>Believe in the creation!</p>
 					<p>আমার, প্রিয় বল প্রিয় বল ডেকে 💗😘</p>
-					<p><a href="https://sites.google.com/view/gopals-diary" class="profile-link" target="_blank">sites.google.com/view/gopals-diary</a></p>
+					<p><a href="https://gopalsdiary.blogspot.com/" class="profile-link" target="_blank">sites.google.com/view/gopals-diary</a></p>
 				</div>
 			</div>
 		</div>
@@ -1372,10 +1372,8 @@
 			}
 			
 			try {
-				// Extract file extension from URL or use jpg as default
+				// Extract file extension from URL
 				let filename = imageTitle;
-				
-				// Get extension from URL if possible
 				const urlParts = imageUrl.split('.');
 				let extension = '.jpg';
 				
@@ -1390,40 +1388,58 @@
 					filename = filename + extension;
 				}
 				
-				// Method 1: Try using fetch with no-cors mode
-				fetch(imageUrl, { mode: 'no-cors' })
-					.then(response => response.blob())
-					.then(blob => {
+				// Use XMLHttpRequest for better CORS handling
+				const xhr = new XMLHttpRequest();
+				xhr.open('GET', imageUrl, true);
+				xhr.responseType = 'blob';
+				
+				xhr.onload = function() {
+					if (this.status === 200) {
+						const blob = this.response;
 						const blobUrl = URL.createObjectURL(blob);
-						triggerDownload(blobUrl, filename);
-						URL.revokeObjectURL(blobUrl);
-					})
-					.catch(() => {
-						// Method 2: Direct link download
-						triggerDownload(imageUrl, filename);
-					});
+						
+						const link = document.createElement('a');
+						link.href = blobUrl;
+						link.download = filename;
+						link.style.display = 'none';
+						document.body.appendChild(link);
+						link.click();
+						
+						setTimeout(() => {
+							document.body.removeChild(link);
+							URL.revokeObjectURL(blobUrl);
+						}, 100);
+					} else {
+						console.error('Download failed with status:', this.status);
+						downloadViaDirectLink(imageUrl, filename);
+					}
+				};
+				
+				xhr.onerror = function() {
+					console.error('XHR error');
+					downloadViaDirectLink(imageUrl, filename);
+				};
+				
+				xhr.send();
 				
 			} catch (error) {
 				console.error('Download error:', error);
-				// Fallback: Direct download
-				const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
 				const imageUrl = document.getElementById('lightboxImage').src;
-				triggerDownload(imageUrl, imageTitle);
+				const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
+				downloadViaDirectLink(imageUrl, imageTitle);
 			}
 		}
 		
-		// Helper function to trigger download
-		function triggerDownload(url, filename) {
+		// Fallback: Direct link download
+		function downloadViaDirectLink(url, filename) {
 			const link = document.createElement('a');
 			link.href = url;
 			link.download = filename;
+			link.setAttribute('crossorigin', 'anonymous');
 			link.style.display = 'none';
 			document.body.appendChild(link);
-			
-			// Trigger click
 			link.click();
 			
-			// Cleanup
 			setTimeout(() => {
 				document.body.removeChild(link);
 			}, 100);
