@@ -20,17 +20,10 @@ class SupabaseClient {
         const session = this.getSession();
         const authToken = session?.access_token || this.anonKey;
         
-        console.log('Session check:', {
-            hasSession: !!session,
-            accessTokenLength: session?.access_token?.length,
-            usingAnonKey: !session,
-            anonKeyLength: this.anonKey?.length
-        });
-        
         const headers = {
             'Content-Type': 'application/json',
-            'apikey': typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : this.anonKey, // Always anon key for apikey
-            'Authorization': `Bearer ${authToken}`, // Use session token if available
+            'apikey': this.anonKey,
+            'Authorization': `Bearer ${authToken}`,
             'Prefer': 'return=representation',
         };
 
@@ -161,7 +154,7 @@ class SupabaseClient {
         // No need to reset this.anonKey - it stays as the original anon key
     }
 
-    // AUTH - Get current session
+    // Get current session
     getSession() {
         const token = localStorage.getItem('supabase_token');
         const user = localStorage.getItem('supabase_user');
@@ -181,6 +174,140 @@ class SupabaseClient {
     isAuthenticated() {
         return !!localStorage.getItem('supabase_token');
     }
+
+    // NEW: from() method for Supabase-like API
+    from(tableName) {
+        return new TableQuery(this, tableName);
+    }
+}
+
+// TableQuery class for fluent API
+class TableQuery {
+    constructor(client, tableName) {
+        this.client = client;
+        this.tableName = tableName;
+        this.filters = [];
+        this.orderByColumn = null;
+        this.orderAsc = true;
+        this.selectColumns = '*';
+        this.insertData = null;
+        this.updateData = null;
+        this._isSelectMode = false;
+    }
+
+    select(columns = '*') {
+        this.selectColumns = columns;
+        this._isSelectMode = true;
+        // Return a Promise-like object that can be awaited OR chained
+        const self = this;
+        const executePromise = this._execute('GET', null);
+        
+        // Add then/catch methods for promise behavior
+        executePromise.order = function(column, options = {}) {
+            self.orderByColumn = column;
+            self.orderAsc = options.ascending !== false;
+            // Re-execute with new order
+            return self._execute('GET', null);
+        };
+        
+        return executePromise;
+    }
+
+    order(column, options = {}) {
+        this.orderByColumn = column;
+        this.orderAsc = options.ascending !== false;
+        // If in select mode, execute now
+        if (this._isSelectMode) {
+            return this._execute('GET', null);
+        }
+        return this;
+    }
+
+    eq(column, value) {
+        this.filters.push({ column, operator: 'eq', value });
+        return this;
+    }
+
+    async _execute(method = 'GET', data = null) {
+        try {
+            let url = `${this.client.url}/rest/v1/${this.tableName}`;
+            const params = new URLSearchParams();
+
+            // Add select
+            params.append('select', this.selectColumns);
+
+            // Add filters
+            if (this.filters.length > 0) {
+                this.filters.forEach(f => {
+                    params.append(`${f.column}`, `${f.operator}.${f.value}`);
+                });
+            }
+
+            // Add order
+            if (this.orderByColumn) {
+                const orderDir = this.orderAsc ? 'asc' : 'desc';
+                params.append('order', `${this.orderByColumn}.${orderDir}`);
+            }
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            const session = this.client.getSession();
+            const authToken = session?.access_token || this.client.anonKey;
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'apikey': this.client.anonKey,
+                'Authorization': `Bearer ${authToken}`,
+            };
+
+            if (method !== 'GET') {
+                headers['Prefer'] = 'return=representation';
+            }
+
+            const config = {
+                method,
+                headers,
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            console.log('TableQuery._execute:', { method, url, selectColumns: this.selectColumns });
+
+            const response = await fetch(url, config);
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                console.error('Query error:', responseData);
+                return { 
+                    data: null, 
+                    error: responseData.message || responseData.error || 'Request failed'
+                };
+            }
+
+            console.log('Query success - rows returned:', Array.isArray(responseData) ? responseData.length : 1);
+            return { data: responseData, error: null };
+        } catch (error) {
+            console.error('Query exception:', error);
+            return { data: null, error: error.message };
+        }
+    }
+
+    async insert(records) {
+        const data = Array.isArray(records) ? records : [records];
+        return this._execute('POST', data);
+    }
+
+    async update(updates) {
+        return this._execute('PATCH', updates);
+    }
+
+    async delete() {
+        return this._execute('DELETE');
+    }
 }
 
 // Initialize Supabase client
@@ -192,6 +319,7 @@ const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 console.log('Supabase client created:', supabase);
 console.log('Client has API key:', !!supabase.anonKey);
+console.log('Client has from method:', typeof supabase.from);
 
 // Check for existing session on load
 if (typeof window !== 'undefined') {
