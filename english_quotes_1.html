@@ -877,7 +877,13 @@
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     if (img.dataset.src) {
-                        img.src = img.dataset.src;
+                        // Check if URL is valid before loading
+                        if (isValidUrl(img.dataset.src)) {
+                            img.src = img.dataset.src;
+                        } else {
+                            // Use fallback for invalid URL
+                            img.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E';
+                        }
                         img.removeAttribute('data-src');
                         observer.unobserve(img);
                     }
@@ -886,6 +892,16 @@
         }, {
             rootMargin: '50px'
         });
+
+        // Helper function to validate URL
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
 
         // ============================================
         // GALLERY JAVASCRIPT
@@ -955,10 +971,10 @@
             card.setAttribute('data-index', index);
             card.setAttribute('data-total', total);
             
-            // Use data-src for lazy loading
+            // Use data-src for lazy loading - NO src attribute initially
             card.innerHTML = `
                 <div class="photo-image">
-                    <img data-src="${photo.image_url}" alt="${photo.title}" loading="lazy" class="photo-image-img" style="cursor: pointer;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3C/svg%3E">
+                    <img data-src="${photo.image_url}" alt="${photo.title}" loading="lazy" class="photo-image-img" style="cursor: pointer;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'">
                 </div>
                 <div class="photo-info">
                     <h3>${escapeHtml(photo.title)}</h3>
