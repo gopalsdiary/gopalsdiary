@@ -46,6 +46,12 @@
 	<link rel="icon" type="image/svg+xml" href="favicon.svg">
 	<link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
 	
+	<!-- Performance: DNS Prefetch for external domains -->
+	<link rel="dns-prefetch" href="https://vbfckjroisrhplrpqzkd.supabase.co">
+	<link rel="dns-prefetch" href="https://i.ibb.co.com">
+	<link rel="preconnect" href="https://vbfckjroisrhplrpqzkd.supabase.co">
+	<link rel="preconnect" href="https://i.ibb.co.com">
+	
 	<!-- Structured Data / JSON-LD -->
 	<script type="application/ld+json">
 	{
@@ -1163,12 +1169,23 @@
 			constructor(url, key) {
 				this.url = url;
 				this.key = key;
+				this.cache = null;
+				this.cacheTime = null;
+				this.CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 			}
 
 			async getPostsBySections() {
 				try {
-					const url = `${this.url}/rest/v1/${TABLE_NAME}?select=*&order=created_at.desc`;
-					console.log('Fetching from:', url);
+					// Check cache first
+					const now = Date.now();
+					if (this.cache && this.cacheTime && (now - this.cacheTime) < this.CACHE_DURATION) {
+						console.log('✓ Using cached posts');
+						return this.cache;
+					}
+
+					// Fetch only necessary columns (performance optimization)
+					const url = `${this.url}/rest/v1/${TABLE_NAME}?select=image_iid,title,description,image_url,section&order=created_at.desc`;
+					console.log('Fetching posts...');
 					
 					const response = await fetch(url, {
 						headers: {
@@ -1187,7 +1204,7 @@
 					}
 
 					const posts = await response.json();
-					console.log('Posts fetched:', posts);
+					console.log('Posts fetched:', posts.length, 'items');
 					
 					// Group posts by section
 					const sections = {
@@ -1208,6 +1225,11 @@
 					});
 
 					console.log('Organized sections:', sections);
+					
+					// Cache the results
+					this.cache = sections;
+					this.cacheTime = Date.now();
+					
 					return sections;
 				} catch (error) {
 					console.error('Error fetching posts:', error);
@@ -1254,7 +1276,7 @@
 				
 				return `
 					<div class="gallery-item" title="${escapedTitle}">
-						<img src="${post.image_url}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22300%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2216%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3EImage Not Found%3C/text%3E%3C/svg%3E'">
+						<img src="${post.image_url}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" loading="lazy" onerror="this.style.backgroundColor='#e0e0e0'; this.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)';">
 					</div>
 				`;
 			}).join('');
@@ -1539,8 +1561,34 @@
 			}
 		});
 
-		// Load posts when page loads
-		document.addEventListener('DOMContentLoaded', loadPosts);
+		// Load posts when page loads with performance optimization
+		document.addEventListener('DOMContentLoaded', () => {
+			// Load posts immediately (priority)
+			loadPosts();
+			
+			// Add image lazy loading observer
+			if ('IntersectionObserver' in window) {
+				const imageObserver = new IntersectionObserver((entries, observer) => {
+					entries.forEach(entry => {
+						if (entry.isIntersecting) {
+							const img = entry.target;
+							if (img.dataset.src) {
+								img.src = img.dataset.src;
+								img.removeAttribute('data-src');
+								observer.unobserve(img);
+							}
+						}
+					});
+				}, {
+					rootMargin: '50px'
+				});
+
+				// Observe all images with data-src
+				document.querySelectorAll('img[data-src]').forEach(img => {
+					imageObserver.observe(img);
+				});
+			}
+		});
 
 		// Settings Menu Toggle
 		function toggleSettingsMenu() {
