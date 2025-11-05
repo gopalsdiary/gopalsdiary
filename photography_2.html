@@ -1129,6 +1129,10 @@
         });
 
         function escapeHtml(text) {
+            // Handle null, undefined, or non-string values
+            if (!text || typeof text !== 'string') {
+                return '';
+            }
             const map = {
                 '&': '&amp;',
                 '<': '&lt;',
