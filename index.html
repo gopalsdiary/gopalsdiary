@@ -92,9 +92,9 @@
 	</script>
 	
 	<!-- Security Headers -->
-	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https://vbfckjroisrhplrpqzkd.supabase.co https://i.ibb.co.com; font-src 'self' data:; frame-src 'self';">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://vbfckjroisrhplrpqzkd.supabase.co https://i.ibb.co.com; font-src 'self' data:; frame-src 'self';">
 	<meta http-equiv="X-Content-Type-Options" content="nosniff">
-	<meta name="referrer" content="no-referrer-when-downgrade">
+	<meta name="referrer" content="strict-origin-when-cross-origin">
 	<style>
 		* {
 			margin: 0;
@@ -1254,7 +1254,7 @@
 				
 				return `
 					<div class="gallery-item" title="${escapedTitle}">
-						<img src="${post.image_url}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" onerror="this.src='https://via.placeholder.com/300?text=Image+Error'">
+						<img src="${post.image_url}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22300%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2216%22 fill=%22%23999%22 text-anchor=%22middle%22 dy=%22.3em%22%3EImage Not Found%3C/text%3E%3C/svg%3E'">
 					</div>
 				`;
 			}).join('');
