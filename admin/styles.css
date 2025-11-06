@@ -1,16 +1,5 @@
 /* General Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ffb3d9 0%, #ffc0e0 50%, #ffb3d9 100%);
-    min-height: 100vh;
-    color: #333;
-}
+* {margin:0;padding:0;box-sizing:border-box;} body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#ffb3d9 0%,#ffc0e0 50%,#ffb3d9 100%);min-height:100vh;color:#333;}
 
 /* Navigation Bar */
 .navbar {
