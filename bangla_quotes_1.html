@@ -12,42 +12,7 @@
     <meta name="robots" content="index, follow">
     <meta name="language" content="Bengali">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gopalsdiary.netlify.app/bangla_quotes_1.html">
-    <meta property="og:title" content="????? ???? ? - Gopals Diary | Bengali Quotes Collection">
-    <meta property="og:description" content="?????? ????? ?????, ?????????????? ??? ??? ?????? ?????? Free download Bengali quotes from Gopals Diary.">
-    <meta property="og:image" content="https://gopalsdiary.netlify.app/favicon.svg">
-    <meta property="og:locale" content="bn_BD">
-    <meta property="og:site_name" content="Gopals Diary">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://gopalsdiary.netlify.app/bangla_quotes_1.html">
-    <meta name="twitter:title" content="????? ???? ? - Gopals Diary">
-    <meta name="twitter:description" content="?????? ????? ?????, ?????????????? ??? ??? ?????? ?????">
-    <meta name="twitter:image" content="https://gopalsdiary.netlify.app/favicon.svg">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://gopalsdiary.netlify.app/bangla_quotes_1.html">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": "????? ???? ? - Gopals Diary",
-      "description": "?????? ????? ?????, ?????????????? ??? ??? ?????? ??????? ??????",
-      "url": "https://gopalsdiary.netlify.app/bangla_quotes_1.html",
-      "inLanguage": "bn",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Gopals Diary",
-        "url": "https://gopalsdiary.netlify.app"
-      }
-    }
-    </script>
+
     
     <!-- Performance optimization -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -850,6 +815,7 @@
                 const result = await this.request('GET', `/${TABLE_NAME}?order=created_at.desc`, {
                     headers: {
                         'Range': `${rangeStart}-${rangeEnd}`,
+                        'Range-Unit': 'items',
                         'Prefer': 'count=exact',
                     },
                     returnFullResponse: true,
@@ -970,26 +936,53 @@
         function createPhotoCard(photo, index, total) {
             const card = document.createElement('div');
             card.className = 'photo-card';
-            
+
             // Store photo data as attribute
             const postDataJson = JSON.stringify(photo);
             card.setAttribute('data-photo', postDataJson);
-            card.setAttribute('data-index', index);
-            card.setAttribute('data-total', total);
-            
-            // Use data-src for lazy loading - NO src attribute initially
-            card.innerHTML = `
-                <div class="photo-image">
-                    <img data-src="${photo.image_url}" alt="${photo.title}" loading="lazy" class="photo-image-img" style="cursor: pointer;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E'">
-                </div>
-                <div class="photo-info">
-                    <h3>${escapeHtml(photo.title)}</h3>
-                    <p>${escapeHtml(photo.description)}</p>
-                </div>
-            `;
+            card.setAttribute('data-index', String(index));
+            card.setAttribute('data-total', String(total));
+
+            // Image container
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'photo-image';
+
+            // Image element (lazy load using data-src only)
+            const img = document.createElement('img');
+            img.className = 'photo-image-img';
+            img.loading = 'lazy';
+            img.style.cursor = 'pointer';
+            if (photo && typeof photo.image_url === 'string') {
+                img.dataset.src = photo.image_url;
+            }
+            // Alt text (safe fallback)
+            const altText = (photo && typeof photo.title === 'string' && photo.title.trim().length > 0)
+                ? photo.title
+                : 'gopals_diary';
+            img.alt = altText;
+
+            // On error placeholder
+            img.addEventListener('error', () => {
+                img.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E';
+            });
+
+            imageContainer.appendChild(img);
+
+            // Info container (hidden)
+            const info = document.createElement('div');
+            info.className = 'photo-info';
+            const h3 = document.createElement('h3');
+            h3.textContent = (photo && typeof photo.title === 'string') ? photo.title : '';
+            const p = document.createElement('p');
+            p.textContent = (photo && typeof photo.description === 'string') ? photo.description : '';
+            info.appendChild(h3);
+            info.appendChild(p);
+
+            // Build card
+            card.appendChild(imageContainer);
+            card.appendChild(info);
 
             // Observe image for lazy loading
-            const img = card.querySelector('.photo-image-img');
             if (img && imageObserver) {
                 imageObserver.observe(img);
             }
@@ -1158,6 +1151,7 @@
         });
 
         function escapeHtml(text) {
+            if (typeof text !== 'string') return '';
             const map = {
                 '&': '&amp;',
                 '<': '&lt;',
