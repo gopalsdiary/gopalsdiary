@@ -15,6 +15,16 @@
 	<link rel="preconnect" href="https://vbfckjroisrhplrpqzkd.supabase.co">
 	<link rel="preconnect" href="https://i.ibb.co.com">
 
+	<!-- PWA Manifest and Meta Tags -->
+	<link rel="manifest" href="manifest.json">
+	<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+	<link rel="apple-touch-icon" href="https://i.ibb.co.com/HDFLdgBM/gopals-diary.jpg">
+	<meta name="theme-color" content="#ff99cc">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Gopals Diary">
+
 	<style>
 		* {
 			margin: 0;
@@ -1071,11 +1081,99 @@
 			<a href="dotted_illustration_2.html" class="btn btn-pink external-link">Dotted Illustration 2 ↗</a>
 		</div>
 
+		<!-- Install App Button Footer -->
+		<div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #dbdbdb; width: 100%; max-width: 800px;">
+			<button id="installBtn" class="btn btn-primary" style="display: none; width: 100%; max-width: 300px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+				📱 Install App
+			</button>
+		</div>
+
 	</div>
 
 	<script>
-		// 🔥 Force External Browser Opening for FB/Instagram In-App Browsers
-		// Detect if user is in FB/Instagram in-app browser
+		// ============================================
+		// PWA: Service Worker Registration & Install
+		// ============================================
+		let deferredPrompt;
+		const installBtn = document.getElementById('installBtn');
+
+		// Register Service Worker
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('sw.js')
+				.then(registration => {
+					console.log('✓ Service Worker registered:', registration);
+				})
+				.catch(error => {
+					console.log('✗ Service Worker registration failed:', error);
+				});
+		}
+
+		// Utility: detect installed state
+		function isAppInstalled() {
+			return (
+				window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ||
+				window.navigator.standalone === true
+			);
+		}
+
+		// Update Install UI based on availability/state
+		function updateInstallUI() {
+			if (!installBtn) return;
+			if (isAppInstalled()) {
+				installBtn.style.display = 'none';
+				return;
+			}
+			// Show button only when native prompt is available
+			if (deferredPrompt) {
+				installBtn.textContent = '📱 Install App';
+				installBtn.style.display = 'block';
+			} else {
+				installBtn.style.display = 'none';
+			}
+		}
+
+		// Removed fallback guidance. Button will appear only when install is supported.
+
+		// Listen for beforeinstallprompt event
+		window.addEventListener('beforeinstallprompt', (e) => {
+			// Prevent the mini-infobar from appearing on mobile
+			e.preventDefault();
+			// Stash the event for later use
+			deferredPrompt = e;
+			console.log('✓ Install prompt available');
+			updateInstallUI();
+		});
+
+		// Handle install button click
+		if (installBtn) {
+			installBtn.addEventListener('click', async () => {
+				if (!deferredPrompt) return;
+				// Show the install prompt
+				deferredPrompt.prompt();
+				// Wait for the user to respond
+				const { outcome } = await deferredPrompt.userChoice;
+				console.log(`User response to the install prompt: ${outcome}`);
+				// Clear the deferredPrompt for re-use
+				deferredPrompt = null;
+				updateInstallUI();
+			});
+		}
+
+		// Listen for app installed event
+		window.addEventListener('appinstalled', () => {
+			console.log('✓ App installed successfully');
+			updateInstallUI();
+		});
+
+		// Keep UI in sync on load/visibility changes
+		window.addEventListener('DOMContentLoaded', updateInstallUI);
+		document.addEventListener('visibilitychange', () => {
+			if (!document.hidden) updateInstallUI();
+		});
+
+		// ============================================
+		// Force External Browser Opening for FB/Instagram In-App Browsers
+		// ============================================
 		function isInAppBrowser() {
 			const ua = navigator.userAgent || navigator.vendor || window.opera;
 			return (ua.indexOf('FBAN') > -1) || 
@@ -1085,39 +1183,64 @@
 				   (ua.indexOf('FB4A') > -1);
 		}
 
-		// Get full URL from relative path
 		function getFullUrl(relativePath) {
+			if (relativePath.startsWith('http')) {
+				return relativePath;
+			}
 			const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
 			return baseUrl + relativePath;
 		}
 
-		// Open in external browser
 		function openInExternalBrowser(url) {
-			const fullUrl = url.startsWith('http') ? url : getFullUrl(url);
+			const fullUrl = getFullUrl(url);
 			
-			// Directly open in external browser without confirmation
-			window.location.href = fullUrl;
+			// Multiple methods to force external browser opening
+			// Method 1: Try Intent URL for Android
+			if (/android/i.test(navigator.userAgent)) {
+				const intentUrl = 'intent://' + fullUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;end;';
+				window.location.href = intentUrl;
+				
+				// Fallback after delay
+				setTimeout(() => {
+					window.location.href = fullUrl;
+				}, 500);
+			} 
+			// Method 2: For iOS - use different approach
+			else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+				// Create a temporary link and click it
+				const tempLink = document.createElement('a');
+				tempLink.href = fullUrl;
+				tempLink.target = '_blank';
+				tempLink.rel = 'noopener noreferrer';
+				document.body.appendChild(tempLink);
+				tempLink.click();
+				document.body.removeChild(tempLink);
+				
+				// Additional fallback
+				setTimeout(() => {
+					window.open(fullUrl, '_system');
+				}, 100);
+			}
+			// Method 3: Generic fallback
+			else {
+				window.open(fullUrl, '_blank');
+			}
 		}
 
-		// Add click handlers to all external links
+		// Initialize when DOM is ready
 		document.addEventListener('DOMContentLoaded', function() {
 			if (isInAppBrowser()) {
 				console.log('🔍 In-App Browser Detected: FB/Instagram');
 				
-				// Add handlers to all external links
+				// Add click handlers to all external links
 				const externalLinks = document.querySelectorAll('.external-link');
 				externalLinks.forEach(link => {
 					link.addEventListener('click', function(e) {
 						e.preventDefault();
+						e.stopPropagation();
 						openInExternalBrowser(this.href);
 					});
 				});
-
-				// Show notification banner
-				const banner = document.createElement('div');
-				banner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; text-align: center; z-index: 9999; font-size: 13px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);';
-				banner.innerHTML = '📱 FB/Instagram থেকে দেখছেন? লিংক ক্লিক করলে Chrome এ খুলবে | Viewing from FB/Instagram? Links will open in Chrome ↗';
-				document.body.insertBefore(banner, document.body.firstChild);
 			}
 		});
 

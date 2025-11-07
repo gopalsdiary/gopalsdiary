@@ -38,7 +38,7 @@
         /* Navigation Bar */
         .navbar {
             background-color: rgba(0, 0, 0, 0.8);
-            padding: 1rem 0;
+            padding: 0.5rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -51,12 +51,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            padding: 0 1.5rem;
         }
 
         .logo {
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: bold;
             letter-spacing: 1px;
         }
@@ -65,10 +65,11 @@
             background: linear-gradient(135deg, #ff99cc 0%, #ffb3d9 100%);
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.9rem;
             transition: transform 0.3s, box-shadow 0.3s;
         }
 
@@ -452,9 +453,10 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease-out;
+            transition: transform 0.3s ease-out, opacity 0.3s ease;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            will-change: transform;
         }
 
         .photo-card:hover .photo-image img {
@@ -853,21 +855,31 @@
         const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================
-        // INTERSECTION OBSERVER FOR LAZY LOADING
+        // INTERSECTION OBSERVER FOR LAZY LOADING (OPTIMIZED)
         // ============================================
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     if (img.dataset.src) {
-                        img.src = img.dataset.src;
-                        img.removeAttribute('data-src');
-                        observer.unobserve(img);
+                        // Preload image for faster display
+                        const tempImg = new Image();
+                        tempImg.onload = () => {
+                            img.src = img.dataset.src;
+                            img.style.opacity = '1';
+                            img.removeAttribute('data-src');
+                            observer.unobserve(img);
+                        };
+                        tempImg.onerror = () => {
+                            img.src = img.dataset.src;
+                            observer.unobserve(img);
+                        };
+                        tempImg.src = img.dataset.src;
                     }
                 }
             });
         }, {
-            rootMargin: '50px'
+            rootMargin: '100px'
         });
 
         // ============================================
@@ -938,10 +950,10 @@
             card.setAttribute('data-index', index);
             card.setAttribute('data-total', total);
             
-            // Use data-src for lazy loading
+            // Use data-src for lazy loading with faster loading
             card.innerHTML = `
                 <div class="photo-image">
-                    <img data-src="${photo.image_url}" alt="${photo.title}" loading="lazy" class="photo-image-img" style="cursor: pointer;" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'%3E%3C/svg%3E">
+                    <img data-src="${photo.image_url}" alt="${photo.title}" loading="lazy" class="photo-image-img" style="cursor: pointer; opacity: 0; transition: opacity 0.3s ease;" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
                 </div>
                 <div class="photo-info">
                     <h3>${escapeHtml(photo.title)}</h3>
@@ -962,7 +974,8 @@
                 const tot = parseInt(this.getAttribute('data-total'));
                 const photoData = JSON.parse(photoDataJson);
                 const imgElement = this.querySelector('.photo-image-img');
-                const imageSrc = imgElement.src || imgElement.dataset.src;
+                // Use actual src if loaded, otherwise use data-src
+                const imageSrc = imgElement.src && !imgElement.src.includes('data:image') ? imgElement.src : imgElement.dataset.src;
                 openLightbox(imageSrc, idx, tot, photoData);
             });
 
