@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-<html lang="bn">
+
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- SEO Meta Tags -->
-    <title>বাংলা কোটস ১ - Gopals Diary | Bengali Quotes Collection</title>
-    <meta name="description" content="বাংলা কোটস - সুন্দর বাংলা উক্তি, অনুপ্রেরণামূলক কথা, জীবনের উপদেশ। Download free Bengali quotes, motivational quotes from Gopals Diary.">
-    <meta name="keywords" content="বাংলা কোটস, bangla quotes, বাংলা উক্তি, bengali quotes, অনুপ্রেরণা, motivation bangla, gopals diary, গোপালস ডায়েরি">
+    <title>Photography 2 - Gopals Diary | Beautiful Photography Collection</title>
+    <meta name="description" content="Beautiful photography collection. Download free high-quality photos from Gopals Diary. ফটোগ্রাফি।">
+    <meta name="keywords" content="photography, photos, gopals diary, গোপালস ডায়েরি, ফটোগ্রাফি">
     <meta name="author" content="Gopals Diary">
-    <meta name="robots" content="index, follow">
-    <meta name="language" content="Bengali">
-    
 
-    
     <!-- Performance optimization -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <style>
@@ -62,15 +59,15 @@
             color: white;
             font-size: 1.2rem;
             font-weight: bold;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .login-btn {
             background: linear-gradient(135deg, #ff99cc 0%, #ffb3d9 100%);
             color: white;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
             font-size: 0.9rem;
@@ -173,7 +170,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: rgba(255, 255, 255, 0.95);
             overflow: auto;
         }
 
@@ -398,65 +395,144 @@
         /* Container */
         .container {
             max-width: 1200px;
-            margin: 1.5rem auto;
-            padding: 0 1rem;
+            margin: 3rem auto;
+            padding: 0 2rem;
         }
 
         .gallery-header {
             text-align: center;
             color: white;
-            margin-bottom: 1.5rem;
+            margin-bottom: 3rem;
         }
 
         .gallery-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.3rem;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .gallery-header p {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
 
         /* Gallery Grid */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
             will-change: contents;
         }
 
         .photo-card {
             background: white;
-            border-radius: 6px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
             cursor: pointer;
-            aspect-ratio: 1;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
         }
 
         .photo-card:hover {
-            transform: scale(1.02);
+            transform: translateY(-8px) translateZ(0);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .photo-image {
             width: 100%;
-            height: 100%;
+            height: 0;
+            padding-bottom: 150%; /* 2:3 aspect ratio (height = 1.5 × width) */
             overflow: hidden;
-            background: #f0f0f0;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
             will-change: transform;
+            position: relative;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
         }
 
         .photo-image img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease-out;
+            transition: transform 0.3s ease-out, opacity 0.5s ease, filter 0.5s ease;
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            will-change: transform, opacity, filter;
+        }
+
+        /* Loading text placeholder */
+        .photo-image::before {
+            content: 'Loading....';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 1;
+            animation: loadingDots 1.5s infinite;
+        }
+
+        .photo-image.loaded::before {
+            display: none;
+        }
+
+        @keyframes loadingDots {
+            0% {
+                content: 'Loading';
+            }
+            25% {
+                content: 'Loading.';
+            }
+            50% {
+                content: 'Loading..';
+            }
+            75% {
+                content: 'Loading...';
+            }
+            100% {
+                content: 'Loading';
+            }
+        }
+
+        /* Hide placeholder when image is loaded */
+        .photo-image img.loaded ~ .photo-image::before {
+            display: none;
+        }
+
+        /* Loading state for images */
+        .photo-image img[data-src] {
+            background: #f0f0f0;
+        }
+
+        .photo-image img.loaded {
+            animation: fadeInImage 0.5s ease-in;
+        }
+
+        @keyframes fadeInImage {
+            from {
+                opacity: 0.7;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .photo-card:hover .photo-image img {
@@ -464,7 +540,32 @@
         }
 
         .photo-info {
-            display: none;
+            padding: 1rem;
+        }
+
+        .photo-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .photo-info p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .photo-info small {
+            color: #999;
+            font-size: 0.8rem;
         }
 
         /* Pagination */
@@ -472,19 +573,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
+            gap: 2rem;
+            margin: 3rem 0;
         }
 
         .btn-pagination {
             background: white;
             color: #ff1493;
             border: 2px solid #ff1493;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
             transition: all 0.3s;
         }
 
@@ -502,7 +602,7 @@
         .page-info {
             color: white;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         /* Page number list */
@@ -635,15 +735,11 @@
         @media (max-width: 768px) {
             .gallery-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 6px;
+                gap: 0.8rem;
             }
 
             .gallery-header h1 {
-                font-size: 1.4rem;
-            }
-
-            .container {
-                margin: 1rem auto;
+                font-size: 2rem;
             }
 
             .navbar-container {
@@ -656,33 +752,68 @@
 
             .pagination {
                 flex-direction: column;
-                gap: 0.8rem;
+                gap: 1rem;
             }
 
             .admin-panel {
                 bottom: 1rem;
                 right: 1rem;
             }
+            
+            /* 2:3 aspect ratio maintained on mobile */
+            .photo-image {
+                padding-bottom: 150%; /* 2:3 ratio */
+            }
+            
+            .photo-info {
+                padding: 0.5rem;
+            }
+            
+            .photo-info h3 {
+                font-size: 0.8rem;
+            }
+            
+            .photo-info p {
+                font-size: 0.7rem;
+            }
         }
 
         @media (max-width: 480px) {
             .gallery-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 4px;
+                gap: 0.6rem;
             }
 
             .gallery-header h1 {
-                font-size: 1.1rem;
-            }
-
-            .container {
-                padding: 0 0.75rem;
-                margin: 0.8rem auto;
+                font-size: 1.5rem;
             }
 
             .login-btn {
                 padding: 0.5rem 1rem;
                 font-size: 0.9rem;
+            }
+            
+            /* 2:3 aspect ratio on small screens */
+            .photo-image {
+                padding-bottom: 150%; /* 2:3 ratio */
+            }
+            
+            .photo-info {
+                padding: 0.4rem;
+            }
+            
+            .photo-info h3 {
+                font-size: 0.75rem;
+            }
+            
+            .photo-info p {
+                font-size: 0.65rem;
+                -webkit-line-clamp: 1;
+                line-clamp: 1;
+            }
+            
+            .container {
+                padding: 0 0.5rem;
             }
         }
     </style>
@@ -740,6 +871,7 @@
     </div>
 
     <script>
+         
         // ============================================
         // SUPABASE CONFIGURATION
         // ============================================
@@ -749,6 +881,94 @@
         // Gallery Settings
         const PHOTOS_PER_PAGE = 50;
         const TABLE_NAME = 'bangla_quotes_1';
+
+        // ============================================
+        // IMAGE OPTIMIZATION UTILITY
+        // ============================================
+        class ImageOptimizer {
+            /**
+             * Detect if user is on mobile device
+             */
+            static isMobile() {
+                return window.innerWidth <= 768;
+            }
+
+            /**
+             * Get optimized image URL from Supabase storage
+             * Supabase supports automatic image transformations
+             */
+            static getOptimizedUrl(originalUrl, options = {}) {
+                if (!originalUrl) return '';
+                
+                const {
+                    width = 800,
+                    quality = 75,
+                    format = 'webp'
+                } = options;
+                
+                // Check if it's a Supabase storage URL
+                if (originalUrl.includes('supabase.co/storage')) {
+                    const url = new URL(originalUrl);
+                    url.searchParams.set('width', width);
+                    url.searchParams.set('quality', quality);
+                    if (format) {
+                        url.searchParams.set('format', format);
+                    }
+                    return url.toString();
+                }
+                
+                return originalUrl;
+            }
+            
+            /**
+             * Get thumbnail version (very small for initial load)
+             * Target: < 50KB for fast loading
+             */
+            static getThumbnailUrl(originalUrl) {
+                // Mobile gets even smaller thumbnails
+                const width = this.isMobile() ? 250 : 300;
+                return this.getOptimizedUrl(originalUrl, {
+                    width: width,
+                    quality: 50, // Lower quality for smaller file size
+                    format: 'webp'
+                });
+            }
+            
+            /**
+             * Get medium quality for gallery view
+             */
+            static getGalleryUrl(originalUrl) {
+                // Mobile gets smaller gallery images
+                const width = this.isMobile() ? 600 : 800;
+                const quality = this.isMobile() ? 70 : 75;
+                return this.getOptimizedUrl(originalUrl, {
+                    width: width,
+                    quality: quality,
+                    format: 'webp'
+                });
+            }
+            
+            /**
+             * Get high quality for lightbox
+             */
+            static getLightboxUrl(originalUrl) {
+                // Mobile gets medium quality in lightbox
+                const width = this.isMobile() ? 1200 : 1920;
+                const quality = this.isMobile() ? 80 : 85;
+                return this.getOptimizedUrl(originalUrl, {
+                    width: width,
+                    quality: quality,
+                    format: 'webp'
+                });
+            }
+            
+            /**
+             * Get original for download
+             */
+            static getOriginalUrl(originalUrl) {
+                return originalUrl;
+            }
+        }
 
         // ============================================
         // SUPABASE CLIENT CLASS
@@ -815,7 +1035,6 @@
                 const result = await this.request('GET', `/${TABLE_NAME}?order=created_at.desc`, {
                     headers: {
                         'Range': `${rangeStart}-${rangeEnd}`,
-                        'Range-Unit': 'items',
                         'Prefer': 'count=exact',
                     },
                     returnFullResponse: true,
@@ -842,38 +1061,86 @@
         const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ============================================
-        // INTERSECTION OBSERVER FOR LAZY LOADING
+        // INTERSECTION OBSERVER FOR LAZY LOADING (OPTIMIZED WITH PROGRESSIVE LOADING)
         // ============================================
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
-                    if (img.dataset.src) {
-                        // Check if URL is valid before loading
-                        if (isValidUrl(img.dataset.src)) {
-                            img.src = img.dataset.src;
-                        } else {
-                            // Use fallback for invalid URL
-                            img.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E';
-                        }
-                        img.removeAttribute('data-src');
-                        observer.unobserve(img);
+                    const photoImage = img.closest('.photo-image');
+                    
+                    if (img.dataset.src && img.src.includes('data:image')) {
+                        const originalSrc = img.dataset.src;
+                        const thumbnailSrc = img.dataset.thumbnail;
+                        const gallerySrc = img.dataset.gallery;
+                        
+                        // Function to load image with retry
+                        const loadImageWithRetry = (src, maxRetries = 3) => {
+                            return new Promise((resolve, reject) => {
+                                let attempts = 0;
+                                
+                                const attemptLoad = () => {
+                                    const tempImg = new Image();
+                                    tempImg.onload = () => resolve(tempImg);
+                                    tempImg.onerror = () => {
+                                        attempts++;
+                                        if (attempts < maxRetries) {
+                                            console.log(`Retry ${attempts}/${maxRetries} for image: ${src}`);
+                                            setTimeout(attemptLoad, 1000 * attempts); // Exponential backoff
+                                        } else {
+                                            reject(new Error(`Failed to load after ${maxRetries} attempts`));
+                                        }
+                                    };
+                                    tempImg.src = src;
+                                };
+                                
+                                attemptLoad();
+                            });
+                        };
+                        
+                        // Load thumbnail first with retry
+                        loadImageWithRetry(thumbnailSrc)
+                            .then(() => {
+                                requestAnimationFrame(() => {
+                                    img.src = thumbnailSrc;
+                                    img.style.opacity = '1';
+                                    img.style.filter = 'blur(2px)';
+                                });
+                                
+                                // Load gallery quality in background with retry
+                                return loadImageWithRetry(gallerySrc);
+                            })
+                            .then(() => {
+                                requestAnimationFrame(() => {
+                                    img.src = gallerySrc;
+                                    img.style.filter = 'none';
+                                    img.classList.add('loaded');
+                                    if (photoImage) photoImage.classList.add('loaded');
+                                    img.removeAttribute('data-src');
+                                    img.removeAttribute('data-thumbnail');
+                                    img.removeAttribute('data-gallery');
+                                });
+                                observer.unobserve(img);
+                            })
+                            .catch((error) => {
+                                console.error('Failed to load image:', error);
+                                // Fallback to original
+                                requestAnimationFrame(() => {
+                                    img.src = originalSrc;
+                                    img.style.opacity = '1';
+                                    img.style.filter = 'none';
+                                    img.classList.add('loaded');
+                                    if (photoImage) photoImage.classList.add('loaded');
+                                });
+                                observer.unobserve(img);
+                            });
                     }
                 }
             });
         }, {
-            rootMargin: '50px'
+            rootMargin: '300px', // Preload images earlier
+            threshold: 0.01
         });
-
-        // Helper function to validate URL
-        function isValidUrl(url) {
-            try {
-                new URL(url);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
 
         // ============================================
         // GALLERY JAVASCRIPT
@@ -881,9 +1148,65 @@
         let currentPage = 1;
         let totalPhotos = 0;
 
+        // Force load all images function
+        function forceLoadAllImages() {
+            const allImages = document.querySelectorAll('.photo-image-img[data-src]');
+            console.log(`Force loading ${allImages.length} images...`);
+            
+            allImages.forEach((img, index) => {
+                // Trigger intersection observer by scrolling image into view temporarily
+                // or directly trigger the loading
+                setTimeout(() => {
+                    const event = new Event('intersect');
+                    imageObserver.observe(img);
+                    
+                    // Force trigger by creating a fake intersection
+                    const rect = img.getBoundingClientRect();
+                    if (!img.src.includes('data:image')) {
+                        return; // Already loaded
+                    }
+                    
+                    // Manually trigger the load
+                    const photoImage = img.closest('.photo-image');
+                    const originalSrc = img.dataset.src;
+                    const thumbnailSrc = img.dataset.thumbnail;
+                    const gallerySrc = img.dataset.gallery;
+                    
+                    if (thumbnailSrc && gallerySrc) {
+                        // Load thumbnail first
+                        const thumbImg = new Image();
+                        thumbImg.onload = () => {
+                            img.src = thumbnailSrc;
+                            img.style.opacity = '1';
+                            img.style.filter = 'blur(2px)';
+                            
+                            // Load gallery quality
+                            const galleryImg = new Image();
+                            galleryImg.onload = () => {
+                                img.src = gallerySrc;
+                                img.style.filter = 'none';
+                                img.classList.add('loaded');
+                                if (photoImage) photoImage.classList.add('loaded');
+                                img.removeAttribute('data-src');
+                                img.removeAttribute('data-thumbnail');
+                                img.removeAttribute('data-gallery');
+                            };
+                            galleryImg.src = gallerySrc;
+                        };
+                        thumbImg.src = thumbnailSrc;
+                    }
+                }, index * 100); // Stagger loading to avoid overwhelming the browser
+            });
+        }
+
         // Load photos on page load
         document.addEventListener('DOMContentLoaded', function() {
-            loadPhotos();
+            loadPhotos().then(() => {
+                // Auto force load all images after initial load
+                setTimeout(() => {
+                    forceLoadAllImages();
+                }, 1000); // Wait 1 second after page load
+            });
             setupEventListeners();
         });
 
@@ -936,53 +1259,44 @@
         function createPhotoCard(photo, index, total) {
             const card = document.createElement('div');
             card.className = 'photo-card';
-
+            
             // Store photo data as attribute
             const postDataJson = JSON.stringify(photo);
             card.setAttribute('data-photo', postDataJson);
-            card.setAttribute('data-index', String(index));
-            card.setAttribute('data-total', String(total));
-
-            // Image container
-            const imageContainer = document.createElement('div');
-            imageContainer.className = 'photo-image';
-
-            // Image element (lazy load using data-src only)
-            const img = document.createElement('img');
-            img.className = 'photo-image-img';
-            img.loading = 'lazy';
-            img.style.cursor = 'pointer';
-            if (photo && typeof photo.image_url === 'string') {
-                img.dataset.src = photo.image_url;
-            }
-            // Alt text (safe fallback)
-            const altText = (photo && typeof photo.title === 'string' && photo.title.trim().length > 0)
-                ? photo.title
-                : 'gopals_diary';
-            img.alt = altText;
-
-            // On error placeholder
-            img.addEventListener('error', () => {
-                img.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E';
-            });
-
-            imageContainer.appendChild(img);
-
-            // Info container (hidden)
-            const info = document.createElement('div');
-            info.className = 'photo-info';
-            const h3 = document.createElement('h3');
-            h3.textContent = (photo && typeof photo.title === 'string') ? photo.title : '';
-            const p = document.createElement('p');
-            p.textContent = (photo && typeof photo.description === 'string') ? photo.description : '';
-            info.appendChild(h3);
-            info.appendChild(p);
-
-            // Build card
-            card.appendChild(imageContainer);
-            card.appendChild(info);
+            card.setAttribute('data-index', index);
+            card.setAttribute('data-total', total);
+            
+            // Get optimized image URLs
+            const originalUrl = photo.image_url;
+            const thumbnailUrl = ImageOptimizer.getThumbnailUrl(originalUrl);
+            const galleryUrl = ImageOptimizer.getGalleryUrl(originalUrl);
+            const lightboxUrl = ImageOptimizer.getLightboxUrl(originalUrl);
+            
+            // Store original URL for download
+            card.setAttribute('data-original-url', originalUrl);
+            card.setAttribute('data-lightbox-url', lightboxUrl);
+            
+            // Use data-src for lazy loading with progressive loading
+            // Show "Loading...." text as placeholder
+            card.innerHTML = `
+                <div class="photo-image">
+                    <img data-src="${originalUrl}" 
+                         data-thumbnail="${thumbnailUrl}" 
+                         data-gallery="${galleryUrl}" 
+                         alt="${photo.title}" 
+                         loading="lazy" 
+                         class="photo-image-img" 
+                         style="cursor: pointer; opacity: 0; transition: opacity 0.5s ease, filter 0.5s ease;" 
+                         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+                </div>
+                <div class="photo-info">
+                    <h3>${escapeHtml(photo.title)}</h3>
+                    <p>${escapeHtml(photo.description)}</p>
+                </div>
+            `;
 
             // Observe image for lazy loading
+            const img = card.querySelector('.photo-image-img');
             if (img && imageObserver) {
                 imageObserver.observe(img);
             }
@@ -993,16 +1307,20 @@
                 const idx = parseInt(this.getAttribute('data-index'));
                 const tot = parseInt(this.getAttribute('data-total'));
                 const photoData = JSON.parse(photoDataJson);
-                const imgElement = this.querySelector('.photo-image-img');
-                const imageSrc = imgElement.src || imgElement.dataset.src;
-                openLightbox(imageSrc, idx, tot, photoData);
+                const lightboxImgUrl = this.getAttribute('data-lightbox-url');
+                const originalImgUrl = this.getAttribute('data-original-url');
+                
+                openLightbox(lightboxImgUrl, idx, tot, photoData, originalImgUrl);
             });
 
             return card;
         }
 
         // Lightbox functions
-        function openLightbox(imageSrc, index, total, photoData) {
+        // Store scroll position before opening lightbox
+        let savedScrollPosition = 0;
+
+        function openLightbox(lightboxImageSrc, index, total, photoData, originalUrl) {
             const lightbox = document.getElementById('lightbox');
             const lightboxImage = document.getElementById('lightboxImage');
             const lightboxTitle = document.getElementById('lightboxTitle');
@@ -1010,7 +1328,16 @@
             const imageCounter = document.getElementById('imageCounter');
             const totalCounter = document.getElementById('totalCounter');
 
-            lightboxImage.src = imageSrc;
+            // Save current scroll position
+            savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+            // Add history state for browser back button
+            history.pushState({ lightboxOpen: true }, '', '#lightbox');
+
+            // Use high-quality lightbox image
+            lightboxImage.src = lightboxImageSrc;
+            lightboxImage.setAttribute('data-original-url', originalUrl); // Store for download
+            
             lightboxTitle.textContent = photoData.title || 'gopals_diary';
             lightboxDescription.textContent = photoData.description || '-';
             currentImageIndex = index;
@@ -1028,8 +1355,23 @@
 
         function closeLightbox() {
             const lightbox = document.getElementById('lightbox');
+            
+            // Check if lightbox is actually open
+            if (!lightbox.classList.contains('active')) return;
+            
             lightbox.classList.remove('active');
             document.body.style.overflow = 'auto';
+            
+            // Remove hash from URL if present
+            if (window.location.hash === '#lightbox') {
+                history.back();
+            }
+            
+            // Restore scroll position
+            window.scrollTo({
+                top: savedScrollPosition,
+                behavior: 'instant' // Use 'instant' for immediate scroll, or 'smooth' for smooth scroll
+            });
         }
 
         function nextImage() {
@@ -1039,14 +1381,16 @@
             const nextCard = currentPhotos[currentImageIndex];
             const photoDataJson = nextCard.getAttribute('data-photo');
             const photoData = JSON.parse(photoDataJson);
-            const nextImageSrc = currentLightboxImages[currentImageIndex].src;
+            const nextLightboxUrl = nextCard.getAttribute('data-lightbox-url');
+            const nextOriginalUrl = nextCard.getAttribute('data-original-url');
             
             const lightboxImage = document.getElementById('lightboxImage');
             const lightboxTitle = document.getElementById('lightboxTitle');
             const lightboxDescription = document.getElementById('lightboxDescription');
             const imageCounter = document.getElementById('imageCounter');
             
-            lightboxImage.src = nextImageSrc;
+            lightboxImage.src = nextLightboxUrl;
+            lightboxImage.setAttribute('data-original-url', nextOriginalUrl);
             lightboxTitle.textContent = photoData.title || 'gopals_diary';
             lightboxDescription.textContent = photoData.description || '-';
             imageCounter.textContent = currentImageIndex + 1;
@@ -1059,22 +1403,25 @@
             const prevCard = currentPhotos[currentImageIndex];
             const photoDataJson = prevCard.getAttribute('data-photo');
             const photoData = JSON.parse(photoDataJson);
-            const prevImageSrc = currentLightboxImages[currentImageIndex].src;
+            const prevLightboxUrl = prevCard.getAttribute('data-lightbox-url');
+            const prevOriginalUrl = prevCard.getAttribute('data-original-url');
             
             const lightboxImage = document.getElementById('lightboxImage');
             const lightboxTitle = document.getElementById('lightboxTitle');
             const lightboxDescription = document.getElementById('lightboxDescription');
             const imageCounter = document.getElementById('imageCounter');
             
-            lightboxImage.src = prevImageSrc;
+            lightboxImage.src = prevLightboxUrl;
+            lightboxImage.setAttribute('data-original-url', prevOriginalUrl);
             lightboxTitle.textContent = photoData.title || 'gopals_diary';
             lightboxDescription.textContent = photoData.description || '-';
             imageCounter.textContent = currentImageIndex + 1;
         }
 
-        // Download image function
+        // Download image function (uses original high-quality image)
         async function downloadImage() {
-            const imageUrl = document.getElementById('lightboxImage').src;
+            const lightboxImage = document.getElementById('lightboxImage');
+            const imageUrl = lightboxImage.getAttribute('data-original-url') || lightboxImage.src;
             const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
             
             if (!imageUrl) {
@@ -1082,8 +1429,13 @@
                 return;
             }
             
+            const downloadBtn = document.querySelector('.lightbox-download-btn');
+            const originalText = downloadBtn.textContent;
+            
             try {
-                // Fetch the image as a blob
+                downloadBtn.textContent = '⏳ Downloading...';
+                downloadBtn.disabled = true;
+                
                 const response = await fetch(imageUrl);
                 
                 if (!response.ok) {
@@ -1092,18 +1444,15 @@
                 
                 const blob = await response.blob();
                 
-                // Get file extension from URL or blob type
-                let filename = imageTitle;
+                // Get file extension
+                let filename = imageTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
                 if (!filename.includes('.')) {
-                    const contentType = blob.type;
-                    const ext = contentType === 'image/jpeg' ? '.jpg' : 
-                               contentType === 'image/png' ? '.png' : 
-                               contentType === 'image/gif' ? '.gif' : 
-                               contentType === 'image/webp' ? '.webp' : '.jpg';
+                    const ext = blob.type === 'image/jpeg' ? '.jpg' : 
+                               blob.type === 'image/png' ? '.png' : 
+                               blob.type === 'image/webp' ? '.webp' : '.jpg';
                     filename = filename + ext;
                 }
                 
-                // Create blob URL and download
                 const blobUrl = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = blobUrl;
@@ -1111,15 +1460,19 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
-                // Clean up
                 URL.revokeObjectURL(blobUrl);
                 
-            } catch (error) {
-                console.error('Download error:', error);
-                alert('Download failed. Trying alternative method...');
+                downloadBtn.textContent = '✅ Downloaded';
+                setTimeout(() => {
+                    downloadBtn.textContent = originalText;
+                    downloadBtn.disabled = false;
+                }, 2000);
                 
-                // Fallback: Direct download attempt
+            } catch (error) {
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
+                
+                // Fallback method
                 const link = document.createElement('a');
                 link.href = imageUrl;
                 link.download = imageTitle || 'image';
@@ -1150,8 +1503,26 @@
             }
         });
 
+        // Handle browser back button
+        window.addEventListener('popstate', function(event) {
+            const lightbox = document.getElementById('lightbox');
+            if (lightbox.classList.contains('active')) {
+                lightbox.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                
+                // Restore scroll position
+                window.scrollTo({
+                    top: savedScrollPosition,
+                    behavior: 'instant'
+                });
+            }
+        });
+
         function escapeHtml(text) {
-            if (typeof text !== 'string') return '';
+            // Handle null, undefined, or non-string values
+            if (!text || typeof text !== 'string') {
+                return '';
+            }
             const map = {
                 '&': '&amp;',
                 '<': '&lt;',
@@ -1223,4 +1594,3 @@
     </script>
 </body>
 </html>
-
