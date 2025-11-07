@@ -1043,37 +1043,84 @@
 		<p style="font-size: 14px; color: #999; margin-bottom: 20px;">বাংলা কোটস, ফটোগ্রাফি, ইলাস্ট্রেশন - সব ফ্রি ব্যবহার করুন</p>
 
 		<div class="buttons-section">
-			<a href="bangla_quotes_1.html" class="btn btn-orange">Bangla Quotes</a>
-			<a href="bangla_quotes_2.html" class="btn btn-pink">Bangla Quotes 2</a>
-			<a href="bangla_quotes_3.html" class="btn btn-orange">Bangla Quotes 3</a>
-			<a href="bangla_quotes_4.html" class="btn btn-pink">Bangla Quotes 4</a>
+			<a href="bangla_quotes_1.html" class="btn btn-orange external-link">Bangla Quotes ↗</a>
+			<a href="bangla_quotes_2.html" class="btn btn-pink external-link">Bangla Quotes 2 ↗</a>
+			<a href="bangla_quotes_3.html" class="btn btn-orange external-link">Bangla Quotes 3 ↗</a>
+			<a href="bangla_quotes_4.html" class="btn btn-pink external-link">Bangla Quotes 4 ↗</a>
 		</div>
 
 		<div class="buttons-section">
-			<a href="photography_1.html" class="btn btn-orange">Photography</a>
-			<a href="photography_2.html" class="btn btn-pink">Photography 2</a>
-			<a href="photography_3.html" class="btn btn-orange">Photography 3</a>
-			<a href="photography_4.html" class="btn btn-pink">Photography 4</a>
+			<a href="photography_1.html" class="btn btn-orange external-link">Photography ↗</a>
+			<a href="photography_2.html" class="btn btn-pink external-link">Photography 2 ↗</a>
+			<a href="photography_3.html" class="btn btn-orange external-link">Photography 3 ↗</a>
+			<a href="photography_4.html" class="btn btn-pink external-link">Photography 4 ↗</a>
 		</div>
 
 		<div class="buttons-section">
-			<a href="english_quotes_1.html" class="btn btn-orange">English Quotes</a>
-			<a href="english_quotes_2.html" class="btn btn-pink">English Quotes 2</a>
+			<a href="english_quotes_1.html" class="btn btn-orange external-link">English Quotes ↗</a>
+			<a href="english_quotes_2.html" class="btn btn-pink external-link">English Quotes 2 ↗</a>
 		</div>
 
 		<div class="buttons-section">
-			<a href="illustration_1.html" class="btn btn-orange">Illustration</a>
-			<a href="illustration_2.html" class="btn btn-pink">Illustration 2</a>
+			<a href="illustration_1.html" class="btn btn-orange external-link">Illustration ↗</a>
+			<a href="illustration_2.html" class="btn btn-pink external-link">Illustration 2 ↗</a>
 		</div>
 
 		<div class="buttons-section">
-			<a href="dotted_illustration_1.html" class="btn btn-orange">Dotted Illustration</a>
-			<a href="dotted_illustration_2.html" class="btn btn-pink">Dotted Illustration 2</a>
+			<a href="dotted_illustration_1.html" class="btn btn-orange external-link">Dotted Illustration ↗</a>
+			<a href="dotted_illustration_2.html" class="btn btn-pink external-link">Dotted Illustration 2 ↗</a>
 		</div>
 
 	</div>
 
 	<script>
+		// 🔥 Force External Browser Opening for FB/Instagram In-App Browsers
+		// Detect if user is in FB/Instagram in-app browser
+		function isInAppBrowser() {
+			const ua = navigator.userAgent || navigator.vendor || window.opera;
+			return (ua.indexOf('FBAN') > -1) || 
+				   (ua.indexOf('FBAV') > -1) || 
+				   (ua.indexOf('Instagram') > -1) ||
+				   (ua.indexOf('FB_IAB') > -1) ||
+				   (ua.indexOf('FB4A') > -1);
+		}
+
+		// Get full URL from relative path
+		function getFullUrl(relativePath) {
+			const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+			return baseUrl + relativePath;
+		}
+
+		// Open in external browser
+		function openInExternalBrowser(url) {
+			const fullUrl = url.startsWith('http') ? url : getFullUrl(url);
+			
+			// Directly open in external browser without confirmation
+			window.location.href = fullUrl;
+		}
+
+		// Add click handlers to all external links
+		document.addEventListener('DOMContentLoaded', function() {
+			if (isInAppBrowser()) {
+				console.log('🔍 In-App Browser Detected: FB/Instagram');
+				
+				// Add handlers to all external links
+				const externalLinks = document.querySelectorAll('.external-link');
+				externalLinks.forEach(link => {
+					link.addEventListener('click', function(e) {
+						e.preventDefault();
+						openInExternalBrowser(this.href);
+					});
+				});
+
+				// Show notification banner
+				const banner = document.createElement('div');
+				banner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px; text-align: center; z-index: 9999; font-size: 13px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);';
+				banner.innerHTML = '📱 FB/Instagram থেকে দেখছেন? লিংক ক্লিক করলে Chrome এ খুলবে | Viewing from FB/Instagram? Links will open in Chrome ↗';
+				document.body.insertBefore(banner, document.body.firstChild);
+			}
+		});
+
 		// Supabase Configuration
 		const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
 		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
