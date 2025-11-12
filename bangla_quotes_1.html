@@ -1032,7 +1032,7 @@
                 const rangeStart = offset;
                 const rangeEnd = offset + limit - 1;
                 
-                const result = await this.request('GET', `/${TABLE_NAME}?select=image_iid,title,description,image_url,thumbnail_url,section,created_at&order=created_at.desc`, {
+                const result = await this.request('GET', `/${TABLE_NAME}?select=image_iid,title,description,image_url,thumbnail_url,section,created_at&order=image_iid.asc`, {
                     headers: {
                         'Range': `${rangeStart}-${rangeEnd}`,
                         'Prefer': 'count=exact',
@@ -1124,7 +1124,7 @@
                             })
                             .catch((error) => {
                                 console.error('Failed to load image:', error);
-                                // Fallback to original
+                                // Fallback to preview url (thumbnail_url or image_url)
                                 requestAnimationFrame(() => {
                                     img.src = originalSrc;
                                     img.style.opacity = '1';
