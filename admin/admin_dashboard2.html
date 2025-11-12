@@ -1422,25 +1422,38 @@
                     this.log(`✓ Found ${this.totalItems} items`, 'success');
                     this.updateProgress();
 
-                    // Process each item
-                    for (let i = 0; i < items.length; i++) {
+                    // Process items in batches of 5
+                    const batchSize = 5;
+                    for (let i = 0; i < items.length; i += batchSize) {
                         if (this.shouldStop) {
                             this.log('⏸️ Process stopped by user', 'warning');
                             break;
                         }
 
-                        this.currentIndex = i + 1;
-                        this.updateProgress();
+                        // Get batch of items
+                        const batch = items.slice(i, i + batchSize);
+                        this.log(`🔄 Processing batch ${Math.floor(i / batchSize) + 1} (${batch.length} items)...`, 'info');
 
-                        try {
-                            await this.processItem(items[i], tableName);
-                        } catch (error) {
-                            this.log(`⚠️ Item ${i + 1} processing failed, continuing...`, 'warning');
-                            console.error('Item processing error:', error);
-                        }
+                        // Process all items in the batch simultaneously
+                        const batchPromises = batch.map(async (item, batchIndex) => {
+                            const itemIndex = i + batchIndex;
+                            try {
+                                await this.processItem(item, tableName);
+                            } catch (error) {
+                                this.log(`⚠️ Item ${itemIndex + 1} processing failed, continuing...`, 'warning');
+                                console.error('Item processing error:', error);
+                            }
+                        });
+
+                        // Wait for all items in batch to complete
+                        await Promise.all(batchPromises);
                         
-                        // Small delay between items
-                        await new Promise(resolve => setTimeout(resolve, 800));
+                        // Update progress after batch
+                        this.currentIndex = Math.min(i + batchSize, items.length);
+                        this.updateProgress();
+                        
+                        // Small delay between batches
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                     }
 
                     // Summary
