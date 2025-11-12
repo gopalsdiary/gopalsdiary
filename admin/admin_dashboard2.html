@@ -1376,7 +1376,14 @@
                         statusText: response.statusText,
                         error: errorData
                     });
-                    throw new Error(`Database update failed (${response.status}): ${errorData.message || response.statusText}`);
+                    
+                    // Check for REPLICA IDENTITY error
+                    const errorMsg = errorData.message || errorData.hint || response.statusText;
+                    if (errorMsg.includes('replica identity')) {
+                        throw new Error(`Database configuration error: Please run "ALTER TABLE ${tableName} REPLICA IDENTITY FULL;" in Supabase SQL Editor`);
+                    }
+                    
+                    throw new Error(`Database update failed (${response.status}): ${errorMsg}`);
                 }
                 
                 const result = await response.json();
@@ -1409,7 +1416,10 @@
                     const items = await this.fetchItems(tableName);
                     this.totalItems = items.length;
                     
-                    this.log(`✓ Found ${this.totalItems} items (max 50)`, 'success');
+                    console.log('📦 Fetched items:', items.length);
+                    console.log('📋 Sample items:', items.slice(0, 3));
+                    
+                    this.log(`✓ Found ${this.totalItems} items`, 'success');
                     this.updateProgress();
 
                     // Process each item
@@ -1422,10 +1432,15 @@
                         this.currentIndex = i + 1;
                         this.updateProgress();
 
-                        await this.processItem(items[i], tableName);
+                        try {
+                            await this.processItem(items[i], tableName);
+                        } catch (error) {
+                            this.log(`⚠️ Item ${i + 1} processing failed, continuing...`, 'warning');
+                            console.error('Item processing error:', error);
+                        }
                         
                         // Small delay between items
-                        await new Promise(resolve => setTimeout(resolve, 500));
+                        await new Promise(resolve => setTimeout(resolve, 800));
                     }
 
                     // Summary
@@ -1455,7 +1470,8 @@
             async fetchItems(tableName) {
                 const accessToken = localStorage.getItem('supabase_access_token');
                 
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=image_iid,title,image_url,thumbnail_url&order=image_iid.desc&limit=50`, {
+                // Fetch all items without thumbnail_url (pending items) - ascending order by ID
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=image_iid,title,image_url,thumbnail_url&thumbnail_url=is.null&order=image_iid.asc&limit=100`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2048,7 +2064,7 @@
                 const { data, error } = await supabase
                     .from(currentTable)
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .order('image_iid', { ascending: true });
 
                 if (error) {
                     if (isAuthError(error)) {
