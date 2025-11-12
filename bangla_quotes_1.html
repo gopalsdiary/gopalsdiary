@@ -1032,7 +1032,7 @@
                 const rangeStart = offset;
                 const rangeEnd = offset + limit - 1;
                 
-                const result = await this.request('GET', `/${TABLE_NAME}?order=created_at.desc`, {
+                const result = await this.request('GET', `/${TABLE_NAME}?select=image_iid,title,description,image_url,thumbnail_url,section,created_at&order=created_at.desc`, {
                     headers: {
                         'Range': `${rangeStart}-${rangeEnd}`,
                         'Prefer': 'count=exact',
@@ -1266,11 +1266,12 @@
             card.setAttribute('data-index', index);
             card.setAttribute('data-total', total);
             
-            // Get optimized image URLs
+            // Use thumbnail_url for preview if available, fallback to image_url
             const originalUrl = photo.image_url;
-            const thumbnailUrl = ImageOptimizer.getThumbnailUrl(originalUrl);
-            const galleryUrl = ImageOptimizer.getGalleryUrl(originalUrl);
-            const lightboxUrl = ImageOptimizer.getLightboxUrl(originalUrl);
+            const previewUrl = photo.thumbnail_url || photo.image_url;
+            const thumbnailUrl = ImageOptimizer.getThumbnailUrl(previewUrl);
+            const galleryUrl = ImageOptimizer.getGalleryUrl(previewUrl);
+            const lightboxUrl = ImageOptimizer.getLightboxUrl(previewUrl);
             
             // Store original URL for download
             card.setAttribute('data-original-url', originalUrl);
@@ -1280,7 +1281,7 @@
             // Show "Loading...." text as placeholder
             card.innerHTML = `
                 <div class="photo-image">
-                    <img data-src="${originalUrl}" 
+                    <img data-src="${previewUrl}" 
                          data-thumbnail="${thumbnailUrl}" 
                          data-gallery="${galleryUrl}" 
                          alt="${photo.title}" 

@@ -1270,7 +1270,7 @@
 					}
 
 					// Fetch only necessary columns (performance optimization)
-					const url = `${this.url}/rest/v1/${TABLE_NAME}?select=image_iid,title,description,image_url,section&order=created_at.desc`;
+					const url = `${this.url}/rest/v1/${TABLE_NAME}?select=image_iid,title,description,image_url,thumbnail_url,section&order=created_at.desc`;
 					console.log('Fetching posts...');
 					
 					const response = await fetch(url, {
@@ -1359,10 +1359,11 @@
 			grid.innerHTML = posts.map((post, index) => {
 				const escapedTitle = (post.title || '').replace(/"/g, '&quot;');
 				const postDataJson = JSON.stringify(post);
+				const thumbnailUrl = post.thumbnail_url || post.image_url;
 				
 				return `
 					<div class="gallery-item" title="${escapedTitle}">
-						<img src="${post.image_url}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" loading="lazy" onerror="this.style.backgroundColor='#e0e0e0'; this.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)';">
+						<img src="${thumbnailUrl}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" loading="lazy" onerror="this.style.backgroundColor='#e0e0e0'; this.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)';">
 					</div>
 				`;
 			}).join('');
@@ -1374,7 +1375,8 @@
 					const total = parseInt(this.getAttribute('data-total'));
 					const postDataJson = this.getAttribute('data-post');
 					const postData = JSON.parse(postDataJson);
-					openLightbox(this.src, index, total, postData);
+					const thumbnailUrl = postData.thumbnail_url || postData.image_url;
+					openLightbox(thumbnailUrl, index, total, postData);
 				});
 			});
 		}
@@ -1418,8 +1420,8 @@
 			if (currentLightboxImages.length === 0) return;
 			
 			currentImageIndex = (currentImageIndex + 1) % currentLightboxImages.length;
-			const nextImageSrc = currentLightboxImages[currentImageIndex].src;
 			const nextPostData = currentPostsData[currentImageIndex];
+			const nextImageSrc = nextPostData.thumbnail_url || nextPostData.image_url;
 			const lightboxImage = document.getElementById('lightboxImage');
 			const lightboxTitle = document.getElementById('lightboxTitle');
 			const lightboxDescription = document.getElementById('lightboxDescription');
@@ -1436,8 +1438,8 @@
 			if (currentLightboxImages.length === 0) return;
 			
 			currentImageIndex = (currentImageIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
-			const prevImageSrc = currentLightboxImages[currentImageIndex].src;
 			const prevPostData = currentPostsData[currentImageIndex];
+			const prevImageSrc = prevPostData.thumbnail_url || prevPostData.image_url;
 			const lightboxImage = document.getElementById('lightboxImage');
 			const lightboxTitle = document.getElementById('lightboxTitle');
 			const lightboxDescription = document.getElementById('lightboxDescription');
@@ -1471,7 +1473,9 @@
 
 		// Download image function - Simple and Direct
 		function downloadImage() {
-			const imageUrl = document.getElementById('lightboxImage').src;
+			// Get the original image_url from current post data for download
+			const currentPost = currentPostsData[currentImageIndex];
+			const imageUrl = currentPost.image_url;
 			const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
 			
 			if (!imageUrl) {
