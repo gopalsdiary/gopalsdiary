@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Gopals Diary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f5f5f5;
+            color: #262626;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #dbdbdb;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-email {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .btn-add-new {
+            background: #ff8c00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-add-new:hover {
+            background: #ff7700;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+        }
+
+        .btn-logout {
+            background: #f1f1f1;
+            border: 1px solid #ccc;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #e4e4e4;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #dbdbdb;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #262626;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .table-btn {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid transparent;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-align: left;
+            color: #262626;
+        }
+
+        .table-btn:hover {
+            background: #e8e8e8;
+        }
+
+        .table-btn.active {
+            background: #0095f6;
+            color: white;
+            border-color: #0095f6;
+        }
+
+        .admin-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #0095f6 transparent;
+        }
+
+        .admin-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .admin-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .admin-container::-webkit-scrollbar-thumb {
+            background: #0095f6;
+            border-radius: 4px;
+        }
+
+        .admin-container::-webkit-scrollbar-thumb:hover {
+            background: #0080d8;
+        }
+
+        .admin-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dbdbdb;
+        }
+
+        .admin-section h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .photo-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #262626;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            grid-column: 1 / -1;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0095f6;
+            box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.1);
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            grid-column: 1 / -1;
+            margin-top: 10px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #0095f6;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0080d8;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-secondary {
+            background: #f1f1f1;
+            color: #262626;
+            border: 1px solid #dbdbdb;
+        }
+
+        .btn-secondary:hover {
+            background: #e4e4e4;
+        }
+
+        .upload-status {
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .upload-status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            display: block;
+        }
+
+        .upload-status.error {
+            background: #ffebee;
+            color: #c62828;
+            display: block;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 15px;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .photos-grid {
+            display: block;
+            width: 100%;
+            will-change: contents;
+        }
+
+        .photo-card {
+            position: relative;
+            background: #f5f5f5;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+            contain: layout style paint;
+            backface-visibility: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .photo-card:hover {
+            transform: translateZ(0) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background: #e0e0e0;
+            display: block;
+        }
+
+        .photo-info {
+            padding: 10px;
+        }
+
+        .photo-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .btn-sm {
+            flex: 1;
+            padding: 5px;
+            font-size: 11px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #ffb300;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #da190b;
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 30px;
+            padding: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #dbdbdb;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #f0f0f0;
+            border-color: #0095f6;
+        }
+
+        .pagination-btn.active {
+            background: #0095f6;
+            color: white;
+            border-color: #0095f6;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: #666;
+            margin: 0 10px;
+            white-space: nowrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 149, 246, 0.1);
+            border-top: 3px solid #0095f6;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 0.8s linear infinite;
+            display: none;
+            margin: 15px auto;
+            will-change: transform;
+        }
+
+        .spinner.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateX(-10px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Tablet View */
+        @media (max-width: 1024px) {
+            .navbar-container {
+                padding: 0 15px;
+            }
+            
+            .sidebar {
+                width: 200px;
+            }
+            
+            .photos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+        }
+
+        /* Mobile View */
+        @media (max-width: 768px) {
+            /* Navbar - Make mobile friendly */
+            .navbar {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            
+            .navbar-container {
+                padding: 0 10px;
+                flex-wrap: wrap;
+            }
+            
+            .logo {
+                font-size: 16px;
+                flex: 1 1 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            
+            .navbar-right {
+                flex: 1 1 100%;
+                justify-content: space-between;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            
+            .btn-add-new {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            
+            .user-email {
+                font-size: 11px;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .btn-logout {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            /* Main Layout */
+            .photo-form {
+                grid-template-columns: 1fr;
+            }
+
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            /* Sidebar - Horizontal scroll on mobile */
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #dbdbdb;
+                padding: 12px 10px;
+                max-height: none;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .sidebar h3 {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+
+            .table-grid {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 8px;
+                padding-bottom: 5px;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table-grid::-webkit-scrollbar {
+                height: 4px;
+            }
+            
+            .table-grid::-webkit-scrollbar-thumb {
+                background: #0095f6;
+                border-radius: 2px;
+            }
+
+            .table-btn {
+                width: auto; /* Only take space needed */
+                min-width: auto; /* Remove minimum width */
+                padding: 8px 12px;
+                font-size: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            /* Content Area */
+            .admin-container {
+                padding: 12px 10px;
+            }
+            
+            .admin-section h2 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .search-bar {
+                margin-bottom: 15px;
+            }
+            
+            .search-bar input {
+                width: 100%;
+                max-width: 100%;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            /* Photo Grid - Table view on mobile */
+            .photos-grid {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .photos-grid table {
+                min-width: 600px;
+            }
+            
+            .photos-grid img {
+                width: 50px !important;
+                height: 50px !important;
+            }
+            
+            .photos-grid th {
+                padding: 4px 6px !important;
+                font-size: 9px !important;
+            }
+            
+            .photos-grid td {
+                padding: 3px 4px !important;
+                font-size: 9px !important;
+            }
+            
+            .photos-grid button {
+                padding: 2px 4px !important;
+                font-size: 8px !important;
+            }
+            
+            #statsCard {
+                padding: 15px !important;
+            }
+            
+            #statsCard > div {
+                gap: 10px !important;
+            }
+            
+            #statsCard [style*="font-size: 32px"] {
+                font-size: 24px !important;
+            }
+            
+            #statsCard [style*="font-size: 13px"] {
+                font-size: 11px !important;
+            }
+            
+            .photo-card {
+                border-radius: 6px;
+            }
+            
+            .photo-image {
+                height: 120px;
+            }
+            
+            .photo-info {
+                padding: 8px;
+            }
+            
+            .photo-title {
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+            
+            .photo-actions {
+                gap: 4px;
+            }
+            
+            .btn-sm {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+
+            /* Pagination - Better mobile layout */
+            .pagination-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 15px 0;
+                justify-content: center;
+            }
+
+            .pagination-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                min-width: 80px;
+                flex: 0 0 auto;
+            }
+
+            .pagination-info {
+                flex: 1 1 100%;
+                text-align: center;
+                font-size: 12px;
+                order: -1;
+                margin-bottom: 8px;
+            }
+            
+            /* Modal - Full screen on mobile */
+            .modal-content {
+                width: 95%;
+                max-width: 95%;
+                padding: 20px 15px;
+                max-height: 85vh;
+            }
+            
+            .modal-header {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                font-size: 13px;
+            }
+            
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .form-group textarea {
+                min-height: 80px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Small Mobile View */
+        @media (max-width: 480px) {
+            .navbar-container {
+                padding: 0 8px;
+            }
+            
+            .logo {
+                font-size: 14px;
+            }
+            
+            .btn-add-new,
+            .btn-logout {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .user-email {
+                font-size: 10px;
+                max-width: 80px;
+            }
+            
+            .sidebar {
+                padding: 10px 8px;
+            }
+            
+            .sidebar h3 {
+                font-size: 12px;
+            }
+            
+            .table-btn {
+                width: auto; /* Only take space needed */
+                min-width: auto; /* Remove minimum width */
+                padding: 7px 10px;
+                font-size: 11px;
+            }
+            
+            .admin-container {
+                padding: 10px 8px;
+            }
+            
+            .admin-section h2 {
+                font-size: 16px;
+            }
+            
+            .search-bar input {
+                padding: 9px 10px;
+                font-size: 13px;
+            }
+            
+            /* 2 columns for very small screens */
+            .photos-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            
+            .photo-image {
+                height: 140px;
+            }
+            
+            .photo-info {
+                padding: 6px;
+            }
+            
+            .photo-title {
+                font-size: 10px;
+            }
+            
+            .btn-sm {
+                padding: 5px 6px;
+                font-size: 9px;
+            }
+            
+            .pagination-btn {
+                padding: 9px 12px;
+                font-size: 12px;
+                min-width: 70px;
+            }
+            
+            .pagination-info {
+                font-size: 11px;
+            }
+            
+            .modal-content {
+                padding: 15px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">📸 Admin Dashboard</div>
+            <div class="navbar-right">
+                <button id="thumbnailGeneratorBtn" class="btn-add-new" style="background: #4CAF50;">🖼️ Generate Thumbnails</button>
+                <span class="user-email" id="userEmail"></span>
+                <button id="logoutBtn" class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper with Sidebar -->
+    <div class="main-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>📚 Select Table</h3>
+            <div class="table-grid">
+                <button class="table-btn active" onclick="selectTable('post_site')">Posts</button>
+                <button class="table-btn" onclick="selectTable('bangla_quotes_1')">Bangla 1</button>
+                <button class="table-btn" onclick="selectTable('bangla_quotes_2')">Bangla 2</button>
+                <button class="table-btn" onclick="selectTable('bangla_quotes_3')">Bangla 3</button>
+                <button class="table-btn" onclick="selectTable('bangla_quotes_4')">Bangla 4</button>
+                <button class="table-btn" onclick="selectTable('photography_1')">Photo 1</button>
+                <button class="table-btn" onclick="selectTable('photography_2')">Photo 2</button>
+                <button class="table-btn" onclick="selectTable('photography_3')">Photo 3</button>
+                <button class="table-btn" onclick="selectTable('photography_4')">Photo 4</button>
+                <button class="table-btn" onclick="selectTable('dotted_illustration_1')">Dotted 1</button>
+                <button class="table-btn" onclick="selectTable('dotted_illustration_2')">Dotted 2</button>
+                <button class="table-btn" onclick="selectTable('illustration_1')">Illus 1</button>
+                <button class="table-btn" onclick="selectTable('illustration_2')">Illus 2</button>
+                <button class="table-btn" onclick="selectTable('english_quote_1')">English 1</button>
+                <button class="table-btn" onclick="selectTable('english_quote_2')">English 2</button>
+                <h3 style="width:100%; margin-top:10px;">⚙ Settings</h3>
+                <button class="table-btn" onclick="selectTable('id_password')">Credentials</button>
+            </div>
+        </aside>
+
+        <!-- Admin Container -->
+        <div class="admin-container">
+
+        <!-- Photos Management Section -->
+        <section class="admin-section">
+            <h2 id="sectionTitle">📷 Manage Items</h2>
+            
+            <!-- Statistics Card -->
+            <div id="statsCard" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                    <div style="text-align: center; color: white;">
+                        <div style="font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2);" id="totalCount">0</div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-top: 5px;">📦 Total Items</div>
+                    </div>
+                    <div style="text-align: center; color: white;">
+                        <div style="font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2);" id="thumbnailCount">0</div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-top: 5px;">✅ With Thumbnail</div>
+                    </div>
+                    <div style="text-align: center; color: white;">
+                        <div style="font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2);" id="pendingCount">0</div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-top: 5px;">⏳ Pending</div>
+                    </div>
+                    <div style="text-align: center; color: white;">
+                        <div style="font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2);" id="completionPercent">0%</div>
+                        <div style="font-size: 13px; opacity: 0.9; margin-top: 5px;">📊 Completion</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by title or description...">
+            </div>
+
+            <div id="loading" class="spinner"></div>
+            <div class="photos-grid" id="photosGrid"></div>
+            
+            <!-- Pagination -->
+            <div class="pagination-container" id="paginationContainer"></div>
+        </section>
+    </div>
+
+    <!-- Thumbnail Generator Modal -->
+    <div id="thumbnailModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <span>🖼️ Thumbnail Generator - <span id="thumbnailCurrentTable"></span></span>
+                <span class="close" onclick="closeThumbnailModal()">&times;</span>
+            </div>
+            
+            <div style="margin-bottom: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <h3 style="margin: 0 0 10px 0; color: #1976D2; font-size: 14px;">📋 প্রসেস:</h3>
+                <ol style="margin: 0; padding-left: 20px; font-size: 13px; color: #424242;">
+                    <li>টেবিল থেকে সব image_url নেয়া হবে (৫০টি পর্যন্ত)</li>
+                    <li>প্রতিটি ছবি download করে 100KB এর নিচে compress করা হবে</li>
+                    <li>Compressed ছবি ImgBB তে upload করা হবে</li>
+                    <li>নতুন link database এর thumbnail_url কলামে সেভ হবে</li>
+                    <li>যদি thumbnail_url ইতিমধ্যে থাকে, তাহলে skip করা হবে</li>
+                </ol>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button id="startThumbnailBtn" class="btn-primary" style="flex: 1;">▶️ শুরু করুন</button>
+                <button id="stopThumbnailBtn" class="btn-secondary" style="flex: 1; display: none; background: #f44336; color: white;">⏸️ বন্ধ করুন</button>
+            </div>
+
+            <div id="thumbnailProgress" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px;">
+                    <span>Progress: <span id="thumbnailCurrent">0</span>/<span id="thumbnailTotal">0</span></span>
+                    <span id="thumbnailPercent">0%</span>
+                </div>
+                <div style="width: 100%; background: #e0e0e0; border-radius: 10px; height: 20px; overflow: hidden;">
+                    <div id="thumbnailProgressBar" style="width: 0%; background: linear-gradient(90deg, #4CAF50, #8BC34A); height: 100%; transition: width 0.3s;"></div>
+                </div>
+            </div>
+
+            <div id="thumbnailLogs" style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 15px; max-height: 400px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.6;">
+                <div style="color: #666;">লগ এখানে দেখা যাবে...</div>
+            </div>
+
+            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 4px; border-left: 4px solid #ffc107; font-size: 12px;">
+                <strong>⚠️ নোট:</strong> প্রসেস চলাকালীন পেজ বন্ধ করবেন না। বড় টেবিলে সময় লাগতে পারে।
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // ============================================
+        // CONFIG - All Configuration Variables
+        // ============================================
+        const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+        const IMGBB_API_KEY = '8acc6387f6db72f5ad40d366165b1916';
+        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
+        const PHOTOS_PER_PAGE = 50;
+
+        // ============================================
+        // IMGBB UPLOADER - Image Upload Functionality
+        // ============================================
+        class ImgBBUploader {
+            constructor(apiKey) {
+                this.apiKey = apiKey;
+                this.apiUrl = IMGBB_API_URL;
+            }
+
+            async uploadImage(file) {
+                if (!this.isValidImageFile(file)) {
+                    throw new Error('Invalid file format. Please upload an image file.');
+                }
+
+                if (file.size > 33554432) { // 32MB in bytes
+                    throw new Error('File size exceeds 32MB limit.');
+                }
+
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('key', this.apiKey);
+
+                try {
+                    const response = await fetch(this.apiUrl, {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Upload failed: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error?.message || 'Upload failed');
+                    }
+
+                    return data.data.url;
+                } catch (error) {
+                    console.error('ImgBB upload error:', error);
+                    throw new Error(`Failed to upload image: ${error.message}`);
+                }
+            }
+
+            isValidImageFile(file) {
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                return validTypes.includes(file.type);
+            }
+
+            getFileSizeInMB(file) {
+                return (file.size / (1024 * 1024)).toFixed(2);
+            }
+        }
+
+        const imgbbUploader = new ImgBBUploader(IMGBB_API_KEY);
+
+        async function uploadToImgBB(file) {
+            try {
+                console.log('📤 Uploading to ImgBB:', file.name);
+                const url = await imgbbUploader.uploadImage(file);
+                console.log('✅ Upload successful:', url);
+                return url;
+            } catch (error) {
+                console.error('❌ Upload failed:', error.message);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // THUMBNAIL GENERATOR - Automatic Thumbnail Creation
+        // ============================================
+        class ThumbnailGenerator {
+            constructor() {
+                this.isRunning = false;
+                this.shouldStop = false;
+                this.currentIndex = 0;
+                this.totalItems = 0;
+                this.processedCount = 0;
+                this.skippedCount = 0;
+                this.errorCount = 0;
+            }
+
+            log(message, type = 'info') {
+                const logsDiv = document.getElementById('thumbnailLogs');
+                const timestamp = new Date().toLocaleTimeString('bn-BD');
+                let icon = 'ℹ️';
+                let color = '#666';
+
+                switch (type) {
+                    case 'success': icon = '✅'; color = '#4CAF50'; break;
+                    case 'error': icon = '❌'; color = '#f44336'; break;
+                    case 'warning': icon = '⚠️'; color = '#ff9800'; break;
+                    case 'info': icon = 'ℹ️'; color = '#2196F3'; break;
+                }
+
+                const logEntry = document.createElement('div');
+                logEntry.style.color = color;
+                logEntry.innerHTML = `[${timestamp}] ${icon} ${message}`;
+                logsDiv.appendChild(logEntry);
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            }
+
+            updateProgress() {
+                const current = this.currentIndex;
+                const total = this.totalItems;
+                const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+
+                document.getElementById('thumbnailCurrent').textContent = current;
+                document.getElementById('thumbnailTotal').textContent = total;
+                document.getElementById('thumbnailPercent').textContent = percent + '%';
+                document.getElementById('thumbnailProgressBar').style.width = percent + '%';
+            }
+
+            async compressImage(imageUrl, maxSizeKB = 100) {
+                // Fix common URL issues
+                let fixedUrl = imageUrl.replace(/\.com\.com/g, '.com').trim();
+                
+                console.log('🖼️ Loading image:', fixedUrl);
+                
+                // Method 1: Try fetch API (better for CORS)
+                try {
+                    const response = await fetch(fixedUrl, { mode: 'cors' });
+                    if (!response.ok) throw new Error('Fetch failed');
+                    
+                    const blob = await response.blob();
+                    console.log('✓ Image fetched via fetch API:', (blob.size / 1024).toFixed(2), 'KB');
+                    
+                    return await this.compressBlob(blob, maxSizeKB);
+                } catch (fetchError) {
+                    console.warn('⚠️ Fetch API failed, trying Image element:', fetchError.message);
+                    
+                    // Method 2: Fallback to Image element (no CORS for same-origin)
+                    return new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => {
+                            reject(new Error('Image loading timeout after 60s. Check if image URL is accessible.'));
+                        }, 60000);
+                        
+                        const img = new Image();
+                        // Remove crossOrigin for ImgBB images (they may not support CORS)
+                        // img.crossOrigin = 'Anonymous';
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            console.log('✓ Image loaded:', img.width, 'x', img.height);
+                            
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            let width = img.width;
+                            let height = img.height;
+                            const maxDimension = 1200;
+                            
+                            // Resize if too large
+                            if (width > maxDimension || height > maxDimension) {
+                                if (width > height) {
+                                    height = (height / width) * maxDimension;
+                                    width = maxDimension;
+                                } else {
+                                    width = (width / height) * maxDimension;
+                                    height = maxDimension;
+                                }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Start compression
+                            let quality = 0.85;
+                            let attempts = 0;
+                            const maxAttempts = 8;
+                            
+                            const compress = () => {
+                                canvas.toBlob((blob) => {
+                                    if (!blob) {
+                                        reject(new Error('Canvas compression failed'));
+                                        return;
+                                    }
+                                    
+                                    const sizeKB = blob.size / 1024;
+                                    console.log(`  Attempt ${attempts + 1}: ${sizeKB.toFixed(2)} KB at quality ${quality.toFixed(2)}`);
+                                    
+                                    if (sizeKB <= maxSizeKB || attempts >= maxAttempts || quality <= 0.1) {
+                                        const file = new File([blob], 'compressed.jpg', { type: 'image/jpeg' });
+                                        console.log(`✓ Final compressed size: ${sizeKB.toFixed(2)} KB`);
+                                        resolve(file);
+                                    } else {
+                                        quality -= 0.12;
+                                        attempts++;
+                                        compress();
+                                    }
+                                }, 'image/jpeg', quality);
+                            };
+                            
+                            compress();
+                        };
+                        
+                        img.onerror = (e) => {
+                            clearTimeout(timeout);
+                            console.error('❌ Image load error:', fixedUrl);
+                            reject(new Error('Failed to load image. Check if URL is valid and accessible.'));
+                        };
+                        
+                        img.src = fixedUrl;
+                    });
+                }
+            }
+            
+            async compressBlob(blob, maxSizeKB) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const objectUrl = URL.createObjectURL(blob);
+                    
+                    img.onload = () => {
+                        URL.revokeObjectURL(objectUrl);
+                        
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        let width = img.width;
+                        let height = img.height;
+                        const maxDimension = 1200;
+                        
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = (height / width) * maxDimension;
+                                width = maxDimension;
+                            } else {
+                                width = (width / height) * maxDimension;
+                                height = maxDimension;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        let quality = 0.85;
+                        let attempts = 0;
+                        const maxAttempts = 8;
+                        
+                        const compress = () => {
+                            canvas.toBlob((blob) => {
+                                if (!blob) {
+                                    reject(new Error('Blob compression failed'));
+                                    return;
+                                }
+                                
+                                const sizeKB = blob.size / 1024;
+                                console.log(`  Attempt ${attempts + 1}: ${sizeKB.toFixed(2)} KB at quality ${quality.toFixed(2)}`);
+                                
+                                if (sizeKB <= maxSizeKB || attempts >= maxAttempts || quality <= 0.1) {
+                                    const file = new File([blob], 'compressed.jpg', { type: 'image/jpeg' });
+                                    console.log(`✓ Final size: ${sizeKB.toFixed(2)} KB`);
+                                    resolve(file);
+                                } else {
+                                    quality -= 0.12;
+                                    attempts++;
+                                    compress();
+                                }
+                            }, 'image/jpeg', quality);
+                        };
+                        
+                        compress();
+                    };
+                    
+                    img.onerror = () => {
+                        URL.revokeObjectURL(objectUrl);
+                        reject(new Error('Failed to process blob'));
+                    };
+                    
+                    img.src = objectUrl;
+                });
+            }
+
+            async processItem(item, tableName) {
+                try {
+                    // Check if thumbnail already exists
+                    if (item.thumbnail_url) {
+                        this.log(`⏭️ Skipping: Thumbnail already exists (ID: ${item.image_iid})`, 'warning');
+                        this.skippedCount++;
+                        return { success: true, skipped: true };
+                    }
+
+                    if (!item.image_url) {
+                        this.log(`⚠️ No image_url found (ID: ${item.image_iid})`, 'warning');
+                        this.skippedCount++;
+                        return { success: true, skipped: true };
+                    }
+
+                    this.log(`📥 Processing: ${item.title || 'Untitled'} (ID: ${item.image_iid})`);
+
+                    // Download and compress image
+                    this.log(`🔄 Downloading and compressing image...`);
+                    const compressedFile = await this.compressImage(item.image_url);
+                    const sizeKB = (compressedFile.size / 1024).toFixed(2);
+                    this.log(`✓ Compressed to ${sizeKB} KB`);
+
+                    // Upload to ImgBB
+                    this.log(`📤 Uploading to ImgBB...`);
+                    const thumbnailUrl = await imgbbUploader.uploadImage(compressedFile);
+                    this.log(`✓ Uploaded successfully`);
+
+                    // Update database
+                    this.log(`💾 Updating database...`);
+                    await this.updateThumbnailUrl(tableName, item.image_iid, thumbnailUrl);
+                    this.log(`✅ Successfully processed (ID: ${item.image_iid})`, 'success');
+                    
+                    this.processedCount++;
+                    return { success: true, skipped: false };
+
+                } catch (error) {
+                    this.log(`❌ Error processing ID ${item.image_iid}: ${error.message}`, 'error');
+                    this.errorCount++;
+                    return { success: false, error: error.message };
+                }
+            }
+
+            async updateThumbnailUrl(tableName, imageIid, thumbnailUrl) {
+                const accessToken = localStorage.getItem('supabase_access_token');
+                
+                console.log('💾 Updating database:', {
+                    table: tableName,
+                    id: imageIid,
+                    thumbnail: thumbnailUrl.substring(0, 50) + '...'
+                });
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?image_iid=eq.${imageIid}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Prefer': 'return=representation',
+                    },
+                    body: JSON.stringify({ thumbnail_url: thumbnailUrl }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('❌ Database update failed:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: errorData
+                    });
+                    throw new Error(`Database update failed (${response.status}): ${errorData.message || response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('✓ Database updated successfully:', result);
+                return result;
+            }
+
+            async start(tableName) {
+                if (this.isRunning) {
+                    this.log('⚠️ Process already running!', 'warning');
+                    return;
+                }
+
+                this.isRunning = true;
+                this.shouldStop = false;
+                this.currentIndex = 0;
+                this.processedCount = 0;
+                this.skippedCount = 0;
+                this.errorCount = 0;
+
+                document.getElementById('startThumbnailBtn').style.display = 'none';
+                document.getElementById('stopThumbnailBtn').style.display = 'block';
+                document.getElementById('thumbnailLogs').innerHTML = '';
+
+                this.log(`🚀 Starting thumbnail generation for table: ${tableName}`, 'info');
+
+                try {
+                    // Fetch all items from database
+                    this.log('📊 Fetching items from database...');
+                    const items = await this.fetchItems(tableName);
+                    this.totalItems = items.length;
+                    
+                    this.log(`✓ Found ${this.totalItems} items (max 50)`, 'success');
+                    this.updateProgress();
+
+                    // Process each item
+                    for (let i = 0; i < items.length; i++) {
+                        if (this.shouldStop) {
+                            this.log('⏸️ Process stopped by user', 'warning');
+                            break;
+                        }
+
+                        this.currentIndex = i + 1;
+                        this.updateProgress();
+
+                        await this.processItem(items[i], tableName);
+                        
+                        // Small delay between items
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+
+                    // Summary
+                    this.log('', 'info');
+                    this.log('═══════════════════════════════', 'info');
+                    this.log('📊 SUMMARY / সামারি', 'info');
+                    this.log('═══════════════════════════════', 'info');
+                    this.log(`✅ Successfully processed: ${this.processedCount}`, 'success');
+                    this.log(`⏭️ Skipped: ${this.skippedCount}`, 'warning');
+                    this.log(`❌ Errors: ${this.errorCount}`, 'error');
+                    this.log(`📦 Total: ${this.totalItems}`, 'info');
+                    this.log('═══════════════════════════════', 'info');
+
+                    if (this.processedCount > 0) {
+                        this.log('🎉 Process completed! Refresh the page to see changes.', 'success');
+                    }
+
+                } catch (error) {
+                    this.log(`❌ Fatal error: ${error.message}`, 'error');
+                } finally {
+                    this.isRunning = false;
+                    document.getElementById('startThumbnailBtn').style.display = 'block';
+                    document.getElementById('stopThumbnailBtn').style.display = 'none';
+                }
+            }
+
+            async fetchItems(tableName) {
+                const accessToken = localStorage.getItem('supabase_access_token');
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=image_iid,title,image_url,thumbnail_url&order=image_iid.desc&limit=50`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch items: ${response.statusText}`);
+                }
+
+                return await response.json();
+            }
+
+            stop() {
+                this.shouldStop = true;
+                this.log('⏸️ Stop requested...', 'warning');
+            }
+        }
+
+        const thumbnailGenerator = new ThumbnailGenerator();
+
+        // ============================================
+        // MANUAL COMPRESS - Single Image Compression
+        // ============================================
+        async function compressSingleImage(imageIid, imageUrl, hasThumbnail) {
+            const btnElement = event.target;
+            const originalText = btnElement.innerHTML;
+            const originalBg = btnElement.style.background;
+            
+            // Get parent row for highlighting
+            const rowElement = btnElement.closest('tr');
+            const originalRowBg = rowElement.style.background;
+            
+            // Confirm if already has thumbnail
+            if (hasThumbnail) {
+                if (!confirm('এই আইটেমটিতে ইতিমধ্যে thumbnail আছে। নতুন করে generate করতে চান?')) {
+                    return;
+                }
+            }
+            
+            let loadingMsg = null; // Declare outside try block
+            
+            try {
+                // Highlight row and disable button
+                rowElement.style.background = '#FFF9C4';
+                btnElement.disabled = true;
+                btnElement.style.background = '#FF9800';
+                btnElement.style.animation = 'pulse 1s infinite';
+                btnElement.innerHTML = '⏳ Loading...';
+                
+                const timerId = `Compression-${imageIid}`;
+                console.log('🔄 Starting compression for:', imageIid);
+                console.time(timerId);
+                
+                // Show immediate feedback
+                await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for UI update
+                
+                btnElement.innerHTML = '🖼️ Compressing...';
+                
+                // Show loading indicator in row
+                loadingMsg = document.createElement('span');
+                loadingMsg.textContent = '⏳ Processing... Please wait';
+                loadingMsg.style.cssText = 'margin-left: 8px; color: #FF9800; font-size: 10px; font-weight: 600; animation: pulse 1s infinite;';
+                btnElement.parentElement.appendChild(loadingMsg);
+                
+                // Compress image
+                const compressedFile = await thumbnailGenerator.compressImage(imageUrl);
+                
+                // Remove loading message
+                if (loadingMsg && loadingMsg.parentElement) {
+                    loadingMsg.remove();
+                }
+                const sizeKB = (compressedFile.size / 1024).toFixed(2);
+                console.timeEnd(timerId);
+                console.log(`✓ Compressed to ${sizeKB} KB`);
+                
+                // Show upload status
+                btnElement.innerHTML = '📤 Uploading...';
+                
+                // Upload to ImgBB
+                const thumbnailUrl = await imgbbUploader.uploadImage(compressedFile);
+                console.log('✓ Uploaded to ImgBB');
+                
+                // Update database
+                btnElement.innerHTML = '💾 Saving...';
+                await thumbnailGenerator.updateThumbnailUrl(currentTable, imageIid, thumbnailUrl);
+                console.log('✓ Database updated');
+                
+                // Success - highlight in green and stop animation
+                btnElement.style.animation = 'none';
+                rowElement.style.background = '#C8E6C9';
+                btnElement.style.background = '#4CAF50';
+                btnElement.innerHTML = '✓ Done';
+                
+                // Update thumbnail image in the row
+                const thumbnailCell = rowElement.querySelectorAll('td')[2]; // 3rd column (thumbnail)
+                if (thumbnailCell) {
+                    thumbnailCell.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
+                            <div style="position: relative;">
+                                <img src="${thumbnailUrl}" 
+                                     alt="Thumbnail" 
+                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 2px solid #4CAF50;">
+                                <span style="position: absolute; top: -4px; right: -4px; background: #4CAF50; color: white; padding: 1px 3px; border-radius: 6px; font-size: 7px; font-weight: bold;">✓</span>
+                            </div>
+                            <a href="${thumbnailUrl}" target="_blank" style="font-size: 9px; color: #4CAF50; text-decoration: none; padding: 2px 4px; background: #e8f5e9; border-radius: 2px; white-space: nowrap;" onmouseover="this.style.background='#c8e6c9'" onmouseout="this.style.background='#e8f5e9'">🔗</a>
+                        </div>
+                    `;
+                }
+                
+                // Show success message next to the button
+                const successMsg = document.createElement('span');
+                successMsg.textContent = `✅ Successful! (${sizeKB} KB)`;
+                successMsg.style.cssText = 'margin-left: 8px; color: #4CAF50; font-size: 11px; font-weight: 600; animation: fadeIn 0.3s;';
+                btnElement.parentElement.appendChild(successMsg);
+                
+                // Update the photo data in allPhotos array
+                const photoIndex = allPhotos.findIndex(p => p.image_iid === imageIid);
+                if (photoIndex !== -1) {
+                    allPhotos[photoIndex].thumbnail_url = thumbnailUrl;
+                }
+                
+                // Update statistics
+                updateStatistics();
+                
+                // Change button to ReGen style
+                setTimeout(() => {
+                    btnElement.disabled = false;
+                    btnElement.style.background = '#9E9E9E';
+                    btnElement.innerHTML = '🖼️ ReGen';
+                    btnElement.title = 'Re-generate thumbnail';
+                    rowElement.style.background = originalRowBg;
+                }, 2000);
+                
+                // Remove success message after 3 seconds
+                setTimeout(() => {
+                    if (successMsg.parentElement) {
+                        successMsg.remove();
+                    }
+                }, 3000);
+                
+            } catch (error) {
+                console.error('❌ Compression failed:', error);
+                
+                // Remove loading message if exists
+                if (loadingMsg && loadingMsg.parentElement) {
+                    loadingMsg.remove();
+                }
+                
+                // Stop animation and highlight in red
+                btnElement.style.animation = 'none';
+                rowElement.style.background = '#FFCDD2';
+                btnElement.style.background = '#f44336';
+                btnElement.innerHTML = '❌ Error';
+                
+                // Show error message next to button instead of alert
+                const errorMsg = document.createElement('span');
+                errorMsg.textContent = `❌ ${error.message}`;
+                errorMsg.style.cssText = 'margin-left: 8px; color: #f44336; font-size: 10px; font-weight: 600; animation: fadeIn 0.3s; max-width: 250px;';
+                btnElement.parentElement.appendChild(errorMsg);
+                
+                // Reset after 5 seconds
+                setTimeout(() => {
+                    if (errorMsg.parentElement) {
+                        errorMsg.remove();
+                    }
+                    rowElement.style.background = originalRowBg;
+                    btnElement.disabled = false;
+                    btnElement.style.background = originalBg;
+                    btnElement.innerHTML = originalText;
+                }, 5000);
+            }
+        }
+
+        // ============================================
+        // SUPABASE CLIENT - Database Operations
+        // ============================================
+        class SupabaseClient {
+            constructor(url, anonKey) {
+                if (!url) throw new Error('Supabase URL is required');
+                if (!anonKey) throw new Error('Supabase API key is required');
+                
+                this.url = url;
+                this.anonKey = anonKey;
+            }
+
+            async request(method, path, options = {}) {
+                if (!this.anonKey) {
+                    console.error('API key missing! this.anonKey:', this.anonKey);
+                    throw new Error('No API key found in request - SupabaseClient not properly initialized');
+                }
+                
+                const url = `${this.url}/rest/v1${path}`;
+                
+                const session = this.getSession();
+                const authToken = session?.access_token || this.anonKey;
+                
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'apikey': this.anonKey,
+                    'Authorization': `Bearer ${authToken}`,
+                    'Prefer': 'return=representation',
+                };
+
+                if (options.headers) {
+                    Object.assign(headers, options.headers);
+                }
+
+                const config = {
+                    method,
+                    headers,
+                };
+
+                if (options.body) {
+                    config.body = JSON.stringify(options.body);
+                }
+
+                const response = await fetch(url, config);
+                
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    console.error('Request failed:', error);
+                    throw new Error(error.message || `Request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (options.returnFullResponse) {
+                    return { data, response };
+                }
+                
+                return data;
+            }
+
+            async signIn(email, password) {
+                const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': this.anonKey,
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.error_description || error.message || 'Login failed');
+                }
+
+                const data = await response.json();
+                
+                if (data.access_token) {
+                    localStorage.setItem('supabase_access_token', data.access_token);
+                    localStorage.setItem('supabase_user', JSON.stringify(data.user));
+                }
+                
+                return data;
+            }
+
+            async signOut() {
+                localStorage.removeItem('supabase_access_token');
+                localStorage.removeItem('supabase_user');
+                localStorage.removeItem('supabase_session');
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUsername');
+            }
+
+            getSession() {
+                const token = localStorage.getItem('supabase_access_token');
+                const user = localStorage.getItem('supabase_user');
+                
+                if (token && user) {
+                    return {
+                        access_token: token,
+                        user: JSON.parse(user),
+                    };
+                }
+                
+                return null;
+            }
+
+            isAuthenticated() {
+                return !!localStorage.getItem('supabase_access_token');
+            }
+
+            from(tableName) {
+                return new TableQuery(this, tableName);
+            }
+        }
+
+        class TableQuery {
+            constructor(client, tableName) {
+                this.client = client;
+                this.tableName = tableName;
+                this.filters = [];
+                this.orderByColumn = null;
+                this.orderAsc = true;
+                this.selectColumns = '*';
+                this.insertData = null;
+                this.updateData = null;
+                this._isSelectMode = false;
+            }
+
+            select(columns = '*') {
+                this.selectColumns = columns;
+                this._isSelectMode = true;
+                const self = this;
+                const executePromise = this._execute('GET', null);
+                
+                executePromise.order = function(column, options = {}) {
+                    self.orderByColumn = column;
+                    self.orderAsc = options.ascending !== false;
+                    return self._execute('GET', null);
+                };
+                
+                return executePromise;
+            }
+
+            order(column, options = {}) {
+                this.orderByColumn = column;
+                this.orderAsc = options.ascending !== false;
+                if (this._isSelectMode) {
+                    return this._execute('GET', null);
+                }
+                return this;
+            }
+
+            eq(column, value) {
+                this.filters.push({ column, operator: 'eq', value });
+                return this;
+            }
+
+            async _execute(method = 'GET', data = null) {
+                try {
+                    let url = `${this.client.url}/rest/v1/${this.tableName}`;
+                    const params = new URLSearchParams();
+
+                    params.append('select', this.selectColumns);
+
+                    if (this.filters.length > 0) {
+                        this.filters.forEach(f => {
+                            params.append(`${f.column}`, `${f.operator}.${f.value}`);
+                        });
+                    }
+
+                    if (this.orderByColumn) {
+                        const orderDir = this.orderAsc ? 'asc' : 'desc';
+                        params.append('order', `${this.orderByColumn}.${orderDir}`);
+                    }
+
+                    if (params.toString()) {
+                        url += '?' + params.toString();
+                    }
+
+                    const session = this.client.getSession();
+                    const authToken = session?.access_token || this.client.anonKey;
+
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'apikey': this.client.anonKey,
+                        'Authorization': `Bearer ${authToken}`,
+                    };
+
+                    if (method !== 'GET') {
+                        headers['Prefer'] = 'return=representation';
+                    }
+
+                    const config = {
+                        method,
+                        headers,
+                    };
+
+                    if (data) {
+                        config.body = JSON.stringify(data);
+                    }
+
+                    const response = await fetch(url, config);
+                    const responseData = await response.json();
+
+                    if (!response.ok) {
+                        console.error('Query error:', responseData);
+                        return { 
+                            data: null, 
+                            error: responseData.message || responseData.error || 'Request failed'
+                        };
+                    }
+
+                    return { data: responseData, error: null };
+                } catch (error) {
+                    console.error('Query exception:', error);
+                    return { data: null, error: error.message };
+                }
+            }
+
+            async insert(records) {
+                const data = Array.isArray(records) ? records : [records];
+                return this._execute('POST', data);
+            }
+
+            async update(updates) {
+                return this._execute('PATCH', updates);
+            }
+
+            async delete() {
+                return this._execute('DELETE');
+            }
+        }
+
+        // Initialize Supabase client
+        const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================
+        // MAIN APPLICATION CODE
+        // ============================================
+    </script>
+    <script>
+        let currentTable = 'post_site';
+        const tableNames = {
+            'bangla_quotes_1': 'Bangla Quotes 1',
+            'bangla_quotes_2': 'Bangla Quotes 2',
+            'bangla_quotes_3': 'Bangla Quotes 3',
+            'bangla_quotes_4': 'Bangla Quotes 4',
+            'photography_1': 'Photography 1',
+            'photography_2': 'Photography 2',
+            'photography_3': 'Photography 3',
+            'photography_4': 'Photography 4',
+            'post_site': 'Post Site',
+            'dotted_illustration_1': 'Dotted Illustration 1',
+            'dotted_illustration_2': 'Dotted Illustration 2',
+            'illustration_1': 'Illustration 1',
+            'illustration_2': 'Illustration 2',
+            'english_quote_1': 'English Quote 1',
+            'english_quote_2': 'English Quote 2',
+            'id_password': 'Credentials',
+        };
+
+        const tablesWithSection = ['post_site', 'photography_1', 'photography_2', 'photography_3', 'photography_4', 'dotted_illustration_1', 'dotted_illustration_2', 'illustration_1', 'illustration_2', 'english_quote_1', 'english_quote_2'];
+        
+        // Tables with dropdown section (Post Site only)
+        const tablesWithDropdownSection = ['post_site'];
+        
+        // Tables with text input section (Photography and Quote tables)
+        const tablesWithTextSection = ['photography_1', 'photography_2', 'photography_3', 'photography_4', 'dotted_illustration_1', 'dotted_illustration_2', 'illustration_1', 'illustration_2', 'english_quote_1', 'english_quote_2'];
+
+        // Pagination variables
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        let allPhotos = [];
+        let totalItems = 0;
+
+        // Performance optimization: Cache DOM elements
+        let gridElement = null;
+        let loadingElement = null;
+        function getCachedElements() {
+            if (!gridElement) gridElement = document.getElementById('photosGrid');
+            if (!loadingElement) loadingElement = document.getElementById('loading');
+            return { grid: gridElement, loading: loadingElement };
+        }
+
+        // ============================================
+        // TOKEN VALIDATION - Check if JWT is expired
+        // ============================================
+        function isTokenExpired(token) {
+            if (!token) return true;
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const exp = payload.exp * 1000; // Convert to milliseconds
+                const now = Date.now();
+                
+                // Token expires soon (within 5 minutes)
+                return now >= (exp - 300000);
+            } catch (error) {
+                console.error('Error checking token expiry:', error);
+                return true;
+            }
+        }
+
+        // ============================================
+        // GLOBAL ERROR HANDLER - Handle Auth Errors
+        // ============================================
+        function handleAuthError(error) {
+            console.error('🚨 Authentication error:', error);
+            localStorage.removeItem('supabase_access_token');
+            localStorage.removeItem('supabase_user');
+            localStorage.removeItem('supabase_session');
+            alert('Your session has expired. Please login again.');
+            window.location.href = 'login.html';
+        }
+
+        // Check if error is authentication related
+        function isAuthError(error) {
+            const errorStr = String(error?.message || error || '').toLowerCase();
+            return errorStr.includes('jwt') || 
+                   errorStr.includes('expired') || 
+                   errorStr.includes('401') ||
+                   errorStr.includes('unauthorized') ||
+                   errorStr.includes('invalid');
+        }
+
+        // Check authentication
+        window.addEventListener('load', function() {
+            const session = localStorage.getItem('supabase_session');
+            const accessToken = localStorage.getItem('supabase_access_token');
+            
+            // Debug: Log authentication status
+            console.log('🔐 Auth Check:', {
+                hasSession: !!session,
+                hasToken: !!accessToken,
+                tokenLength: accessToken ? accessToken.length : 0,
+                tokenPreview: accessToken ? accessToken.substring(0, 20) + '...' : 'null'
+            });
+            
+            // Check if token exists and is valid
+            if (!session || !accessToken || isTokenExpired(accessToken)) {
+                console.warn('⚠️ No valid session or token expired. Redirecting to login.');
+                localStorage.removeItem('supabase_access_token');
+                localStorage.removeItem('supabase_user');
+                localStorage.removeItem('supabase_session');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const user = JSON.parse(localStorage.getItem('supabase_user'));
+            document.getElementById('userEmail').textContent = `👤 ${user.email}`;
+            console.log('✅ Authentication successful:', user.email);
+
+            loadPhotos();
+        });
+
+        // Table selector
+        function selectTable(table) {
+            currentTable = table;
+            currentPage = 1;  // Reset to first page
+            allPhotos = [];
+            totalItems = 0;
+            
+            document.querySelectorAll('.table-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const tableName = tableNames[table];
+            if (document.getElementById('currentTableName')) {
+                document.getElementById('currentTableName').textContent = tableName;
+            }
+            if (document.getElementById('currentTableNameModal')) {
+                document.getElementById('currentTableNameModal').textContent = tableName;
+            }
+            
+            // Toggle Thumbnail Generator button and section title for credentials view
+            const thumbnailBtn = document.getElementById('thumbnailGeneratorBtn');
+            const isCredentials = currentTable === 'id_password';
+            if (thumbnailBtn) thumbnailBtn.style.display = isCredentials ? 'none' : 'inline-block';
+
+            const titleEl = document.getElementById('sectionTitle');
+            if (titleEl) titleEl.textContent = isCredentials ? '⚙ Settings — Credentials' : '📷 Manage Items';
+
+            // Update search placeholder (informational; search is global)
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = isCredentials ? 'Search by user_id...' : 'Search by title or description...';
+            }
+
+            loadPhotos();
+        }
+
+        // Debounce function for search
+        let searchTimeout;
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => func(...args), delay);
+            };
+        }
+
+        // Load photos from current table
+        async function loadPhotos() {
+            const grid = document.getElementById('photosGrid');
+            const loading = document.getElementById('loading');
+            
+            // Show minimal loading indicator
+            loading?.classList.add('active');
+            grid.style.opacity = '0.6';
+            
+            try {
+                const { data, error } = await supabase
+                    .from(currentTable)
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    if (isAuthError(error)) {
+                        handleAuthError(error);
+                        return;
+                    }
+                    throw error;
+                }
+
+                // Store all photos and calculate total
+                allPhotos = data || [];
+                totalItems = allPhotos.length;
+                currentPage = 1; // Reset to first page
+
+                // Small delay for smooth transition
+                requestAnimationFrame(() => {
+                    renderCurrentView();
+                    createPagination();
+                    grid.style.opacity = '1';
+                    loading?.classList.remove('active');
+                });
+            } catch (error) {
+                console.error('Error loading photos:', error);
+                
+                // Check for auth errors
+                if (isAuthError(error)) {
+                    handleAuthError(error);
+                    return;
+                }
+                
+                grid.innerHTML = `<p style="color: red; grid-column: 1/-1;">Error loading items: ${error.message || error}</p>`;
+                grid.style.opacity = '1';
+                loading?.classList.remove('active');
+            }
+        }
+
+        // Render router for current table
+        function renderCurrentView() {
+            if (currentTable === 'id_password') {
+                displayCredentials();
+            } else {
+                updateStatistics();
+                displayPhotos();
+            }
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const total = allPhotos.length;
+            const withThumbnail = allPhotos.filter(p => p.thumbnail_url).length;
+            const pending = total - withThumbnail;
+            const completion = total > 0 ? Math.round((withThumbnail / total) * 100) : 0;
+
+            const statsCard = document.getElementById('statsCard');
+            if (statsCard) {
+                statsCard.style.display = 'block';
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('thumbnailCount').textContent = withThumbnail;
+                document.getElementById('pendingCount').textContent = pending;
+                document.getElementById('completionPercent').textContent = completion + '%';
+            }
+        }
+
+        // Display photos for current page with optimized DOM operations
+        function displayPhotos() {
+            const grid = document.getElementById('photosGrid');
+            
+            if (allPhotos.length === 0) {
+                document.getElementById('statsCard').style.display = 'none';
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">No items yet</p>';
+                return;
+            }
+
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedPhotos = allPhotos.slice(startIndex, endIndex);
+
+            // Build table view
+            const tableHTML = `
+                <div style="width: 100%; overflow-x: auto; max-height: calc(100vh - 350px); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <table style="width: 100%; border-collapse: collapse; background: white;">
+                        <thead style="position: sticky; top: 0; z-index: 10;">
+                            <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; font-size: 10px; border-right: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">ID</th>
+                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; border-right: 1px solid rgba(255,255,255,0.1); min-width: 100px; position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Image<br><small style="opacity: 0.8; font-weight: 400; font-size: 8px;">(Full)</small></th>
+                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; border-right: 1px solid rgba(255,255,255,0.1); min-width: 100px; position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Thumbnail<br><small style="opacity: 0.8; font-weight: 400; font-size: 8px;">(< 100KB)</small></th>
+                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${paginatedPhotos.map((photo, index) => {
+                                const hasThumbnail = !!photo.thumbnail_url;
+                                const rowBg = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
+                                return `
+                                    <tr style="background: ${rowBg}; border-bottom: 1px solid #e9ecef; transition: all 0.2s;" onmouseover="this.style.background='#e3f2fd'" onmouseout="this.style.background='${rowBg}'">
+                                        <td style="padding: 4px 6px; font-size: 10px; color: #666; border-right: 1px solid #e9ecef;">#${photo.image_iid}</td>
+                                        <td style="padding: 4px; text-align: center; border-right: 1px solid #e9ecef;">
+                                            <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
+                                                <img src="${photo.image_url}" 
+                                                     alt="Original" 
+                                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 1px solid #dee2e6;"
+                                                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23e0e0e0%22 width=%2260%22 height=%2260%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%228%22%3ENo%3C/text%3E%3C/svg%3E'">
+                                                <a href="${photo.image_url}" target="_blank" style="font-size: 9px; color: #0095f6; text-decoration: none; padding: 2px 4px; background: #e3f2fd; border-radius: 2px; white-space: nowrap;" onmouseover="this.style.background='#bbdefb'" onmouseout="this.style.background='#e3f2fd'">🔗</a>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 4px; text-align: center; border-right: 1px solid #e9ecef;">
+                                            ${hasThumbnail ? `
+                                                <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
+                                                    <div style="position: relative;">
+                                                        <img src="${photo.thumbnail_url}" 
+                                                             alt="Thumbnail" 
+                                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 2px solid #4CAF50;"
+                                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23e0e0e0%22 width=%2260%22 height=%2260%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%228%22%3ENo%3C/text%3E%3C/svg%3E'">
+                                                        <span style="position: absolute; top: -4px; right: -4px; background: #4CAF50; color: white; padding: 1px 3px; border-radius: 6px; font-size: 7px; font-weight: bold;">✓</span>
+                                                    </div>
+                                                    <a href="${photo.thumbnail_url}" target="_blank" style="font-size: 9px; color: #4CAF50; text-decoration: none; padding: 2px 4px; background: #e8f5e9; border-radius: 2px; white-space: nowrap;" onmouseover="this.style.background='#c8e6c9'" onmouseout="this.style.background='#e8f5e9'">🔗</a>
+                                                </div>
+                                            ` : `
+                                                <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
+                                                    <div style="width: 60px; height: 60px; border: 1px dashed #ccc; border-radius: 3px; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
+                                                        <div style="text-align: center; color: #999;">
+                                                            <div style="font-size: 20px;">📷</div>
+                                                            <div style="font-size: 7px; font-weight: 500;">Pending</div>
+                                                        </div>
+                                                    </div>
+                                                    <span style="font-size: 7px; color: #ff9800; padding: 1px 3px; background: #fff3e0; border-radius: 2px; font-weight: 500; writing-mode: vertical-rl;">⚠️</span>
+                                                </div>
+                                            `}
+                                        </td>
+                                        <td style="padding: 4px; text-align: center;">
+                                            <button class="btn-sm" onclick="compressSingleImage('${photo.image_iid}', '${photo.image_url}', ${hasThumbnail})" style="padding: 4px 10px; font-size: 9px; border-radius: 3px; background: ${hasThumbnail ? '#9E9E9E' : '#4CAF50'}; color: white; border: none; cursor: pointer; transition: all 0.2s; font-weight: 600; white-space: nowrap;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" ${hasThumbnail ? 'title="Re-generate thumbnail"' : 'title="Generate thumbnail"'}>🖼️ ${hasThumbnail ? 'ReGen' : 'Generate'}</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // Single DOM update
+            requestAnimationFrame(() => {
+                grid.innerHTML = tableHTML;
+                grid.style.opacity = '1';
+            });
+        }
+
+        // Display id_password table (read-only)
+        function displayCredentials() {
+            const grid = document.getElementById('photosGrid');
+            
+            // Hide stats for credentials table
+            document.getElementById('statsCard').style.display = 'none';
+
+            if (allPhotos.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">No items yet</p>';
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginated = allPhotos.slice(startIndex, endIndex);
+
+            // Build a simple table
+            const rows = paginated.map((row) => `
+                <tr>
+                    <td>${row.user_id || ''}</td>
+                    <td>${row.password || ''}</td>
+                    <td>${row.created_at ? new Date(row.created_at).toLocaleString() : ''}</td>
+                </tr>
+            `).join('');
+
+            const tableHtml = `
+                <div style="grid-column: 1/-1; overflow:auto; background:#fff; border:1px solid #e5e5e5; border-radius:8px;">
+                    <table class="credentials-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <thead>
+                            <tr style="background:#fafafa;">
+                                <th style="text-align:left; padding:10px; border-bottom:1px solid #eee; min-width:200px;">User ID</th>
+                                <th style="text-align:left; padding:10px; border-bottom:1px solid #eee; min-width:200px;">Password</th>
+                                <th style="text-align:left; padding:10px; border-bottom:1px solid #eee; min-width:180px;">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            grid.innerHTML = tableHtml;
+        }
+
+        // Escape quotes for onclick
+        function escapeQuotes(str) {
+            return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        // Create pagination controls
+        function createPagination() {
+            const container = document.getElementById('paginationContainer');
+            container.innerHTML = '';
+            
+            if (totalItems === 0 || totalItems <= itemsPerPage) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.textContent = '← Previous';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderCurrentView();
+                    createPagination();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            container.appendChild(prevBtn);
+
+            // Page info
+            const info = document.createElement('span');
+            info.className = 'pagination-info';
+            info.textContent = `Page ${currentPage} of ${totalPages}`;
+            container.appendChild(info);
+
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.textContent = 'Next →';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderCurrentView();
+                    createPagination();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            container.appendChild(nextBtn);
+
+            // Page numbers (show up to 5 pages)
+            const pageInfo = document.createElement('div');
+            pageInfo.className = 'pagination-info';
+            pageInfo.style.width = '100%';
+            pageInfo.style.marginTop = '10px';
+            pageInfo.style.textAlign = 'center';
+            
+            const startRecord = (currentPage - 1) * itemsPerPage + 1;
+            const endRecord = Math.min(currentPage * itemsPerPage, totalItems);
+            pageInfo.textContent = `Showing ${startRecord}-${endRecord} of ${totalItems} items`;
+            container.appendChild(pageInfo);
+        }
+
+        // Thumbnail Generator Modal
+        document.getElementById('thumbnailGeneratorBtn').addEventListener('click', function() {
+            openThumbnailModal();
+        });
+
+        document.getElementById('startThumbnailBtn').addEventListener('click', function() {
+            thumbnailGenerator.start(currentTable);
+        });
+
+        document.getElementById('stopThumbnailBtn').addEventListener('click', function() {
+            thumbnailGenerator.stop();
+        });
+
+        function openThumbnailModal() {
+            const tableNames = {
+                'bangla_quotes_1': 'Bangla Quotes 1',
+                'bangla_quotes_2': 'Bangla Quotes 2',
+                'bangla_quotes_3': 'Bangla Quotes 3',
+                'bangla_quotes_4': 'Bangla Quotes 4',
+                'photography_1': 'Photography 1',
+                'photography_2': 'Photography 2',
+                'photography_3': 'Photography 3',
+                'photography_4': 'Photography 4',
+                'post_site': 'Post Site',
+                'dotted_illustration_1': 'Dotted Illustration 1',
+                'dotted_illustration_2': 'Dotted Illustration 2',
+                'illustration_1': 'Illustration 1',
+                'illustration_2': 'Illustration 2',
+                'english_quote_1': 'English Quote 1',
+                'english_quote_2': 'English Quote 2',
+                'id_password': 'Credentials (Read-only)',
+            };
+            
+            document.getElementById('thumbnailCurrentTable').textContent = tableNames[currentTable] || currentTable;
+            
+            // Reset UI
+            document.getElementById('thumbnailCurrent').textContent = '0';
+            document.getElementById('thumbnailTotal').textContent = '0';
+            document.getElementById('thumbnailPercent').textContent = '0%';
+            document.getElementById('thumbnailProgressBar').style.width = '0%';
+            document.getElementById('thumbnailLogs').innerHTML = '<div style="color: #666;">লগ এখানে দেখা যাবে...</div>';
+            document.getElementById('startThumbnailBtn').style.display = 'block';
+            document.getElementById('stopThumbnailBtn').style.display = 'none';
+            
+            document.getElementById('thumbnailModal').classList.add('active');
+        }
+
+        function closeThumbnailModal() {
+            if (thumbnailGenerator.isRunning) {
+                if (!confirm('Process is running. Are you sure you want to close?')) {
+                    return;
+                }
+                thumbnailGenerator.stop();
+            }
+            document.getElementById('thumbnailModal').classList.remove('active');
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('supabase_session');
+                localStorage.removeItem('supabase_user');
+                localStorage.removeItem('supabase_access_token');
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Close modal on outside click
+        window.addEventListener('click', function(event) {
+            const thumbnailModal = document.getElementById('thumbnailModal');
+            if (event.target === thumbnailModal) {
+                closeThumbnailModal();
+            }
+        });
+    </script>
+        </div><!-- End admin-container -->
+    </div><!-- End main-wrapper -->
+</body>
+</html>
