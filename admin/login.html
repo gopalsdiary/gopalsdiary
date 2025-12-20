@@ -103,15 +103,26 @@
 			border-radius: 6px;
 			display: none;
 		}
-		.brand { display:flex; align-items:center; gap:8px; margin-bottom: 12px; }
-		.brand img { height: 28px; width: 28px; border-radius: 6px; }
+		.brand {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 12px;
+		}
+		.brand img {
+			height: 48px;
+			width: 148px;
+			border-radius: 6px;
+			margin-bottom: 6px;
+		}
 	</style>
 </head>
 <body>
 	<div class="card">
 		<div class="brand">
-			<img src="./gopalsdiary.png" alt="Logo" onerror="this.style.display='none'" />
-			<h1>Admin Login</h1>
+			<img src="/admin/gopalsdiary.png" alt="Logo" style="box-shadow:0 50px 50px #0001;object-fit:cover;background:#fff;border:1px solid #eee;" onerror="this.style.display='none'" />
+			<h1></h1>
 		</div>
 		<p class="muted">Sign in with your email and password to access the dashboard.</p>
 

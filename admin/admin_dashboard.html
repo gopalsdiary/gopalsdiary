@@ -98,6 +98,27 @@
             background: #e4e4e4;
         }
 
+        #thumbnailBtn {
+            background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 114, 255, 0.10);
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            outline: none;
+            margin-right: 4px;
+        }
+
+        #thumbnailBtn:hover, #thumbnailBtn:focus {
+            background: linear-gradient(90deg, #0072ff 0%, #00c6ff 100%);
+            transform: translateY(-1px) scale(1.04);
+            box-shadow: 0 4px 16px rgba(0, 114, 255, 0.18);
+        }
+
         .main-wrapper {
             display: flex;
             flex: 1;
