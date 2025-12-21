@@ -10,7 +10,7 @@
 const CONFIG = {
     SUPABASE_URL: 'https://vbfckjroisrhplrpqzkd.supabase.co',
     SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y',
-    ITEMS_PER_PAGE: 200,
+    ITEMS_PER_PAGE: 150,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes cache
     RETRY_ATTEMPTS: 3,
     RETRY_DELAY: 1000
@@ -52,6 +52,7 @@ const AppState = {
     currentPage: 1,
     currentCategory: 'all',
     clickCounts: {},
+    userPreferences: {}, // User এর table preferences
     cache: {
         data: null,
         timestamp: null
@@ -61,6 +62,80 @@ const AppState = {
     hasMorePhotos: true,
     loadedCount: 0
 };
+
+// ===========================================
+// User Preference Tracking (Device-Based)
+// ===========================================
+
+/**
+ * Load user preferences from localStorage
+ */
+function loadUserPreferences() {
+    try {
+        const stored = localStorage.getItem('gopals_diary_preferences');
+        if (stored) {
+            const prefs = JSON.parse(stored);
+            AppState.userPreferences = prefs.tableClicks || {};
+            console.log('📱 User preferences loaded:', AppState.userPreferences);
+            return AppState.userPreferences;
+        }
+    } catch (error) {
+        console.warn('Failed to load user preferences:', error);
+    }
+    return {};
+}
+
+/**
+ * Save user preferences to localStorage
+ */
+function saveUserPreferences() {
+    try {
+        const prefs = {
+            tableClicks: AppState.userPreferences,
+            lastUpdated: Date.now()
+        };
+        localStorage.setItem('gopals_diary_preferences', JSON.stringify(prefs));
+    } catch (error) {
+        console.warn('Failed to save user preferences:', error);
+    }
+}
+
+/**
+ * Track user click on a table
+ */
+function trackUserTableClick(tableName) {
+    if (!tableName) return;
+    
+    AppState.userPreferences[tableName] = (AppState.userPreferences[tableName] || 0) + 1;
+    saveUserPreferences();
+    
+    console.log(`👆 User clicked ${tableName} (Total: ${AppState.userPreferences[tableName]})`);
+}
+
+/**
+ * Get user preference weight for a table
+ * Returns higher weight for more clicked tables
+ */
+function getUserTableWeight(tableName) {
+    const clicks = AppState.userPreferences[tableName] || 0;
+    
+    if (clicks === 0) return 1; // Default weight
+    if (clicks < 5) return 1.2;
+    if (clicks < 10) return 1.5;
+    if (clicks < 20) return 2;
+    if (clicks < 50) return 3;
+    return 5; // Maximum weight for very preferred tables
+}
+
+/**
+ * Get top preferred tables by user
+ */
+function getTopPreferredTables(limit = 5) {
+    return Object.entries(AppState.userPreferences)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit)
+        .map(([table, count]) => ({ table, count, weight: getUserTableWeight(table) }));
+}
 
 // ===========================================
 // Utility Functions
@@ -136,6 +211,215 @@ function categoryBalancedShuffle(array) {
 }
 
 /**
+ * Table-Balanced Shuffle - নতুন উন্নত অ্যালগরিদম
+ * প্রতিটি টেবিল থেকে সমানভাবে ছবি নেয় এবং এলোমেলো করে
+ */
+function tableBalancedShuffle(array) {
+    const tables = {};
+    
+    // প্রতিটি টেবিল অনুযায়ী ভাগ করো
+    array.forEach(item => {
+        if (!tables[item.tableName]) {
+            tables[item.tableName] = [];
+        }
+        tables[item.tableName].push(item);
+    });
+    
+    // প্রতিটি টেবিলের ছবি shuffle করো
+    Object.keys(tables).forEach(tableName => {
+        tables[tableName] = fisherYatesShuffle(tables[tableName]);
+    });
+    
+    // Interleave করো - প্রতিটি টেবিল থেকে একটি করে নাও
+    const result = [];
+    const tableNames = Object.keys(tables);
+    let hasMore = true;
+    let index = 0;
+    
+    while (hasMore) {
+        hasMore = false;
+        // Shuffle table order প্রতি iteration এ
+        const shuffledTables = fisherYatesShuffle(tableNames);
+        
+        for (const tableName of shuffledTables) {
+            if (tables[tableName][index]) {
+                result.push(tables[tableName][index]);
+                hasMore = true;
+            }
+        }
+        index++;
+    }
+    
+    return result;
+}
+
+/**
+ * Advanced Mixed Shuffle - সবচেয়ে উন্নত অ্যালগরিদম
+ * Category এবং Table উভয় ভিত্তিতে balance করে
+ */
+function advancedMixedShuffle(array) {
+    const grouped = {};
+    
+    // Category এবং Table উভয় দিয়ে group করো
+    array.forEach(item => {
+        const key = `${item.category}-${item.tableName}`;
+        if (!grouped[key]) {
+            grouped[key] = [];
+        }
+        grouped[key].push(item);
+    });
+    
+    // প্রতিটি group shuffle করো
+    Object.keys(grouped).forEach(key => {
+        grouped[key] = fisherYatesShuffle(grouped[key]);
+    });
+    
+    // সব group একসাথে করো
+    const allGroups = Object.values(grouped);
+    const result = [];
+    let hasMore = true;
+    let index = 0;
+    
+    while (hasMore) {
+        hasMore = false;
+        // Groups এর order প্রতিবার random করো
+        const shuffledGroups = fisherYatesShuffle(allGroups);
+        
+        for (const group of shuffledGroups) {
+            if (group[index]) {
+                result.push(group[index]);
+                hasMore = true;
+            }
+        }
+        index++;
+    }
+    
+    return result;
+}
+
+/**
+ * Personalized Shuffle - User Preference Based 📱
+ * User যে table থেকে বেশি click করেছে, সেই table থেকে বেশি ছবি দেখায়
+ */
+function personalizedShuffle(array) {
+    const tables = {};
+    
+    // টেবিল অনুযায়ী group করো
+    array.forEach(item => {
+        if (!tables[item.tableName]) {
+            tables[item.tableName] = [];
+        }
+        tables[item.tableName].push(item);
+    });
+    
+    // প্রতিটি টেবিল shuffle করো
+    Object.keys(tables).forEach(tableName => {
+        tables[tableName] = fisherYatesShuffle(tables[tableName]);
+    });
+    
+    // User preference অনুযায়ী weight calculate করো
+    const tableWeights = {};
+    Object.keys(tables).forEach(tableName => {
+        tableWeights[tableName] = getUserTableWeight(tableName);
+    });
+    
+    // Weighted interleaving - preferred table থেকে বেশি items নাও
+    const result = [];
+    const tableNames = Object.keys(tables);
+    let maxIterations = Math.max(...Object.values(tables).map(t => t.length));
+    
+    for (let round = 0; round < maxIterations; round++) {
+        // প্রতি round এ table order shuffle করো কিন্তু weight অনুযায়ী
+        const weightedOrder = [];
+        tableNames.forEach(tableName => {
+            const weight = tableWeights[tableName];
+            // Weight যত বেশি, তত বার table টা list এ থাকবে
+            for (let w = 0; w < weight; w++) {
+                weightedOrder.push(tableName);
+            }
+        });
+        
+        // Shuffle করো weighted order
+        const shuffledWeightedOrder = fisherYatesShuffle(weightedOrder);
+        
+        // প্রতিটি table থেকে item নাও (weight অনুযায়ী বেশি বার আসবে)
+        const usedTables = new Set();
+        for (const tableName of shuffledWeightedOrder) {
+            // প্রতি round এ একটা table থেকে শুধু একবার নিতে পারবে
+            if (!usedTables.has(tableName) && tables[tableName][round]) {
+                result.push(tables[tableName][round]);
+                usedTables.add(tableName);
+            }
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Smart Personalized Shuffle - Advanced User-Based Algorithm 🎯
+ * Popular + User Preference এর perfect mix
+ */
+function smartPersonalizedShuffle(array) {
+    // Step 1: Popular items (top 15%)
+    const sorted = [...array].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+    const popularCount = Math.floor(array.length * 0.15);
+    const popular = sorted.slice(0, popularCount);
+    const others = sorted.slice(popularCount);
+    
+    // Step 2: User preferred table থেকে extra items (top 20%)
+    const topPreferred = getTopPreferredTables(3);
+    const preferredTableNames = topPreferred.map(p => p.table);
+    
+    const userPreferredItems = others.filter(item => 
+        preferredTableNames.includes(item.tableName)
+    );
+    const regularItems = others.filter(item => 
+        !preferredTableNames.includes(item.tableName)
+    );
+    
+    const extraPreferredCount = Math.floor(others.length * 0.25);
+    const extraPreferred = fisherYatesShuffle(userPreferredItems).slice(0, extraPreferredCount);
+    
+    // Step 3: Remaining items personalized shuffle করো
+    const remaining = [...userPreferredItems.slice(extraPreferredCount), ...regularItems];
+    const personalizedRemaining = personalizedShuffle(remaining);
+    
+    // Step 4: সব মিলাও - popular scattered, extra preferred distributed
+    const result = [];
+    const popularShuffled = fisherYatesShuffle(popular);
+    const extraShuffled = fisherYatesShuffle(extraPreferred);
+    
+    const popularInterval = Math.floor(personalizedRemaining.length / popularShuffled.length) || 1;
+    const preferredInterval = Math.floor(personalizedRemaining.length / extraShuffled.length) || 1;
+    
+    let popularIndex = 0;
+    let preferredIndex = 0;
+    
+    for (let i = 0; i < personalizedRemaining.length; i++) {
+        // Insert popular items
+        if (i % popularInterval === 0 && popularIndex < popularShuffled.length) {
+            result.push(popularShuffled[popularIndex++]);
+        }
+        // Insert extra preferred items
+        if (i % preferredInterval === Math.floor(preferredInterval / 2) && preferredIndex < extraShuffled.length) {
+            result.push(extraShuffled[preferredIndex++]);
+        }
+        result.push(personalizedRemaining[i]);
+    }
+    
+    // বাকি items যোগ করো
+    while (popularIndex < popularShuffled.length) {
+        result.push(popularShuffled[popularIndex++]);
+    }
+    while (preferredIndex < extraShuffled.length) {
+        result.push(extraShuffled[preferredIndex++]);
+    }
+    
+    return result;
+}
+
+/**
  * Time-Based Shuffle Seed
  * Same order within the same hour
  */
@@ -192,10 +476,27 @@ async function fetchWithRetry(fetchFn, attempts = CONFIG.RETRY_ATTEMPTS) {
 function sanitizeImageUrl(url) {
     if (!url || typeof url !== 'string') return url;
     
+    // Remove any fragment identifiers (#1, #2, etc.)
+    url = url.split('#')[0];
+    
+    // Remove any trailing whitespace
+    url = url.trim();
+    
     // Fix i.ibb.co.com -> i.ibb.co
     url = url.replace(/i\.ibb\.co\.com/g, 'i.ibb.co');
+    
     // Fix any double .com
     url = url.replace(/\.com\.com/g, '.com');
+    
+    // Fix double slashes (except after protocol)
+    url = url.replace(/([^:]\/)\/+/g, '$1');
+    
+    // Ensure https protocol
+    if (url.startsWith('//')) {
+        url = 'https:' + url;
+    } else if (url.startsWith('http://')) {
+        url = url.replace('http://', 'https://');
+    }
     
     return url;
 }
@@ -250,8 +551,19 @@ async function fetchTableData(tableName) {
             let thumbnailUrl = item.thumbnail_url || imageUrl; // Use thumbnail if available, fallback to image_url
             
             // Sanitize URLs
+            const originalImageUrl = imageUrl;
+            const originalThumbnailUrl = thumbnailUrl;
+            
             imageUrl = sanitizeImageUrl(imageUrl);
             thumbnailUrl = sanitizeImageUrl(thumbnailUrl);
+            
+            // Log if URL was changed
+            if (originalImageUrl !== imageUrl) {
+                console.log('Sanitized image URL:', originalImageUrl, '->', imageUrl);
+            }
+            if (originalThumbnailUrl !== thumbnailUrl && originalThumbnailUrl !== originalImageUrl) {
+                console.log('Sanitized thumbnail URL:', originalThumbnailUrl, '->', thumbnailUrl);
+            }
             
             // Try multiple ID fields
             const photoId = item.iid || item.id || item.photo_id || item.ID || item.image_iid;
@@ -313,7 +625,19 @@ async function loadAllPhotos() {
         AppState.cache.data = allPhotos;
         AppState.cache.timestamp = Date.now();
 
-        console.log(`Loaded ${allPhotos.length} photos`);
+        // Statistics - প্রতিটি টেবিল থেকে কতগুলো ছবি আছে
+        const tableStats = {};
+        const categoryStats = {};
+        
+        allPhotos.forEach(photo => {
+            tableStats[photo.tableName] = (tableStats[photo.tableName] || 0) + 1;
+            categoryStats[photo.category] = (categoryStats[photo.category] || 0) + 1;
+        });
+        
+        console.log(`📊 Loaded ${allPhotos.length} photos from ${Object.keys(tableStats).length} tables`);
+        console.log('📁 Table Distribution:', tableStats);
+        console.log('📂 Category Distribution:', categoryStats);
+        
         return allPhotos;
 
     } catch (error) {
@@ -339,6 +663,18 @@ const SHUFFLE_ALGORITHMS = {
     // Category-balanced
     balanced: (arr) => categoryBalancedShuffle(arr),
     
+    // Table-balanced - নতুন! প্রতিটি টেবিল থেকে সমানভাবে
+    tableBalanced: (arr) => tableBalancedShuffle(arr),
+    
+    // Advanced mixed - Category এবং Table উভয় balance
+    advancedMixed: (arr) => advancedMixedShuffle(arr),
+    
+    // Personalized - User preference based 📱
+    personalized: (arr) => personalizedShuffle(arr),
+    
+    // Smart Personalized - Popular + User preference 🎯
+    smartPersonalized: (arr) => smartPersonalizedShuffle(arr),
+    
     // Time-based (same order within the same hour)
     timeBased: (arr) => seededShuffle(arr, getTimeSeed()),
     
@@ -353,19 +689,64 @@ const SHUFFLE_ALGORITHMS = {
         // Remaining 70% random
         const shuffledRest = fisherYatesShuffle(rest);
         
-        // Mix them together
-        return categoryBalancedShuffle([...top, ...shuffledRest]);
+        // Mix them together with advanced algorithm
+        return advancedMixedShuffle([...top, ...shuffledRest]);
+    },
+    
+    // Super Advanced - সবচেয়ে উন্নত, সব কিছু মিলিয়ে
+    superAdvanced: (arr) => {
+        // Step 1: Popular items (top 20%)
+        const sorted = [...arr].sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+        const popularCount = Math.floor(arr.length * 0.2);
+        const popular = sorted.slice(0, popularCount);
+        const others = sorted.slice(popularCount);
+        
+        // Step 2: Table balance করো others দের
+        const tableBalanced = tableBalancedShuffle(others);
+        
+        // Step 3: Popular items কে distributed করো throughout
+        const result = [];
+        const popularShuffled = fisherYatesShuffle(popular);
+        const interval = Math.floor(tableBalanced.length / popularShuffled.length) || 1;
+        
+        let popularIndex = 0;
+        for (let i = 0; i < tableBalanced.length; i++) {
+            if (i % interval === 0 && popularIndex < popularShuffled.length) {
+                result.push(popularShuffled[popularIndex++]);
+            }
+            result.push(tableBalanced[i]);
+        }
+        
+        // বাকি popular items যোগ করো
+        while (popularIndex < popularShuffled.length) {
+            result.push(popularShuffled[popularIndex++]);
+        }
+        
+        return result;
     }
 };
 
 /**
  * Shuffle photos
- * @param {string} algorithm - 'random', 'popularity', 'balanced', 'timeBased', 'hybrid'
+ * @param {string} algorithm - Algorithm name
  */
-function shufflePhotos(algorithm = 'hybrid') {
-    const shuffleFn = SHUFFLE_ALGORITHMS[algorithm] || SHUFFLE_ALGORITHMS.random;
+function shufflePhotos(algorithm = 'smartPersonalized') {
+    const shuffleFn = SHUFFLE_ALGORITHMS[algorithm] || SHUFFLE_ALGORITHMS.smartPersonalized;
     AppState.displayPhotos = shuffleFn(AppState.filteredPhotos);
     AppState.lastShuffleTime = Date.now();
+    
+    // Show user preferences if personalized algorithm
+    if (algorithm.includes('ersonalized') || algorithm.includes('mart')) {
+        const topPrefs = getTopPreferredTables(5);
+        if (topPrefs.length > 0) {
+            console.log(`🎯 Algorithm: ${algorithm} | Top preferences:`, topPrefs);
+        } else {
+            console.log(`🎯 Algorithm: ${algorithm} | No preferences yet (Equal distribution)`);
+        }
+    } else {
+        console.log(`🎯 Shuffled with algorithm: ${algorithm}`);
+    }
+    
     return AppState.displayPhotos;
 }
 
@@ -378,7 +759,7 @@ function filterByCategory(category) {
     
     if (category === 'all') {
         AppState.filteredPhotos = [...AppState.allPhotos];
-        shufflePhotos('hybrid');
+        shufflePhotos('smartPersonalized'); // Use smart personalized algorithm
     } else if (category === 'popular') {
         // Sort by click count (most popular first)
         AppState.filteredPhotos = [...AppState.allPhotos].sort((a, b) => {
@@ -389,7 +770,7 @@ function filterByCategory(category) {
         AppState.filteredPhotos = AppState.allPhotos.filter(
             photo => photo.category === category
         );
-        shufflePhotos('hybrid');
+        shufflePhotos('personalized'); // Category filter তে personalized ব্যবহার করো
     }
     
     AppState.currentPage = 1;
@@ -397,6 +778,7 @@ function filterByCategory(category) {
     AppState.loadedCount = 0;
     AppState.hasMorePhotos = true;
     
+    console.log(`📂 Filtered by category: ${category}, Total: ${AppState.filteredPhotos.length} photos`);
     return AppState.filteredPhotos;
 }
 
@@ -491,7 +873,30 @@ function updateStats() {
     const stats = document.getElementById('stats');
     if (stats) {
         const totalPages = getTotalPages();
-        stats.textContent = `Total ${AppState.displayPhotos.length} photos | ${totalPages} pages | ${CONFIG.ITEMS_PER_PAGE} per page`;
+        
+        // টেবিল distribution calculate করো
+        const tableCounts = {};
+        AppState.displayPhotos.forEach(photo => {
+            tableCounts[photo.tableName] = (tableCounts[photo.tableName] || 0) + 1;
+        });
+        
+        const tableCount = Object.keys(tableCounts).length;
+        
+        // User preferences
+        const topPrefs = getTopPreferredTables(3);
+        const prefsText = topPrefs.length > 0 
+            ? topPrefs.map(p => `${TABLE_CONFIG[p.table]?.name || p.table} (${p.count})`).join(', ')
+            : 'Learning your preferences...';
+        
+        stats.innerHTML = `
+            <div>Total ${AppState.displayPhotos.length} photos | ${totalPages} pages | ${CONFIG.ITEMS_PER_PAGE} per page</div>
+            <div style="font-size: 0.9em; margin-top: 5px; opacity: 0.8;">
+                ${tableCount} tables mixed with personalized algorithm
+            </div>
+            <div style="font-size: 0.85em; margin-top: 3px; opacity: 0.7;">
+                📱 Your preferences: ${prefsText}
+            </div>
+        `;
     }
 }
 
@@ -548,7 +953,8 @@ function renderGallery(append = false) {
             <img src="${photo.thumbnail_url}" 
                  alt="${photo.categoryName}"
                  loading="lazy"
-                 onerror="this.parentElement.style.display='none'">
+                 crossorigin="anonymous"
+                 onerror="console.warn('Image load failed:', this.src); this.parentElement.style.display='none';">
             <div class="item-info">
                 <div>${photo.categoryName}</div>
                 <div class="click-count">👁️ ${photo.clicks} views</div>
@@ -610,7 +1016,11 @@ function openModal(thumbnailUrl, fullUrl, tableName, photoId, tableImageIid) {
             console.log('Download button dataset set:', downloadBtn.dataset.imageUrl);
         }
         
+        // Track click count for photo
         trackClick(tableName, photoId, tableImageIid);
+        
+        // Track user preference for this table 📱
+        trackUserTableClick(tableName);
     }
 }
 
@@ -729,14 +1139,25 @@ async function downloadImage() {
 // ===========================================
 
 async function initGallery() {
-    console.log('Initializing Pinterest Gallery...');
+    console.log('🎨 Initializing Pinterest Gallery...');
+
+    // Load user preferences first
+    loadUserPreferences();
+    
+    // Show user preferences summary
+    const topPrefs = getTopPreferredTables(5);
+    if (topPrefs.length > 0) {
+        console.log('📱 User Preferences (Device-Based):', topPrefs);
+    } else {
+        console.log('📱 No user preferences yet - Will learn from your clicks!');
+    }
 
     // Load data
     AppState.allPhotos = await loadAllPhotos();
     AppState.filteredPhotos = [...AppState.allPhotos];
     
-    // Shuffle with hybrid algorithm
-    shufflePhotos('hybrid');
+    // Shuffle with smart personalized algorithm
+    shufflePhotos('smartPersonalized');
     
     // Render
     renderGallery();
@@ -753,7 +1174,7 @@ async function initGallery() {
     // Modal setup
     setupModal();
 
-    console.log('Gallery initialized successfully!');
+    console.log('✅ Gallery initialized successfully!');
 }
 
 function setupFilters() {
