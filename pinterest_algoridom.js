@@ -187,6 +187,20 @@ async function fetchWithRetry(fetchFn, attempts = CONFIG.RETRY_ATTEMPTS) {
 // ===========================================
 
 /**
+ * Sanitize image URL to fix common malformed patterns
+ */
+function sanitizeImageUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    
+    // Fix i.ibb.co.com -> i.ibb.co
+    url = url.replace(/i\.ibb\.co\.com/g, 'i.ibb.co');
+    // Fix any double .com
+    url = url.replace(/\.com\.com/g, '.com');
+    
+    return url;
+}
+
+/**
  * Load click counts
  */
 async function loadClickCounts() {
@@ -232,23 +246,34 @@ async function fetchTableData(tableName) {
         const tableConfig = TABLE_CONFIG[tableName];
 
         return data.map(item => {
-            const imageUrl = item.image_url || item.image || item.img;
+            let imageUrl = item.image_url || item.image || item.img;
+            let thumbnailUrl = item.thumbnail_url || imageUrl; // Use thumbnail if available, fallback to image_url
+            
+            // Sanitize URLs
+            imageUrl = sanitizeImageUrl(imageUrl);
+            thumbnailUrl = sanitizeImageUrl(thumbnailUrl);
+            
             // Try multiple ID fields
             const photoId = item.iid || item.id || item.photo_id || item.ID || item.image_iid;
             const imageIid = item.image_iid || item.iid || item.id || photoId;
             const tableImageIid = `${tableName}-${imageIid}`;
 
+            // Create clean object without spreading original (to avoid using malformed URLs)
             return {
-                ...item,
                 id: photoId,
-                image_url: imageUrl,
+                image_url: imageUrl,          // Full quality for download (sanitized)
+                thumbnail_url: thumbnailUrl,  // Smaller size for preview (sanitized)
                 image_iid: imageIid,
                 table_image_iid: tableImageIid,
                 tableName: tableName,
                 categoryName: tableConfig?.name || tableName,
                 category: tableConfig?.category || 'other',
                 weight: tableConfig?.weight || 1,
-                clicks: AppState.clickCounts[tableImageIid] || 0
+                clicks: AppState.clickCounts[tableImageIid] || 0,
+                // Copy other fields if needed
+                title: item.title,
+                description: item.description,
+                tags: item.tags
             };
         }).filter(item => item.image_url && item.id);
     } catch (error) {
@@ -518,8 +543,9 @@ function renderGallery(append = false) {
              data-table="${photo.tableName}"
              data-id="${photo.id}"
              data-iid="${photo.table_image_iid}"
-             data-url="${photo.image_url}">
-            <img src="${photo.image_url}" 
+             data-thumbnail="${photo.thumbnail_url}"
+             data-fullurl="${photo.image_url}">
+            <img src="${photo.thumbnail_url}" 
                  alt="${photo.categoryName}"
                  loading="lazy"
                  onerror="this.parentElement.style.display='none'">
@@ -547,11 +573,12 @@ function renderGallery(append = false) {
     items.forEach(item => {
         if (!item.dataset.hasListener) {
             item.addEventListener('click', function() {
-                const imageUrl = this.dataset.url;
+                const thumbnailUrl = this.dataset.thumbnail;
+                const fullUrl = this.dataset.fullurl;
                 const tableName = this.dataset.table;
                 const photoId = this.dataset.id;
                 const tableImageIid = this.dataset.iid;
-                openModal(imageUrl, tableName, photoId, tableImageIid);
+                openModal(thumbnailUrl, fullUrl, tableName, photoId, tableImageIid);
             });
             item.dataset.hasListener = 'true';
         }
@@ -561,18 +588,26 @@ function renderGallery(append = false) {
     updatePaginationUI();
 }
 
-function openModal(imageUrl, tableName, photoId, tableImageIid) {
+function openModal(thumbnailUrl, fullUrl, tableName, photoId, tableImageIid) {
     const modal = document.getElementById('modal');
     const modalImage = document.getElementById('modalImage');
     const downloadBtn = document.getElementById('downloadBtn');
     
     if (modal && modalImage) {
-        modalImage.src = imageUrl;
+        // Sanitize URLs before using
+        let cleanThumbnail = sanitizeImageUrl(thumbnailUrl);
+        let cleanFull = sanitizeImageUrl(fullUrl || thumbnailUrl); // Fallback to thumbnail if full URL not available
+        
+        // Show thumbnail in modal for preview
+        modalImage.src = cleanThumbnail;
         modal.classList.add('active');
         
-        // Store image URL for download
+        // Store full quality URL for download (use full if available, otherwise thumbnail)
         if (downloadBtn) {
-            downloadBtn.dataset.imageUrl = imageUrl;
+            downloadBtn.dataset.imageUrl = cleanFull;
+            console.log('Thumbnail URL (preview):', cleanThumbnail);
+            console.log('Full URL (download):', cleanFull);
+            console.log('Download button dataset set:', downloadBtn.dataset.imageUrl);
         }
         
         trackClick(tableName, photoId, tableImageIid);
@@ -592,37 +627,78 @@ function closeModal() {
 
 async function downloadImage() {
     const downloadBtn = document.getElementById('downloadBtn');
-    if (!downloadBtn || !downloadBtn.dataset.imageUrl) return;
+    
+    console.log('Download button clicked');
+    console.log('Download button:', downloadBtn);
+    console.log('Dataset imageUrl:', downloadBtn?.dataset?.imageUrl);
+    
+    if (!downloadBtn || !downloadBtn.dataset.imageUrl) {
+        console.error('No download button or image URL found');
+        alert('Image URL not found. Please try clicking the image again.');
+        return;
+    }
 
     const imageUrl = downloadBtn.dataset.imageUrl;
     const originalText = downloadBtn.innerHTML;
+    
+    console.log('Downloading:', imageUrl);
     
     try {
         // Disable button and show progress
         downloadBtn.disabled = true;
         downloadBtn.innerHTML = '<span>⏳</span><span>Downloading...</span>';
         
-        // Fetch the image as a blob
-        const response = await fetch(imageUrl);
-        if (!response.ok) throw new Error('Download failed');
-        
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        
         // Extract filename from URL or create one
         const urlPath = new URL(imageUrl).pathname;
-        const filename = urlPath.split('/').pop() || `pinterest_image_${Date.now()}.jpg`;
+        let filename = urlPath.split('/').pop() || `gopals_diary_${Date.now()}.jpg`;
         
-        // Create download link
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Clean filename and ensure it has an extension
+        filename = filename.split('?')[0]; // Remove query parameters
+        if (!filename.match(/\.(jpg|jpeg|png|webp|gif)$/i)) {
+            filename += '.jpg';
+        }
         
-        // Cleanup blob URL
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+        console.log('Filename:', filename);
+        
+        try {
+            // Try method 1: Fetch as blob
+            console.log('Trying blob download...');
+            const response = await fetch(imageUrl);
+            if (!response.ok) throw new Error('Fetch failed');
+            
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Cleanup blob URL
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            
+            console.log('Download successful (blob method)');
+            
+        } catch (fetchError) {
+            console.warn('Blob download failed, trying direct link:', fetchError);
+            
+            // Method 2: Direct download link (fallback for CORS issues)
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = filename;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('Download triggered (direct link method)');
+        }
         
         // Show success
         downloadBtn.innerHTML = '<span>✅</span><span>Downloaded</span>';
@@ -636,11 +712,11 @@ async function downloadImage() {
     } catch (error) {
         console.error('Download error:', error);
         
-        // Fallback: open in new tab
+        // Final fallback: open in new tab
         window.open(imageUrl, '_blank');
         
         // Show error and reset
-        downloadBtn.innerHTML = '<span>❌</span><span>Failed</span>';
+        downloadBtn.innerHTML = '<span>❌</span><span>Opened</span>';
         setTimeout(() => {
             downloadBtn.disabled = false;
             downloadBtn.innerHTML = originalText;
