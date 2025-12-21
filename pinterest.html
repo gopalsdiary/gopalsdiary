@@ -84,9 +84,10 @@
             font-size: 14px;
         }
 
+        /* Desktop default */
         .gallery {
-            column-count: 5;
-            column-gap: 10px;
+            column-count: 8;
+            column-gap: 8px;
             margin-top: 10px;
             margin-bottom: 10px;
         }
@@ -266,6 +267,14 @@
             }
         }
 
+        /* Large desktops tighten spacing slightly */
+        @media (min-width: 1400px) {
+            .gallery { 
+                column-count: 10;
+                column-gap: 8px;
+            }
+        }
+
         @media (max-width: 1100px) {
             .gallery { 
                 column-count: 3;
@@ -392,13 +401,6 @@
 <body>
     <div class="page-title">
         <h1>📌 Pinterest Gallery</h1>
-    </div>
-
-    <div class="gallery" id="gallery">
-        <div class="loading">Loading photos...</div>
-    </div>
-
-    <div class="header">
         <div class="filters">
             <button class="filter-btn active" data-category="all">All</button>
             <button class="filter-btn" data-category="popular">Popular</button>
@@ -407,6 +409,14 @@
             <button class="filter-btn" data-category="photography">Photography</button>
             <button class="filter-btn" data-category="illustrations">Illustrations</button>
         </div>
+    </div>
+
+    <div class="gallery" id="gallery">
+        <div class="loading">Loading photos...</div>
+    </div>
+
+    <div class="header">
+        
         <div class="stats" id="stats">Loading...</div>
     </div>
 
@@ -414,6 +424,7 @@
         <button class="page-btn" id="prevBtn">← Previous Page</button>
         <span class="page-info" id="pageInfo">Page 1</span>
         <button class="page-btn" id="nextBtn">Next Page →</button>
+        <button class="page-btn" id="homeBtn" onclick="window.location.href='index.html'">Home</button>
     </div>
 
     <div class="modal" id="modal">

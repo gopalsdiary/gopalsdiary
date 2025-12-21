@@ -11,6 +11,7 @@ const CONFIG = {
     SUPABASE_URL: 'https://vbfckjroisrhplrpqzkd.supabase.co',
     SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y',
     ITEMS_PER_PAGE: 150,
+    ENABLE_INFINITE_SCROLL: false,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes cache
     RETRY_ATTEMPTS: 3,
     RETRY_DELAY: 1000
@@ -1168,8 +1169,10 @@ async function initGallery() {
     // Pagination setup
     setupPagination();
     
-    // Infinite scroll setup
-    setupInfiniteScroll();
+    // Infinite scroll setup (toggleable)
+    if (CONFIG.ENABLE_INFINITE_SCROLL) {
+        setupInfiniteScroll();
+    }
     
     // Modal setup
     setupModal();
@@ -1208,7 +1211,11 @@ function setupPagination() {
 
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            loadMorePhotos();
+            nextPage();
+            AppState.renderedPhotos = [];
+            AppState.loadedCount = 0;
+            renderGallery();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
 }
