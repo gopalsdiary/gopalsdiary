@@ -414,6 +414,80 @@
             background: #da190b;
         }
 
+        /* Bulk Delete Styles */
+        .bulk-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: #f9f9f9;
+            border: 1px solid #dbdbdb;
+            border-radius: 6px;
+        }
+
+        .bulk-actions-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .select-all-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .selected-count {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .btn-bulk-delete {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .btn-bulk-delete.visible {
+            display: block;
+        }
+
+        .btn-bulk-delete:hover {
+            background: #da190b;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+        }
+
+        .photo-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 10;
+            accent-color: #0095f6;
+        }
+
+        .photo-card {
+            position: relative;
+        }
+
         /* Pagination Styles */
         .pagination-container {
             display: flex;
@@ -975,6 +1049,17 @@
             
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Search by title or description...">
+            </div>
+            
+            <div class="bulk-actions" id="bulkActions">
+                <div class="bulk-actions-left">
+                    <div class="select-all-container">
+                        <input type="checkbox" id="selectAllCheckbox">
+                        <label for="selectAllCheckbox" style="cursor: pointer; font-size: 13px; font-weight: 500;">Select All</label>
+                    </div>
+                    <span class="selected-count" id="selectedCount">0 selected</span>
+                </div>
+                <button class="btn-bulk-delete" id="bulkDeleteBtn">Delete Selected</button>
             </div>
 
             <div id="loading" class="spinner"></div>
@@ -1578,6 +1663,12 @@
                 allPhotos = data || [];
                 totalItems = allPhotos.length;
                 currentPage = 1; // Reset to first page
+                
+                // Clear selected items when reloading
+                if (typeof selectedIds !== 'undefined') {
+                    selectedIds.clear();
+                    updateBulkDeleteUI();
+                }
 
                 // Small delay for smooth transition
                 requestAnimationFrame(() => {
@@ -1631,6 +1722,7 @@
                 const card = document.createElement('div');
                 card.className = 'photo-card';
                 card.innerHTML = `
+                    <input type="checkbox" class="photo-checkbox" data-id="${photo.image_iid}">
                     <img src="${photo.image_url}" alt="${photo.title}" class="photo-image" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22150%22 height=%22150%22/%3E%3C/svg%3E'">
                     <div class="photo-info">
                         <div class="photo-title" title="${photo.title}">${photo.title}</div>
@@ -1653,6 +1745,9 @@
                 setTimeout(() => {
                     grid.style.willChange = 'auto';
                 }, 100);
+                
+                // Attach checkbox event listeners
+                attachCheckboxListeners();
             });
         }
 
@@ -1723,6 +1818,7 @@
             prevBtn.onclick = () => {
                 if (currentPage > 1) {
                     currentPage--;
+                    selectedIds.clear();
                     renderCurrentView();
                     createPagination();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1744,6 +1840,7 @@
             nextBtn.onclick = () => {
                 if (currentPage < totalPages) {
                     currentPage++;
+                    selectedIds.clear();
                     renderCurrentView();
                     createPagination();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2073,6 +2170,110 @@
                 alert(`Error deleting item: ${error.message}`);
             }
         }
+
+        // Bulk delete functionality
+        let selectedIds = new Set();
+
+        function attachCheckboxListeners() {
+            const checkboxes = document.querySelectorAll('.photo-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    const id = this.dataset.id;
+                    
+                    if (this.checked) {
+                        selectedIds.add(id);
+                    } else {
+                        selectedIds.delete(id);
+                    }
+                    
+                    updateBulkDeleteUI();
+                });
+            });
+        }
+
+        function updateBulkDeleteUI() {
+            const count = selectedIds.size;
+            const selectedCountEl = document.getElementById('selectedCount');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            
+            selectedCountEl.textContent = `${count} selected`;
+            
+            if (count > 0) {
+                bulkDeleteBtn.classList.add('visible');
+            } else {
+                bulkDeleteBtn.classList.remove('visible');
+            }
+            
+            // Update select all checkbox state
+            const checkboxes = document.querySelectorAll('.photo-checkbox');
+            const allChecked = checkboxes.length > 0 && selectedIds.size === checkboxes.length;
+            selectAllCheckbox.checked = allChecked;
+        }
+
+        // Select all checkbox handler
+        document.getElementById('selectAllCheckbox').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.photo-checkbox');
+            selectedIds.clear();
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+                if (this.checked) {
+                    selectedIds.add(checkbox.dataset.id);
+                }
+            });
+            
+            updateBulkDeleteUI();
+        });
+
+        // Bulk delete button handler
+        document.getElementById('bulkDeleteBtn').addEventListener('click', async function() {
+            if (selectedIds.size === 0) return;
+            
+            const count = selectedIds.size;
+            if (!confirm(`Are you sure you want to delete ${count} item${count > 1 ? 's' : ''}?`)) return;
+            
+            try {
+                const accessToken = localStorage.getItem('supabase_access_token');
+                
+                if (!accessToken) {
+                    throw new Error('No access token found. Please login again.');
+                }
+                
+                // Delete all selected items
+                const deletePromises = Array.from(selectedIds).map(id => 
+                    fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?image_iid=eq.${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${accessToken}`,
+                        },
+                    })
+                );
+                
+                const results = await Promise.all(deletePromises);
+                
+                // Check if any request failed
+                const failedRequests = results.filter(response => !response.ok);
+                if (failedRequests.length > 0) {
+                    if (failedRequests[0].status === 401) {
+                        handleAuthError('Token expired');
+                        return;
+                    }
+                    throw new Error(`Failed to delete ${failedRequests.length} item(s)`);
+                }
+                
+                // Clear selection and reload
+                selectedIds.clear();
+                updateBulkDeleteUI();
+                loadPhotos();
+                
+            } catch (error) {
+                alert(`Error deleting items: ${error.message}`);
+            }
+        });
 
         // Add new button - Open modal to add new item
         document.getElementById('addNewBtn').addEventListener('click', function() {
