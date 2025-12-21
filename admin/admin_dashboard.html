@@ -1721,9 +1721,10 @@
             paginatedPhotos.forEach(photo => {
                 const card = document.createElement('div');
                 card.className = 'photo-card';
+                const displayImage = photo.thumbnail_url || photo.image_url;
                 card.innerHTML = `
                     <input type="checkbox" class="photo-checkbox" data-id="${photo.image_iid}">
-                    <img src="${photo.image_url}" alt="${photo.title}" class="photo-image" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22150%22 height=%22150%22/%3E%3C/svg%3E'">
+                    <img src="${displayImage}" alt="${photo.title}" class="photo-image" loading="lazy" decoding="async" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22150%22 height=%22150%22/%3E%3C/svg%3E'">
                     <div class="photo-info">
                         <div class="photo-title" title="${photo.title}">${photo.title}</div>
                         <div class="photo-actions">
