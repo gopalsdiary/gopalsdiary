@@ -1,1707 +1,510 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-	<!-- SEO Meta Tags -->
-	<title>Gopals Diary</title>
-	<meta name="description" content="Gopals Diary - আপনার পছন্দের বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন, ইলাস্ট্রেশন এবং ইংলিশ কোটস। Free to use and download beautiful aesthetic content, bangla quotes, photography collections and creative illustrations.">
-
-
-	<!-- Performance: DNS Prefetch for external domains -->
-	<link rel="dns-prefetch" href="https://vbfckjroisrhplrpqzkd.supabase.co">
-	<link rel="dns-prefetch" href="https://i.ibb.co.com">
-	<link rel="preconnect" href="https://vbfckjroisrhplrpqzkd.supabase.co">
-	<link rel="preconnect" href="https://i.ibb.co.com">
-
-	<!-- PWA Manifest and Meta Tags -->
-	<link rel="manifest" href="manifest.json">
-	<link rel="icon" type="image/svg+xml" href="favicon.svg">
-	<link rel="apple-touch-icon" href="favicon.svg">
-	<meta name="theme-color" content="#ff99cc">
-	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-	<meta name="apple-mobile-web-app-title" content="Gopals Diary">
-
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		html, body {
-			width: 100%;
-			overflow-x: hidden; /* prevent accidental horizontal scroll on small screens */
-			scroll-behavior: smooth; /* smooth scrolling */
-		}
-
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-			background: #fafafa;
-			color: #262626;
-		}
-
-		/* Make all embeds/media scale to container */
-		img, video, iframe {
-			max-width: 100%;
-			height: auto;
-		}
-
-		/* Keep iframes nicely proportioned when used */
-		iframe {
-			aspect-ratio: 16/9;
-			width: 100%;
-			border: 0;
-		}
-
-		.profile-container {
-			max-width: 935px;
-			margin: 0 auto;
-			padding: 10px;
-		}
-
-		/* Header */
-		.profile-header {
-			display: grid;
-			grid-template-columns: 110px 1fr;
-			gap: 15px;
-			margin: 10px 0;
-			padding-bottom: 12px;
-			border-bottom: 1px solid #dbdbdb;
-		}
-
-		.profile-avatar {
-			display: flex;
-			justify-content: center;
-		}
-
-		.profile-avatar img {
-			width: 110px;
-			height: 110px;
-			border-radius: 50%;
-			object-fit: cover;
-			border: 3px solid #fff;
-			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-		}
-
-		.profile-info {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			position: relative;
-		}
-
-		.profile-header-top {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			gap: 8px;
-		}
-
-		.profile-username {
-			font-size: 24px;
-			font-weight: 300;
-			margin-bottom: 5px;
-			display: flex;
-			align-items: center;
-			gap: 6px;
-		}
-
-		.verification-badge {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			width: 20px;
-			height: 20px;
-			background: linear-gradient(135deg, #0095f6 0%, #0077dd 100%);
-			color: white;
-			border-radius: 50%;
-			font-size: 12px;
-			font-weight: bold;
-			border: 2px solid white;
-			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-		}
-
-		.settings-button {
-			background: none;
-			border: none;
-			font-size: 24px;
-			cursor: pointer;
-			padding: 8px;
-			border-radius: 50%;
-			transition: background 0.3s ease;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			min-width: 44px; /* touch target size */
-			min-height: 44px; /* touch target size */
-		}
-
-		.settings-button:hover {
-			background: rgba(0, 0, 0, 0.05);
-		}
-
-		.settings-menu {
-			position: absolute;
-			top: 45px;
-			right: 0;
-			background: white;
-			border: 1px solid #dbdbdb;
-			border-radius: 8px;
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-			z-index: 1000;
-			display: none;
-			min-width: 200px;
-			overflow: hidden;
-		}
-
-		.settings-menu.active {
-			display: block;
-		}
-
-		.settings-menu-item {
-			display: block;
-			width: 100%;
-			padding: 12px 16px;
-			border: none;
-			background: none;
-			text-align: left;
-			cursor: pointer;
-			font-size: 14px;
-			color: #262626;
-			transition: background 0.2s ease;
-			text-decoration: none;
-		}
-
-		.settings-menu-item:hover {
-			background: #f0f0f0;
-		}
-
-		.settings-menu-item.login {
-			color: #0095f6;
-			font-weight: 600;
-		}
-
-		.profile-stats {
-			display: flex;
-			gap: 18px;
-			margin-bottom: 10px;
-			font-size: 13px;
-			align-items: center;
-		}
-
-		.stat-item {
-			display: flex;
-			flex-direction: column;
-		}
-
-		.stat-number {
-			font-weight: 600;
-			font-size: 16px;
-		}
-
-		.btn-follow-inline {
-			margin-left: 8px;
-			padding: 5px 10px;
-			font-size: 12px;
-			width: auto;
-			min-width: auto;
-		}
-
-		.profile-bio {
-			margin-top: 5px;
-			font-size: 13px;
-			line-height: 1.4;
-		}
-
-		/* Avoid long links causing overflow on mobile */
-		.profile-bio, .profile-bio a {
-			word-break: break-word;
-			overflow-wrap: anywhere;
-		}
-
-		.profile-link {
-			color: #0095f6;
-			text-decoration: none;
-			font-weight: 600;
-		}
-
-		.profile-link:hover {
-			text-decoration: underline;
-		}
-
-		/* Buttons Section */
-		.profile-buttons {
-			display: flex;
-			gap: 10px;
-			margin-top: 20px;
-			flex-wrap: wrap;
-		}
-
-		/* Center the Follow button inside the profile header only (doesn't affect other .profile-buttons uses) */
-		.profile-header .profile-buttons {
-			justify-content: center;
-		}
-
-		.btn {
-			padding: 12px 30px;
-			border: 1px solid #dbdbdb;
-			background: white;
-			color: #262626;
-			border-radius: 8px;
-			font-weight: 600;
-			cursor: pointer;
-			font-size: 14px;
-			transition: all 0.3s ease;
-			text-decoration: none;
-			display: inline-block;
-			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		}
-
-		.btn:hover {
-			background: #f0f0f0;
-		}
-
-		.btn-primary {
-			background: #0095f6;
-			color: white;
-			border: none;
-		}
-
-		.btn-primary:hover {
-			background: #0081d4;
-		}
-
-		.btn-orange {
-			background: #f09031;
-			color: white;
-			border: none;
-		}
-
-		.btn-orange:hover {
-			background: #ff9933;
-		}
-
-		/* Buttons section - inline display */
-		.buttons-section {
-			display: flex;
-			gap: 10px;
-			margin-top: 20px;
-			flex-wrap: wrap;
-			justify-content: center;
-			width: 100%;
-			max-width: 800px;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-		.btn-orange {
-			background: #f09031;
-		}
-
-		.btn-pink {
-			background: #ffb3d9;
-			color: #262626;
-		}
-
-		.btn-pink:hover {
-			background: #ff99cc;
-		}
-
-		/* Highlights Section */
-		.highlights-section {
-			margin: 8px 0;
-		}
-
-		.highlights-title {
-			font-size: 12px;
-			font-weight: 600;
-			color: #999;
-			margin-bottom: 6px;
-		}
-
-		.highlights {
-			display: flex;
-			gap: 10px;
-			overflow-x: auto;
-			padding-bottom: 5px;
-		}
-
-		.highlight-item {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 5px;
-			cursor: pointer;
-			transition: transform 0.3s ease;
-		}
-
-		.highlight-item:hover {
-			transform: scale(1.05);
-		}
-
-		.highlight-circle {
-			width: 70px;
-			height: 70px;
-			border-radius: 50%;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			border: 2px solid #dbdbdb;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 32px;
-		}
-
-		.highlight-name {
-			font-size: 11px;
-			text-align: center;
-			max-width: 80px;
-		}
-
-		/* Gallery Grid - Always 3 columns on all devices */
-		.gallery-grid {
-			display: grid;
-			grid-template-columns: repeat(3, 1fr);
-			gap: 20px;
-			margin: 40px 0;
-		}
-
-		.gallery-item {
-			aspect-ratio: 1;
-			background: #f0f0f0;
-			border-radius: 8px;
-			overflow: hidden;
-			cursor: pointer;
-			transition: transform 0.3s ease;
-		}
-
-		.gallery-item:hover {
-			transform: scale(1.02);
-		}
-
-		.gallery-item img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-			cursor: pointer;
-		}
-
-		/* Lightbox for gallery images */
-		.lightbox {
-			display: none;
-			position: fixed;
-			z-index: 1200;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0, 0, 0, 0.95);
-			overflow: auto;
-		}
-
-		.lightbox.active {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-
-		.lightbox-content {
-			position: relative;
-			max-width: 95%;
-			max-height: 90vh;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			gap: 30px;
-			background: white;
-			border-radius: 12px;
-			overflow: hidden;
-		}
-
-		.lightbox-image-container {
-			flex: 0 0 auto;
-			max-width: 60%;
-			max-height: 85vh;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background: #f0f0f0;
-			border-radius: 8px;
-		}
-
-		.lightbox-image {
-			max-width: 100%;
-			max-height: 85vh;
-			object-fit: contain;
-		}
-
-		.lightbox-info {
-			flex: 0 0 auto;
-			width: 300px;
-			max-height: 85vh;
-			display: flex;
-			flex-direction: column;
-			padding: 20px;
-			overflow-y: auto;
-		}
-
-		.lightbox-title {
-			font-size: 18px;
-			font-weight: 600;
-			color: #262626;
-			margin-bottom: 10px;
-			line-height: 1.4;
-		}
-
-		.lightbox-description {
-			font-size: 14px;
-			color: #65676b;
-			line-height: 1.5;
-			margin-bottom: 15px;
-		}
-
-		.lightbox-divider {
-			height: 1px;
-			background: #e5e5e5;
-			margin: 15px 0;
-		}
-
-		.lightbox-close {
-			position: absolute;
-			top: 20px;
-			right: 30px;
-			font-size: 40px;
-			font-weight: bold;
-			color: #262626;
-			cursor: pointer;
-			z-index: 1300;
-			transition: color 0.3s ease;
-			width: 50px;
-			height: 50px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-
-		.lightbox-close:hover {
-			color: #8e8e8e;
-			background: rgba(0, 0, 0, 0.1);
-			border-radius: 50%;
-		}
-
-		.lightbox-nav {
-			position: absolute;
-			top: 50%;
-			transform: translateY(-50%);
-			font-size: 36px;
-			color: #262626;
-			cursor: pointer;
-			padding: 20px;
-			user-select: none;
-			transition: all 0.3s ease;
-			z-index: 1300;
-			width: 50px;
-			height: 50px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-		}
-
-		.lightbox-nav:hover {
-			background: rgba(0, 0, 0, 0.1);
-			border-radius: 50%;
-		}
-
-		.lightbox-prev {
-			left: 10px;
-		}
-
-		.lightbox-next {
-			right: 10px;
-		}
-
-		.lightbox-counter {
-			color: #8e8e8e;
-			font-size: 12px;
-			margin-top: auto;
-			padding-top: 15px;
-			border-top: 1px solid #e5e5e5;
-		}
-
-		.lightbox-download-btn {
-			background: linear-gradient(135deg, #ff99cc 0%, #ffb3d9 100%);
-			color: white;
-			border: none;
-			padding: 10px 20px;
-			border-radius: 6px;
-			cursor: pointer;
-			font-weight: 600;
-			font-size: 14px;
-			transition: all 0.3s ease;
-			width: 100%;
-			margin: 10px 0;
-		}
-
-		.lightbox-download-btn:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 5px 15px rgba(255, 153, 204, 0.4);
-			background: linear-gradient(135deg, #ff88bb 0%, #ffa3c9 100%);
-		}
-
-		.lightbox-download-btn:active {
-			transform: translateY(0);
-		}
-
-		/* Responsive lightbox */
-		@media (max-width: 1024px) {
-			.lightbox-content {
-				flex-direction: column;
-				gap: 20px;
-			}
-
-			.lightbox-image-container {
-				max-width: 100%;
-				max-height: 50vh;
-			}
-
-			.lightbox-info {
-				width: 100%;
-				max-height: 30vh;
-			}
-		}
-
-		/* Tabs */
-		.tabs {
-			display: flex;
-			gap: 40px;
-			border-top: 1px solid #dbdbdb;
-			margin: 40px 0 0 0;
-			overflow-x: auto; /* allow horizontal scroll if needed */
-			white-space: nowrap;
-			-ms-overflow-style: none; /* IE/Edge */
-			scrollbar-width: none; /* Firefox */
-		}
-
-		.tabs::-webkit-scrollbar { display: none; }
-
-		.tab {
-			padding: 16px 0;
-			font-size: 12px;
-			font-weight: 600;
-			color: #8e8e8e;
-			border-top: 1px solid transparent;
-			cursor: pointer;
-			transition: all 0.3s ease;
-			flex: 0 0 auto; /* prevent squishing when tabs overflow */
-		}
-
-		.tab.active {
-			color: #262626;
-			border-top-color: #262626;
-		}
-
-		/* Modal for highlights */
-		.modal {
-			display: none;
-			position: fixed;
-			z-index: 1000;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0, 0, 0, 0.7);
-			overflow: auto;
-		}
-
-		.modal-content-highlight {
-			background-color: white;
-			margin: 5% auto;
-			padding: 20px;
-			border-radius: 8px;
-			width: 90%;
-			max-width: 600px;
-			max-height: 90vh;
-			overflow-y: auto;
-			position: relative;
-		}
-
-		.modal-close {
-			position: absolute;
-			top: 15px;
-			right: 20px;
-			font-size: 28px;
-			font-weight: bold;
-			color: #aaa;
-			cursor: pointer;
-		}
-
-		.modal-close:hover {
-			color: #000;
-		}
-
-		.modal-gallery {
-			display: grid;
-			grid-template-columns: repeat(2, 1fr);
-			gap: 10px;
-			margin-top: 15px;
-		}
-
-		.modal-gallery img {
-			width: 100%;
-			height: 200px;
-			object-fit: cover;
-			border-radius: 8px;
-			cursor: pointer;
-		}
-
-		.modal-gallery img:hover {
-			opacity: 0.8;
-		}
-
-		.tab-content {
-			display: none;
-		}
-
-		.tab-content.active {
-			display: block;
-		}
-
-		.loading {
-			text-align: center;
-			padding: 40px;
-			color: #999;
-		}
-
-		@media (max-width: 768px) {
-			.profile-header {
-				grid-template-columns: 1fr;
-				gap: 10px;
-				text-align: center;
-			}
-
-			.profile-header-top {
-				justify-content: center;
-				margin-bottom: 6px;
-			}
-
-			.profile-avatar img {
-				width: 90px;
-				height: 90px;
-			}
-
-			.profile-stats {
-				justify-content: center;
-				gap: 15px;
-				flex-wrap: wrap;
-			}
-
-			.btn-follow-inline {
-				margin-left: 0;
-				margin-top: 5px;
-				width: auto;
-				max-width: none;
-				padding: 5px 12px;
-				font-size: 11px;
-			}
-
-			.gallery-grid {
-				grid-template-columns: repeat(3, 1fr);
-				gap: 10px;
-			}
-
-			/* Make highlight modal grid single-column on tablets/phones */
-			.modal-gallery {
-				grid-template-columns: 1fr;
-			}
-
-			.modal-gallery img {
-				height: auto;
-			}
-
-			.highlights {
-				gap: 10px;
-			}
-
-			.highlight-circle {
-				width: 60px;
-				height: 60px;
-				font-size: 26px;
-			}
-		}
-
-		@media (max-width: 480px) {
-			.profile-container {
-				padding: 8px;
-			}
-
-			.profile-header {
-				margin: 6px 0;
-				padding-bottom: 10px;
-			}
-
-			.profile-username {
-				font-size: 18px;
-			}
-
-			.profile-stats {
-				gap: 12px;
-				font-size: 11px;
-			}
-
-			.stat-number {
-				font-size: 14px;
-			}
-
-			.btn-follow-inline {
-				font-size: 11px;
-				padding: 4px 10px;
-				width: auto;
-				min-width: auto;
-			}
-
-			.highlight-circle {
-				width: 50px;
-				height: 50px;
-				font-size: 22px;
-			}
-
-			.highlight-name {
-				font-size: 10px;
-				max-width: 70px;
-			}
-
-			.gallery-grid {
-				grid-template-columns: repeat(3, 1fr);
-				gap: 5px;
-			}
-
-			.profile-buttons {
-				gap: 8px;
-			}
-			
-			/* Tablet buttons adjustment */
-			.buttons-section {
-				gap: 10px;
-			}
-			
-			.buttons-section .btn {
-				flex: 1 1 calc(50% - 10px);
-				min-width: 140px;
-			}
-		}
-
-		@media (max-width: 600px) {
-			.btn {
-				padding: 12px 20px;
-				font-size: 13px;
-				min-height: 48px; /* comfortable tap size */
-				font-weight: 600;
-			}
-
-			/* Make nav button rows wrap nicely on phones */
-			.buttons-section {
-				gap: 8px;
-				padding: 0 10px;
-				max-width: 100%;
-			}
-			
-			.buttons-section .btn {
-				flex: 1 1 calc(50% - 8px);
-				text-align: center;
-				min-width: 0;
-				white-space: normal;
-				line-height: 1.4;
-				word-wrap: break-word;
-			}
-		}
-
-		@media (max-width: 360px) {
-			.gallery-grid {
-				grid-template-columns: repeat(3, 1fr);
-				gap: 3px;
-			}
-			
-			.buttons-section {
-				gap: 8px;
-				padding: 0 10px;
-			}
-			
-			.buttons-section .btn { 
-				flex: 1 1 100%;
-				max-width: 100%;
-				min-width: 0;
-				padding: 14px 16px;
-				font-size: 14px;
-			}
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinterest Gallery - Gopal's Diary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f0f0;
+            padding: 10px;
+        }
+
+        .page-title {
+            position: relative;
+            text-align: center;
+            background: white;
+            padding: 15px 60px 15px 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .home-link {
+            position: absolute;
+            right: 14px;
+            top: 12px;
+            border: 2px solid #e60023;
+            background: white;
+            color: #e60023;
+            padding: 8px 14px;
+            border-radius: 24px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .home-link:hover {
+            background: #fff0f3;
+            color: #c8001f;
+            transform: translateY(-2px);
+        }
+
+        .page-title h1 {
+            color: #e60023;
+            font-size: 28px;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .header {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e60023;
+            background: white;
+            color: #e60023;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover {
+            background: #fff0f3;
+        }
+
+        .filter-btn.active {
+            background: #e60023;
+            color: white;
+        }
+
+        .stats {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Desktop default */
+        .gallery {
+            column-count: 8;
+            column-gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .gallery-item {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            position: relative;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .item-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 12px 8px 8px;
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .gallery-item:hover .item-info {
+            opacity: 1;
+        }
+
+        .click-count {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+            background: white;
+            padding: 15px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .page-btn {
+            padding: 10px 16px;
+            border: 2px solid #e60023;
+            background: white;
+            color: #e60023;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #e60023;
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            color: #333;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 8px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .download-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #e60023;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(230, 0, 35, 0.4);
+            z-index: 1001;
+        }
+
+        .download-btn:hover:not(:disabled) {
+            background: #c8001f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(230, 0, 35, 0.5);
+        }
+
+        .download-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+                column-count: 4;
+                column-gap: 10px;
+            }
+        }
+
+        /* Large desktops tighten spacing slightly */
+        @media (min-width: 1400px) {
+            .gallery { 
+                column-count: 10;
+                column-gap: 8px;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .gallery { 
+                column-count: 3;
+                column-gap: 8px;
+            }
+            body {
+                padding: 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-title h1 {
+                font-size: 22px;
+            }
+            .gallery { 
+                column-count: 3;
+                column-gap: 6px;
+            }
+            .gallery-item {
+                margin-bottom: 6px;
+                border-radius: 6px;
+            }
+            .gallery-item img {
+                border-radius: 6px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            .stats {
+                font-size: 11px;
+            }
+            .page-btn {
+                padding: 8px 12px;
+                font-size: 11px;
+            }
+            .page-info {
+                font-size: 11px;
+            }
+            .item-info {
+                font-size: 9px;
+                padding: 8px 6px 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+            .page-title h1 {
+                font-size: 18px;
+            }
+            body {
+                padding: 5px;
+            }
+            .gallery { 
+                column-count: 3;
+                column-gap: 5px;
+            }
+            .gallery-item {
+                margin-bottom: 5px;
+                border-radius: 4px;
+            }
+            .gallery-item img {
+                border-radius: 4px;
+            }
+            .header {
+                padding: 10px 8px;
+                margin-bottom: 10px;
+            }
+            h1 {
+                font-size: 18px;
+                margin-bottom: 8px;
+            }
+            .filters {
+                gap: 6px;
+            }
+            .filter-btn {
+                padding: 5px 10px;
+                font-size: 10px;
+            }
+            .stats {
+                font-size: 10px;
+                margin-top: 8px;
+            }
+            .pagination {
+                padding: 10px 5px;
+                gap: 5px;
+                margin: 10px 0;
+            }
+            .page-btn {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            .page-info {
+                font-size: 10px;
+            }
+            .item-info {
+                display: none;
+            }
+            .modal-content {
+                max-width: 95%;
+                max-height: 95%;
+            }
+            .close-modal {
+                width: 35px;
+                height: 35px;
+                font-size: 28px;
+                top: -38px;
+            }
+            .download-btn {
+                bottom: 10px;
+                right: 10px;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+
+        /* Bottom fixed filter bar */
+        .bottom-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            padding: 10px 8px;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+            z-index: 999;
+        }
+        .bottom-bar .filters {
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* ensure page content isn't hidden behind bottom bar */
+        body {
+            padding-bottom: 80px;
+        }
+
+        @media (max-width: 480px) {
+            .bottom-bar {
+                padding: 8px 6px;
+            }
+            .bottom-bar .filter-btn {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+            .home-link {
+                top: 8px;
+                right: 8px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-	<div class="profile-container">
-		<!-- Profile Header -->
-		<div class="profile-header">
-			<!-- Avatar -->
-			<div class="profile-avatar">
-				<img src="https://i.ibb.co.com/HDFLdgBM/gopals-diary.jpg" alt="Gopals Diary">
-			</div>
-
-			<!-- Profile Info -->
-			<div class="profile-info">
-				<div class="profile-header-top">
-					<h1 class="profile-username">
-						gopals_diary 
-						<span class="verification-badge">✓</span>
-					</h1>
-					<button class="settings-button" onclick="toggleSettingsMenu()">⚙️</button>
-					<div class="settings-menu" id="settingsMenu">
-						<a href="admin/login.html" class="settings-menu-item login">🔐 Login</a>
-					</div>
-				</div>
-
-				<div class="profile-stats">
-					<div class="stat-item">
-						<span class="stat-number">203</span>
-						<span>posts</span>
-					</div>
-					<div class="stat-item">
-						<span class="stat-number">11K</span>
-						<span>followers</span>
-					</div>
-					<div class="stat-item">
-						<span class="stat-number">275</span>
-						<span>following</span>
-					</div>
-					<a href="https://instagram.com/gopals_diary" target="_blank" class="btn btn-follow-inline">Follow</a>
-				</div>
-
-				<div class="profile-bio">
-					<p><strong>#Aesthetically || (B.Sc, M.Sc)^ #Mathematics💗& LL.B</strong></p>
-					<p>Believe in the creation!</p>
-					<p>আমার, প্রিয় বল প্রিয় বল ডেকে 💗😘</p>
-					<p><a href="https://gopalsdiary.blogspot.com" class="profile-link" target="_blank">gopalsdiary.blogspot.com</a></p>
-				</div>
-			</div>
-		</div>
-
-		<!-- Highlights Section -->
-		<div class="highlights-section">
-			<div class="highlights-title">HIGHLIGHTS</div>
-			<div class="highlights">
-				<div class="highlight-item" onclick="openHighlightModal('tea')">
-					<div class="highlight-circle">🍵</div>
-					<div class="highlight-name">Tea 💗</div>
-				</div>
-				<div class="highlight-item" onclick="openHighlightModal('book')">
-					<div class="highlight-circle">📕</div>
-					<div class="highlight-name">বই 📖</div>
-				</div>
-			<div class="highlight-item" onclick="openHighlightModal('photography')">
-				<div class="highlight-circle">📸</div>
-				<div class="highlight-name">Photography</div>
-			</div>
-			<div class="highlight-item" onclick="openHighlightModal('mydiary')">
-				<div class="highlight-circle">📔</div>
-				<div class="highlight-name">My Diary</div>
-			</div>
-			<div class="highlight-item" onclick="openHighlightModal('story11')">
-				<div class="highlight-circle">📖</div>
-				<div class="highlight-name">Story 11</div>
-			</div>
-			<div class="highlight-item" onclick="openHighlightModal('story10')">
-				<div class="highlight-circle">🏖️</div>
-				<div class="highlight-name">Story 10</div>
-			</div>
-			<div class="highlight-item" onclick="openHighlightModal('photo2')">
-				<div class="highlight-circle">🎭</div>
-				<div class="highlight-name">2: Photography</div>
-			</div>
-			</div>
-		</div>
-
-		<!-- Modals for Highlights -->
-		<div id="teaModal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('tea')">&times;</span>
-				<h3>Tea 💗</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/JjPzY2dw/20200504-162309000-i-OS.png" alt="Tea 1">
-				</div>
-			</div>
-		</div>
-
-		<div id="bookModal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('book')">&times;</span>
-				<h3>বই 📖</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/v6YQ6S0f/Screenshot-20230515-024051-Parallel-App.jpg" alt="Book 1">
-				</div>
-			</div>
-		</div>
-
-		<div id="photographyModal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('photography')">&times;</span>
-				<h3>Photography</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/v6FzWvmZ/DSC3240.jpg" alt="Photo 1">
-				</div>
-			</div>
-		</div>
-
-		<div id="mydiaryModal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('mydiary')">&times;</span>
-				<h3>My Diary</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/h3dSFg3/20210120-141139987-i-OS.jpg" alt="Diary 1">
-				</div>
-			</div>
-		</div>
-
-		<div id="story11Modal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('story11')">&times;</span>
-				<h3>Story 11</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/TBVwYmmR/1755328562-1684699982584.jpg" alt="Story 11">
-				</div>
-			</div>
-		</div>
-
-		<div id="story10Modal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('story10')">&times;</span>
-				<h3>Story 10</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/RprzwVhJ/lost-memoris-1729700907404.jpg" alt="Story 10">
-				</div>
-			</div>
-		</div>
-
-		<div id="photo2Modal" class="modal">
-			<div class="modal-content-highlight">
-				<span class="modal-close" onclick="closeHighlightModal('photo2')">&times;</span>
-				<h3>2: Photography</h3>
-				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/TM9y26SW/DSC0312.jpg" alt="Photo 2">
-				</div>
-			</div>
-		</div>
-
-		<!-- Tabs -->
-		<div class="tabs">
-			<div class="tab active" data-section="POSTS">📷 POSTS</div>
-			<a href="pinterest.html" class="tab" style="text-decoration: none; color: inherit;">📌 PINTEREST</a>
-			<div class="tab" data-section="REELS">🎬 REELS</div>
-			<div class="tab" data-section="SAVED">❤️ SAVED</div>
-			<div class="tab" data-section="TAGGED">👤 TAGGED</div>
-		</div>
-
-		<!-- Gallery Grids for each section -->
-		<div class="tab-content active" id="postsGrid">
-			<div class="gallery-grid" id="galleryGrid-POSTS">
-				<div class="loading">loading...</div>
-			</div>
-		</div>
-
-		<div class="tab-content" id="reelsGrid">
-			<div class="gallery-grid" id="galleryGrid-REELS">
-				<div class="loading">loading...</div>
-			</div>
-		</div>
-
-		<div class="tab-content" id="savedGrid">
-			<div class="gallery-grid" id="galleryGrid-SAVED">
-				<div class="loading">loading...</div>
-			</div>
-		</div>
-
-		<div class="tab-content" id="taggedGrid">
-			<div class="gallery-grid" id="galleryGrid-TAGGED">
-				<div class="loading">loading...</div>
-			</div>
-		</div>
-		
-
-		<!-- Lightbox for viewing images -->
-		<div id="lightbox" class="lightbox">
-			<span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-			<span class="lightbox-nav lightbox-prev" onclick="prevImage()">&#10094;</span>
-			<div class="lightbox-content">
-				<div class="lightbox-image-container">
-					<img id="lightboxImage" class="lightbox-image" src="" alt="Image">
-				</div>
-				<div class="lightbox-info">
-					<div class="lightbox-title" id="lightboxTitle">Description</div>
-					<div class="lightbox-description" id="lightboxDescription">Description</div>
-					<div class="lightbox-divider"></div>
-					<button class="lightbox-download-btn" onclick="downloadImage()">⬇️ Download</button>
-					<div class="lightbox-counter">
-						<span id="imageCounter">1</span> / <span id="totalCounter">1</span>
-					</div>
-				</div>
-			</div>
-			<span class="lightbox-nav lightbox-next" onclick="nextImage()">&#10095;</span>
-		</div>
-	</div>
-
-	<div class="profile-buttons" style="justify-content: center; flex-direction: column; align-items: center; text-align: center; margin-top: 60px; padding: 0 15px;">
-		<h2 style="font-size: 24px; margin-bottom: 10px; color: #262626; font-weight: 700;">✨ All Creations Available Here</h2>
-		<p style="font-size: 16px; color: #666; margin-bottom: 5px; font-weight: 500;">Free to use and share with attribution</p>
-		<p style="font-size: 14px; color: #999; margin-bottom: 20px;">বাংলা কোটস, ফটোগ্রাফি, ইলাস্ট্রেশন - সব ফ্রি ব্যবহার করুন</p>
-
-		<div class="buttons-section">
-			<a href="pinterest.html" class="btn btn-orange external-link">Pinterest (mixed) ↗</a>
-			
-		</div>
-
-		<div class="buttons-section">
-			<a href="bangla_quotes_1.html" class="btn btn-orange external-link">Bangla Quotes ↗</a>
-			<a href="bangla_quotes_2.html" class="btn btn-pink external-link">Bangla Quotes 2 ↗</a>
-			<a href="bangla_quotes_3.html" class="btn btn-orange external-link">Bangla Quotes 3 ↗</a>
-			<a href="bangla_quotes_4.html" class="btn btn-pink external-link">Bangla Quotes 4 ↗</a>
-		</div>
-
-		<div class="buttons-section">
-			<a href="photography_1.html" class="btn btn-orange external-link">Photography ↗</a>
-			<a href="photography_2.html" class="btn btn-pink external-link">Photography 2 ↗</a>
-			<a href="photography_3.html" class="btn btn-orange external-link">Photography 3 ↗</a>
-			<a href="photography_4.html" class="btn btn-pink external-link">Photography 4 ↗</a>
-		</div>
-
-		<div class="buttons-section">
-			<a href="english_quotes_1.html" class="btn btn-orange external-link">English Quotes ↗</a>
-			<a href="english_quotes_2.html" class="btn btn-pink external-link">English Quotes 2 ↗</a>
-		</div>
-
-		<div class="buttons-section">
-			<a href="illustration_1.html" class="btn btn-orange external-link">Illustration ↗</a>
-			<a href="illustration_2.html" class="btn btn-pink external-link">Illustration 2 ↗</a>
-		</div>
-
-		<div class="buttons-section">
-			<a href="dotted_illustration_1.html" class="btn btn-orange external-link">Dotted Illustration ↗</a>
-			<a href="dotted_illustration_2.html" class="btn btn-pink external-link">Dotted Illustration 2 ↗</a>
-		</div>
-
-		<!-- Install App Button Footer -->
-		<div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #dbdbdb; width: 100%; max-width: 800px;">
-			<button id="installBtn" class="btn btn-primary" style="display: none; width: 100%; max-width: 300px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
-				📱 Install App
-			</button>
-		</div>
-
-	</div>
-
-	<script>
-		// ============================================
-		// PWA: Service Worker Registration & Install
-		// ============================================
-		let deferredPrompt;
-		const installBtn = document.getElementById('installBtn');
-
-		// Register Service Worker
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('sw.js')
-				.then(registration => {
-					console.log('✓ Service Worker registered:', registration);
-				})
-				.catch(error => {
-					console.log('✗ Service Worker registration failed:', error);
-				});
-		}
-
-		// Utility: detect installed state
-		function isAppInstalled() {
-			return (
-				window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ||
-				window.navigator.standalone === true
-			);
-		}
-
-		// Update Install UI based on availability/state
-		function updateInstallUI() {
-			if (!installBtn) return;
-			if (isAppInstalled()) {
-				installBtn.style.display = 'none';
-				return;
-			}
-			// Show button only when native prompt is available
-			if (deferredPrompt) {
-				installBtn.textContent = '📱 Install App';
-				installBtn.style.display = 'block';
-			} else {
-				installBtn.style.display = 'none';
-			}
-		}
-
-		// Removed fallback guidance. Button will appear only when install is supported.
-
-		// Listen for beforeinstallprompt event
-		window.addEventListener('beforeinstallprompt', (e) => {
-			// Prevent the mini-infobar from appearing on mobile
-			e.preventDefault();
-			// Stash the event for later use
-			deferredPrompt = e;
-			console.log('✓ Install prompt available');
-			updateInstallUI();
-		});
-
-		// Handle install button click
-		if (installBtn) {
-			installBtn.addEventListener('click', async () => {
-				if (!deferredPrompt) return;
-				// Show the install prompt
-				deferredPrompt.prompt();
-				// Wait for the user to respond
-				const { outcome } = await deferredPrompt.userChoice;
-				console.log(`User response to the install prompt: ${outcome}`);
-				// Clear the deferredPrompt for re-use
-				deferredPrompt = null;
-				updateInstallUI();
-			});
-		}
-
-		// Listen for app installed event
-		window.addEventListener('appinstalled', () => {
-			console.log('✓ App installed successfully');
-			updateInstallUI();
-		});
-
-		// Keep UI in sync on load/visibility changes
-		window.addEventListener('DOMContentLoaded', updateInstallUI);
-		document.addEventListener('visibilitychange', () => {
-			if (!document.hidden) updateInstallUI();
-		});
-
-		// ============================================
-		// Force External Browser Opening for FB/Instagram In-App Browsers
-		// ============================================
-		function isInAppBrowser() {
-			const ua = navigator.userAgent || navigator.vendor || window.opera;
-			return (ua.indexOf('FBAN') > -1) || 
-				   (ua.indexOf('FBAV') > -1) || 
-				   (ua.indexOf('Instagram') > -1) ||
-				   (ua.indexOf('FB_IAB') > -1) ||
-				   (ua.indexOf('FB4A') > -1);
-		}
-
-		function getFullUrl(relativePath) {
-			if (relativePath.startsWith('http')) {
-				return relativePath;
-			}
-			const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-			return baseUrl + relativePath;
-		}
-
-		function openInExternalBrowser(url) {
-			const fullUrl = getFullUrl(url);
-			
-			// Multiple methods to force external browser opening
-			// Method 1: Try Intent URL for Android
-			if (/android/i.test(navigator.userAgent)) {
-				const intentUrl = 'intent://' + fullUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;end;';
-				window.location.href = intentUrl;
-				
-				// Fallback after delay
-				setTimeout(() => {
-					window.location.href = fullUrl;
-				}, 500);
-			} 
-			// Method 2: For iOS - use different approach
-			else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-				// Create a temporary link and click it
-				const tempLink = document.createElement('a');
-				tempLink.href = fullUrl;
-				tempLink.target = '_blank';
-				tempLink.rel = 'noopener noreferrer';
-				document.body.appendChild(tempLink);
-				tempLink.click();
-				document.body.removeChild(tempLink);
-				
-				// Additional fallback
-				setTimeout(() => {
-					window.open(fullUrl, '_system');
-				}, 100);
-			}
-			// Method 3: Generic fallback
-			else {
-				window.open(fullUrl, '_blank');
-			}
-		}
-
-		// Initialize when DOM is ready
-		document.addEventListener('DOMContentLoaded', function() {
-			if (isInAppBrowser()) {
-				console.log('🔍 In-App Browser Detected: FB/Instagram');
-				
-				// Add click handlers to all external links
-				const externalLinks = document.querySelectorAll('.external-link');
-				externalLinks.forEach(link => {
-					link.addEventListener('click', function(e) {
-						e.preventDefault();
-						e.stopPropagation();
-						openInExternalBrowser(this.href);
-					});
-				});
-			}
-		});
-
-		// Supabase Configuration
-		const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
-		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
-		const TABLE_NAME = 'post_site';
-
-		// SupabaseClient class
-		class SupabaseClient {
-			constructor(url, key) {
-				this.url = url;
-				this.key = key;
-				this.cache = null;
-				this.cacheTime = null;
-				this.CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
-			}
-
-			async getPostsBySections() {
-				try {
-					// Check cache first
-					const now = Date.now();
-					if (this.cache && this.cacheTime && (now - this.cacheTime) < this.CACHE_DURATION) {
-						console.log('✓ Using cached posts');
-						return this.cache;
-					}
-
-					// Fetch only necessary columns (performance optimization)
-					const url = `${this.url}/rest/v1/${TABLE_NAME}?select=image_iid,title,description,image_url,thumbnail_url,section&order=created_at.desc`;
-					console.log('Fetching posts...');
-					
-					const response = await fetch(url, {
-						headers: {
-							'apikey': this.key,
-							'Authorization': `Bearer ${this.key}`,
-							'Content-Type': 'application/json',
-							'Accept': 'application/json'
-						},
-						mode: 'cors'
-					});
-
-					if (!response.ok) {
-						const errorText = await response.text();
-						console.error('API Error:', response.status, errorText);
-						throw new Error(`HTTP error! status: ${response.status}`);
-					}
-
-					const posts = await response.json();
-					console.log('Posts fetched:', posts.length, 'items');
-					
-					// Group posts by section
-					const sections = {
-						'POSTS': [],
-						'REELS': [],
-						'SAVED': [],
-						'TAGGED': []
-					};
-
-					posts.forEach(post => {
-						const section = post.section ? post.section.toUpperCase().trim() : 'TAGGED';
-						// If section doesn't match known sections, put in TAGGED
-						if (sections.hasOwnProperty(section)) {
-							sections[section].push(post);
-						} else {
-							sections['TAGGED'].push(post);
-						}
-					});
-
-					console.log('Organized sections:', sections);
-					
-					// Cache the results
-					this.cache = sections;
-					this.cacheTime = Date.now();
-					
-					return sections;
-				} catch (error) {
-					console.error('Error fetching posts:', error);
-					return {
-						'POSTS': [],
-						'REELS': [],
-						'SAVED': [],
-						'TAGGED': []
-					};
-				}
-			}
-		}
-
-		const supabase = new SupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-		// Load and organize posts
-		async function loadPosts() {
-			const sections = await supabase.getPostsBySections();
-			
-			// Render each section
-			Object.keys(sections).forEach(section => {
-				renderGallery(section, sections[section]);
-			});
-		}
-
-		// Render gallery for a section
-		function renderGallery(section, posts) {
-			const gridId = `galleryGrid-${section}`;
-			const grid = document.getElementById(gridId);
-			
-			if (!grid) return;
-
-			if (posts.length === 0) {
-				grid.innerHTML = '<div class="loading">এই বিভাগে কোন পোস্ট নেই</div>';
-				return;
-			}
-
-			// Store posts data globally
-			currentPostsData = posts;
-
-			grid.innerHTML = posts.map((post, index) => {
-				const escapedTitle = (post.title || '').replace(/"/g, '&quot;');
-				const postDataJson = JSON.stringify(post);
-				const thumbnailUrl = post.thumbnail_url || post.image_url;
-				
-				return `
-					<div class="gallery-item" title="${escapedTitle}">
-						<img src="${thumbnailUrl}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" loading="lazy" onerror="this.style.backgroundColor='#e0e0e0'; this.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)';">
-					</div>
-				`;
-			}).join('');
-
-			// Add click event listeners
-			grid.querySelectorAll('.gallery-image').forEach((img, idx) => {
-				img.addEventListener('click', function() {
-					const index = parseInt(this.getAttribute('data-post-index'));
-					const total = parseInt(this.getAttribute('data-total'));
-					const postDataJson = this.getAttribute('data-post');
-					const postData = JSON.parse(postDataJson);
-					const thumbnailUrl = postData.thumbnail_url || postData.image_url;
-					openLightbox(thumbnailUrl, index, total, postData);
-				});
-			});
-		}
-
-		// Lightbox variables
-		let currentLightboxImages = [];
-		let currentImageIndex = 0;
-		let currentPostsData = [];
-
-		// Open lightbox
-		function openLightbox(imageSrc, index, total, postData) {
-			const lightbox = document.getElementById('lightbox');
-			const lightboxImage = document.getElementById('lightboxImage');
-			const lightboxTitle = document.getElementById('lightboxTitle');
-			const lightboxDescription = document.getElementById('lightboxDescription');
-			const imageCounter = document.getElementById('imageCounter');
-			const totalCounter = document.getElementById('totalCounter');
-
-			lightboxImage.src = imageSrc;
-			lightboxTitle.textContent = postData.title || 'শিরোনাম নেই';
-			lightboxDescription.textContent = postData.description || 'বিবরণ নেই';
-			currentImageIndex = index;
-			currentLightboxImages = Array.from(document.querySelectorAll('.tab-content.active .gallery-item img'));
-			
-			imageCounter.textContent = index + 1;
-			totalCounter.textContent = total;
-			
-			lightbox.classList.add('active');
-			document.body.style.overflow = 'hidden';
-		}
-
-		// Close lightbox
-		function closeLightbox() {
-			const lightbox = document.getElementById('lightbox');
-			lightbox.classList.remove('active');
-			document.body.style.overflow = 'auto';
-		}
-
-		// Next image in lightbox
-		function nextImage() {
-			if (currentLightboxImages.length === 0) return;
-			
-			currentImageIndex = (currentImageIndex + 1) % currentLightboxImages.length;
-			const nextPostData = currentPostsData[currentImageIndex];
-			const nextImageSrc = nextPostData.thumbnail_url || nextPostData.image_url;
-			const lightboxImage = document.getElementById('lightboxImage');
-			const lightboxTitle = document.getElementById('lightboxTitle');
-			const lightboxDescription = document.getElementById('lightboxDescription');
-			const imageCounter = document.getElementById('imageCounter');
-			
-			lightboxImage.src = nextImageSrc;
-			lightboxTitle.textContent = nextPostData.title || 'শিরোনাম নেই';
-			lightboxDescription.textContent = nextPostData.description || 'বিবরণ নেই';
-			imageCounter.textContent = currentImageIndex + 1;
-		}
-
-		// Previous image in lightbox
-		function prevImage() {
-			if (currentLightboxImages.length === 0) return;
-			
-			currentImageIndex = (currentImageIndex - 1 + currentLightboxImages.length) % currentLightboxImages.length;
-			const prevPostData = currentPostsData[currentImageIndex];
-			const prevImageSrc = prevPostData.thumbnail_url || prevPostData.image_url;
-			const lightboxImage = document.getElementById('lightboxImage');
-			const lightboxTitle = document.getElementById('lightboxTitle');
-			const lightboxDescription = document.getElementById('lightboxDescription');
-			const imageCounter = document.getElementById('imageCounter');
-			
-			lightboxImage.src = prevImageSrc;
-			lightboxTitle.textContent = prevPostData.title || 'শিরোনাম নেই';
-			lightboxDescription.textContent = prevPostData.description || 'বিবরণ নেই';
-			imageCounter.textContent = currentImageIndex + 1;
-		}
-
-		// Close lightbox on ESC key
-		document.addEventListener('keydown', function(event) {
-			if (event.key === 'Escape') {
-				closeLightbox();
-			}
-			if (event.key === 'ArrowRight') {
-				nextImage();
-			}
-			if (event.key === 'ArrowLeft') {
-				prevImage();
-			}
-		});
-
-		// Close lightbox when clicking outside
-		document.getElementById('lightbox').addEventListener('click', function(event) {
-			if (event.target === this) {
-				closeLightbox();
-			}
-		});
-
-		// Download image function - Simple and Direct
-		function downloadImage() {
-			// Get the original image_url from current post data for download
-			const currentPost = currentPostsData[currentImageIndex];
-			const imageUrl = currentPost.image_url;
-			const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
-			
-			if (!imageUrl) {
-				alert('ছবি পাওয়া যায়নি');
-				return;
-			}
-			
-			try {
-				// Extract file extension from URL
-				let filename = imageTitle;
-				const urlParts = imageUrl.split('.');
-				let extension = '.jpg';
-				
-				if (urlParts.length > 1) {
-					const possibleExt = urlParts[urlParts.length - 1].split(/[?#]/)[0];
-					if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(possibleExt.toLowerCase())) {
-						extension = '.' + possibleExt;
-					}
-				}
-				
-				if (!filename.includes('.')) {
-					filename = filename + extension;
-				}
-				
-				// Use XMLHttpRequest for better CORS handling
-				const xhr = new XMLHttpRequest();
-				xhr.open('GET', imageUrl, true);
-				xhr.responseType = 'blob';
-				
-				xhr.onload = function() {
-					if (this.status === 200) {
-						const blob = this.response;
-						const blobUrl = URL.createObjectURL(blob);
-						
-						const link = document.createElement('a');
-						link.href = blobUrl;
-						link.download = filename;
-						link.style.display = 'none';
-						document.body.appendChild(link);
-						link.click();
-						
-						setTimeout(() => {
-							document.body.removeChild(link);
-							URL.revokeObjectURL(blobUrl);
-						}, 100);
-					} else {
-						console.error('Download failed with status:', this.status);
-						downloadViaDirectLink(imageUrl, filename);
-					}
-				};
-				
-				xhr.onerror = function() {
-					console.error('XHR error');
-					downloadViaDirectLink(imageUrl, filename);
-				};
-				
-				xhr.send();
-				
-			} catch (error) {
-				console.error('Download error:', error);
-				const imageUrl = document.getElementById('lightboxImage').src;
-				const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
-				downloadViaDirectLink(imageUrl, imageTitle);
-			}
-		}
-		
-		// Fallback: Direct link download
-		function downloadViaDirectLink(url, filename) {
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = filename;
-			link.setAttribute('crossorigin', 'anonymous');
-			link.style.display = 'none';
-			document.body.appendChild(link);
-			link.click();
-			
-			setTimeout(() => {
-				document.body.removeChild(link);
-			}, 100);
-		}
-
-		// Tab switching
-		document.querySelectorAll('.tab').forEach(tab => {
-			tab.addEventListener('click', function() {
-				const section = this.getAttribute('data-section');
-				
-				// Update active tab
-				document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-				this.classList.add('active');
-				
-				// Update active tab content
-				document.querySelectorAll('.tab-content').forEach(content => {
-					content.classList.remove('active');
-				});
-				
-				const sectionMap = {
-					'POSTS': 'postsGrid',
-					'REELS': 'reelsGrid',
-					'SAVED': 'savedGrid',
-					'TAGGED': 'taggedGrid'
-				};
-				
-				const contentId = sectionMap[section];
-				if (contentId) {
-					document.getElementById(contentId).classList.add('active');
-				}
-			});
-		});
-
-		// Highlight Modal Functions
-		function openHighlightModal(type) {
-			const modalMap = {
-				'tea': 'teaModal',
-				'book': 'bookModal',
-				'photography': 'photographyModal',
-				'mydiary': 'mydiaryModal',
-				'story11': 'story11Modal',
-				'story10': 'story10Modal',
-				'photo2': 'photo2Modal'
-			};
-			const modalId = modalMap[type];
-			if (modalId) {
-				document.getElementById(modalId).style.display = 'block';
-			}
-		}
-
-		function closeHighlightModal(type) {
-			const modalMap = {
-				'tea': 'teaModal',
-				'book': 'bookModal',
-				'photography': 'photographyModal',
-				'mydiary': 'mydiaryModal',
-				'story11': 'story11Modal',
-				'story10': 'story10Modal',
-				'photo2': 'photo2Modal'
-			};
-			const modalId = modalMap[type];
-			if (modalId) {
-				document.getElementById(modalId).style.display = 'none';
-			}
-		}
-
-		// Close modal when clicking outside
-		window.addEventListener('click', function(event) {
-			const teaModal = document.getElementById('teaModal');
-			const bookModal = document.getElementById('bookModal');
-			const photographyModal = document.getElementById('photographyModal');
-			const mydiaryModal = document.getElementById('mydiaryModal');
-			const story11Modal = document.getElementById('story11Modal');
-			const story10Modal = document.getElementById('story10Modal');
-			const photo2Modal = document.getElementById('photo2Modal');
-			
-			if (event.target === teaModal) {
-				teaModal.style.display = 'none';
-			}
-			if (event.target === bookModal) {
-				bookModal.style.display = 'none';
-			}
-			if (event.target === photographyModal) {
-				photographyModal.style.display = 'none';
-			}
-			if (event.target === mydiaryModal) {
-				mydiaryModal.style.display = 'none';
-			}
-			if (event.target === story11Modal) {
-				story11Modal.style.display = 'none';
-			}
-			if (event.target === story10Modal) {
-				story10Modal.style.display = 'none';
-			}
-			if (event.target === photo2Modal) {
-				photo2Modal.style.display = 'none';
-			}
-		});
-
-		// Load posts when page loads with performance optimization
-		document.addEventListener('DOMContentLoaded', () => {
-			// Load posts immediately (priority)
-			loadPosts();
-			
-			// Add image lazy loading observer
-			if ('IntersectionObserver' in window) {
-				const imageObserver = new IntersectionObserver((entries, observer) => {
-					entries.forEach(entry => {
-						if (entry.isIntersecting) {
-							const img = entry.target;
-							if (img.dataset.src) {
-								img.src = img.dataset.src;
-								img.removeAttribute('data-src');
-								observer.unobserve(img);
-							}
-						}
-					});
-				}, {
-					rootMargin: '50px'
-				});
-
-				// Observe all images with data-src
-				document.querySelectorAll('img[data-src]').forEach(img => {
-					imageObserver.observe(img);
-				});
-			}
-		});
-
-		// Settings Menu Toggle
-		function toggleSettingsMenu() {
-			const settingsMenu = document.getElementById('settingsMenu');
-			settingsMenu.classList.toggle('active');
-		}
-
-		// Close settings menu when clicking outside
-		document.addEventListener('click', function(event) {
-			const settingsMenu = document.getElementById('settingsMenu');
-			const settingsButton = document.querySelector('.settings-button');
-			
-			if (!settingsMenu.contains(event.target) && !settingsButton.contains(event.target)) {
-				settingsMenu.classList.remove('active');
-			}
-		});
-	</script>
+    <div class="page-title">
+        <h1>📌 Pinterest Gallery</h1>
+        <a class="home-link" href="home.html" aria-label="Home">Home</a>
+    </div>
+
+    <div class="gallery" id="gallery">
+        <div class="loading">Loading photos...</div>
+    </div>
+
+    <div class="header">
+        
+        <div class="stats" id="stats">Loading...</div>
+    </div>
+
+    <div class="pagination" id="pagination">
+        <button class="page-btn" id="prevBtn">← Previous Page</button>
+        <span class="page-info" id="pageInfo">Page 1</span>
+        <button class="page-btn" id="nextBtn">Next Page →</button>
+        <button class="page-btn" id="homeBtn" onclick="window.location.href='index.html'">Home</button>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <img id="modalImage" src="" alt="">
+            <button class="download-btn" id="downloadBtn">
+                <span>⬇️</span>
+                <span>Download</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom fixed filters (duplicated so they are visible at the very bottom) -->
+    <div class="bottom-bar" aria-hidden="false">
+        <div class="filters bottom-filters">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="popular">Popular</button>
+            <button class="filter-btn" data-category="bangla">Bangla</button>
+            <button class="filter-btn" data-category="english">English</button>
+            <button class="filter-btn" data-category="photography">Photography</button>
+            <button class="filter-btn" data-category="illustrations">Illustrations</button>
+        </div>
+    </div>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Advanced gallery script with algorithms -->
+    <script src="pinterest_algoridom.js"></script>
 </body>
 </html>
