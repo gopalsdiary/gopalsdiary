@@ -49,16 +49,20 @@ export function useViewTracking(setCounts) {
     const handleView = (photo) => {
         const key = `${photo.tableName}_${photo.id}`;
 
+        console.log('📊 View tracked:', key);
+
         // Optimistic update locally
         setCounts(prev => {
             const current = prev[key] || { clicks: 0, views: 0 };
-            return {
+            const updated = {
                 ...prev,
                 [key]: {
                     ...current,
                     views: current.views + 1
                 }
             };
+            console.log('📊 Updated counts:', updated[key]);
+            return updated;
         });
 
         // Add to batch queue
@@ -72,6 +76,8 @@ export function useViewTracking(setCounts) {
             ...currentBatch,
             count: currentBatch.count + 1
         });
+
+        console.log('📊 Queue size:', viewQueueRef.current.size);
     };
 
     return { handleView };
