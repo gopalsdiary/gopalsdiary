@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Gallery from './Gallery';
 import Modal from './Modal';
 import Filters from './Filters';
 import Pagination from './Pagination';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseClient } from '../lib/supabaseClient';
+import { useViewTracking } from '../hooks/useViewTracking';
 
 const CONFIG = {
-    SUPABASE_URL: 'https://vbfckjroisrhplrpqzkd.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y',
     ITEMS_PER_PAGE: 150
 };
 
@@ -29,8 +28,6 @@ const TABLE_CONFIG = {
     'illustration_2': { name: 'Illustration 2', category: 'illustrations', weight: 1 }
 };
 
-const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-
 function App() {
     const [photos, setPhotos] = useState([]);
     const [filteredPhotos, setFilteredPhotos] = useState([]);
@@ -40,50 +37,8 @@ function App() {
     const [modalImage, setModalImage] = useState(null);
     const [counts, setCounts] = useState({});
 
-    // Batching queue for views
-    const viewQueueRef = useRef(new Map());
-
-    // Flush views every 30 seconds
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            if (viewQueueRef.current.size === 0) return;
-
-            const updates = Array.from(viewQueueRef.current.values());
-            viewQueueRef.current.clear();
-
-            for (const update of updates) {
-                try {
-                    const { data: existing, error } = await supabaseClient
-                        .from('photo_clicks')
-                        .select('*')
-                        .eq('table_name', update.tableName)
-                        .eq('photo_id', update.photoId)
-                        .maybeSingle();
-
-                    if (existing) {
-                        await supabaseClient
-                            .from('photo_clicks')
-                            .update({ view_count: (Number(existing.view_count) || 0) + update.count })
-                            .eq('table_name', update.tableName)
-                            .eq('photo_id', update.photoId);
-                    } else {
-                        await supabaseClient
-                            .from('photo_clicks')
-                            .insert({
-                                table_name: update.tableName,
-                                photo_id: update.photoId,
-                                click_count: 0,
-                                view_count: update.count
-                            });
-                    }
-                } catch (err) {
-                    console.error('Error flushing view:', err);
-                }
-            }
-        }, 30000);
-
-        return () => clearInterval(interval);
-    }, []);
+    // Use Custom Hook for View Tracking
+    const { handleView } = useViewTracking(setCounts);
 
     // Load photos from Supabase
     useEffect(() => {
@@ -112,9 +67,8 @@ function App() {
                     if (error) throw error;
 
                     if (data && data.length > 0) {
-                        // Debug: Log the keys of the first item to see available columns
                         if (processedDataCount === 0) {
-                            console.log(`Table ${tableName} columns:`, Object.keys(data[0]));
+                            // Debug logging removed for cleaner code
                             processedDataCount++;
                         }
 
@@ -155,11 +109,9 @@ function App() {
                         }).filter(item => {
                             // Relaxed filter: Only check for image_url
                             const isValid = !!item.image_url;
-                            // if (!isValid) console.warn(`Invalid item in ${tableName}:`, item);
                             return isValid;
                         });
 
-                        console.log(`Loaded ${processedData.length} items from ${tableName}`);
                         allPhotos.push(...processedData);
                     }
                 } catch (err) {
@@ -168,7 +120,15 @@ function App() {
             }
 
             // Shuffle photos
-            console.log(`Total photos loaded: ${allPhotos.length}`);
+            const fisherYatesShuffle = (array) => {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            };
+
             const shuffled = fisherYatesShuffle([...allPhotos]);
             setPhotos(shuffled);
         } catch (error) {
@@ -200,15 +160,6 @@ function App() {
         }
     };
 
-    const fisherYatesShuffle = (array) => {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    };
-
     const filterPhotos = (category) => {
         if (category === 'all') {
             setFilteredPhotos(photos);
@@ -216,7 +167,6 @@ function App() {
             const sorted = [...photos].sort((a, b) => {
                 const aKey = `${a.tableName}_${a.id}`;
                 const bKey = `${b.tableName}_${b.id}`;
-                // Sort by clicks + views weight? Or just clicks as before. Keeping clicks for now.
                 return ((counts[bKey]?.clicks || 0) + (counts[bKey]?.views || 0) * 0.1) -
                     ((counts[aKey]?.clicks || 0) + (counts[aKey]?.views || 0) * 0.1);
             });
@@ -259,7 +209,6 @@ function App() {
                 .eq('photo_id', photo.id)
                 .maybeSingle();
 
-            // ... handle upsert logic ...
             if (error) throw error;
 
             if (data) {
@@ -276,34 +225,6 @@ function App() {
         } catch (error) {
             console.error('Error updating click count:', error);
         }
-    };
-
-    const handleView = (photo) => {
-        const key = `${photo.tableName}_${photo.id}`;
-
-        // Optimistic update locally
-        setCounts(prev => {
-            const current = prev[key] || { clicks: 0, views: 0 };
-            return {
-                ...prev,
-                [key]: {
-                    ...current,
-                    views: current.views + 1
-                }
-            };
-        });
-
-        // Add to batch queue
-        const currentBatch = viewQueueRef.current.get(key) || {
-            tableName: photo.tableName,
-            photoId: photo.id,
-            count: 0
-        };
-
-        viewQueueRef.current.set(key, {
-            ...currentBatch,
-            count: currentBatch.count + 1
-        });
     };
 
     const handleCloseModal = () => {

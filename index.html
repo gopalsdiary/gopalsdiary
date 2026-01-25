@@ -2,44 +2,64 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
     <title>Pinterest Gallery - Gopal's Diary</title>
-
-    <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Gopals Diary - আপনার পছন্দের বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন, ইলাস্ট্রেশন এবং ইংলিশ কোটস। Free to use and download beautiful aesthetic content, bangla quotes, photography collections and creative illustrations.">
+        content="Gopals Diary - আপনার পছন্দের বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন, ইলাস্ট্রেশন এবং ইংলিশ কোটস। Free to use and download beautiful aesthetic content.">
+    <meta name="author" content="Gopals Diary">
+    <meta name="keywords" content="bangla quotes, photography, illustrations, aesthetics, gopals diary">
+    <meta name="theme-color" content="#ff99cc">
 
-    <!-- Performance: DNS Prefetch for external domains -->
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gopalsdiary.com/">
+    <meta property="og:title" content="Pinterest Gallery - Gopal's Diary">
+    <meta property="og:description"
+        content="Beautiful aesthetic content - Bangla quotes, photography, illustrations. Free to use and download.">
+    <meta property="og:image" content="/favicon.svg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Pinterest Gallery - Gopal's Diary">
+    <meta property="twitter:description"
+        content="Beautiful aesthetic content - Bangla quotes, photography, illustrations. Free to use and download.">
+    <meta property="twitter:image" content="/favicon.svg">
+
+    <!-- Performance -->
     <link rel="dns-prefetch" href="https://vbfckjroisrhplrpqzkd.supabase.co">
     <link rel="dns-prefetch" href="https://i.ibb.co.com">
-    <link rel="preconnect" href="https://vbfckjroisrhplrpqzkd.supabase.co">
+    <link rel="preconnect" href="https://vbfckjroisrhplrpqzkd.supabase.co" crossorigin>
     <link rel="preconnect" href="https://i.ibb.co.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- PWA Manifest and Meta Tags -->
+    <!-- PWA & Icons -->
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" href="/favicon.svg">
-    <meta name="theme-color" content="#ff99cc">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Gopals Diary">
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div id="root"></div>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
     <script type="module" src="/src/index.jsx"></script>
+
+    <!-- Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered'))
                     .catch(err => console.log('SW registration failed: ', err));
             });
         }
