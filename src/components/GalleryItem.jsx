@@ -1,8 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-function GalleryItem({ photo, onClick, clickCount }) {
+function GalleryItem({ photo, onClick, clickCount, viewCount, onView }) {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const itemRef = useRef(null);
+    const hasViewedRef = useRef(false);
+
+    useEffect(() => {
+        if (!onView || hasViewedRef.current) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                onView(photo);
+                hasViewedRef.current = true;
+                observer.disconnect();
+            }
+        }, { threshold: 0.5 });
+
+        if (itemRef.current) {
+            observer.observe(itemRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [onView, photo]);
 
     const handleImageLoad = () => {
         setImageLoaded(true);
@@ -14,7 +34,7 @@ function GalleryItem({ photo, onClick, clickCount }) {
     };
 
     return (
-        <div className="gallery-item" onClick={onClick}>
+        <div className="gallery-item" onClick={onClick} ref={itemRef}>
             {!imageLoaded && !hasError && (
                 <div className="image-loader">
                     <div className="spinner"></div>
@@ -38,11 +58,18 @@ function GalleryItem({ photo, onClick, clickCount }) {
 
             <div className="item-info">
                 <div>{photo.caption || 'No caption'}</div>
-                {clickCount > 0 && (
-                    <div className="click-count">
-                        👁️ {clickCount} {clickCount === 1 ? 'view' : 'views'}
-                    </div>
-                )}
+                <div className="stats-row">
+                    {viewCount > 0 && (
+                        <span className="stat-badge view">
+                            👁️ {viewCount}
+                        </span>
+                    )}
+                    {clickCount > 0 && (
+                        <span className="stat-badge click">
+                            👆 {clickCount}
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );

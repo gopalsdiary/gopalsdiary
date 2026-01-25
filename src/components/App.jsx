@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Gallery from './Gallery';
 import Modal from './Modal';
 import Filters from './Filters';
@@ -38,7 +38,52 @@ function App() {
     const [activeCategory, setActiveCategory] = useState('all');
     const [isLoading, setIsLoading] = useState(true);
     const [modalImage, setModalImage] = useState(null);
-    const [clickCounts, setClickCounts] = useState({});
+    const [counts, setCounts] = useState({});
+
+    // Batching queue for views
+    const viewQueueRef = useRef(new Map());
+
+    // Flush views every 30 seconds
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            if (viewQueueRef.current.size === 0) return;
+
+            const updates = Array.from(viewQueueRef.current.values());
+            viewQueueRef.current.clear();
+
+            for (const update of updates) {
+                try {
+                    const { data: existing, error } = await supabaseClient
+                        .from('photo_clicks')
+                        .select('*')
+                        .eq('table_name', update.tableName)
+                        .eq('photo_id', update.photoId)
+                        .maybeSingle();
+
+                    if (existing) {
+                        await supabaseClient
+                            .from('photo_clicks')
+                            .update({ view_count: (Number(existing.view_count) || 0) + update.count })
+                            .eq('table_name', update.tableName)
+                            .eq('photo_id', update.photoId);
+                    } else {
+                        await supabaseClient
+                            .from('photo_clicks')
+                            .insert({
+                                table_name: update.tableName,
+                                photo_id: update.photoId,
+                                click_count: 0,
+                                view_count: update.count
+                            });
+                    }
+                } catch (err) {
+                    console.error('Error flushing view:', err);
+                }
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     // Load photos from Supabase
     useEffect(() => {
@@ -84,12 +129,19 @@ function App() {
                             let thumbnail_url = item.thumbnail_url || image_url;
 
                             // Basic URL sanitization
-                            if (image_url && image_url.startsWith('//')) {
-                                image_url = 'https:' + image_url;
-                            }
-                            if (thumbnail_url && thumbnail_url.startsWith('//')) {
-                                thumbnail_url = 'https:' + thumbnail_url;
-                            }
+                            const sanitizeUrl = (url) => {
+                                if (!url) return url;
+                                let cleanUrl = url;
+                                if (cleanUrl.startsWith('//')) {
+                                    cleanUrl = 'https:' + cleanUrl;
+                                }
+                                // Fix common domain typo
+                                cleanUrl = cleanUrl.replace('i.ibb.co.com', 'i.ibb.co');
+                                return cleanUrl;
+                            };
+
+                            image_url = sanitizeUrl(image_url);
+                            thumbnail_url = sanitizeUrl(thumbnail_url);
 
                             return {
                                 ...item,
@@ -134,14 +186,17 @@ function App() {
 
             if (error) throw error;
 
-            const counts = {};
+            const newCounts = {};
             data?.forEach(item => {
                 const key = `${item.table_name}_${item.photo_id}`;
-                counts[key] = item.click_count;
+                newCounts[key] = {
+                    clicks: item.click_count || 0,
+                    views: item.view_count || 0
+                };
             });
-            setClickCounts(counts);
+            setCounts(newCounts);
         } catch (error) {
-            console.error('Error loading click counts:', error);
+            console.error('Error loading counts:', error);
         }
     };
 
@@ -161,7 +216,9 @@ function App() {
             const sorted = [...photos].sort((a, b) => {
                 const aKey = `${a.tableName}_${a.id}`;
                 const bKey = `${b.tableName}_${b.id}`;
-                return (clickCounts[bKey] || 0) - (clickCounts[aKey] || 0);
+                // Sort by clicks + views weight? Or just clicks as before. Keeping clicks for now.
+                return ((counts[bKey]?.clicks || 0) + (counts[bKey]?.views || 0) * 0.1) -
+                    ((counts[aKey]?.clicks || 0) + (counts[aKey]?.views || 0) * 0.1);
             });
             setFilteredPhotos(sorted);
         } else {
@@ -183,36 +240,70 @@ function App() {
     const handleImageClick = async (photo) => {
         setModalImage(photo);
 
-        // Update click count
         const key = `${photo.tableName}_${photo.id}`;
+
+        // Optimistic update
+        setCounts(prev => ({
+            ...prev,
+            [key]: {
+                ...prev[key],
+                clicks: (prev[key]?.clicks || 0) + 1
+            }
+        }));
+
         try {
             const { data, error } = await supabaseClient
-                .from('photo_clicks')
+                .from('photo_clicks') // Use photo_clicks
                 .select('*')
                 .eq('table_name', photo.tableName)
                 .eq('photo_id', photo.id)
-                .single();
+                .maybeSingle();
 
-            if (error && error.code !== 'PGRST116') throw error;
+            // ... handle upsert logic ...
+            if (error) throw error;
 
             if (data) {
                 await supabaseClient
                     .from('photo_clicks')
-                    .update({ click_count: data.click_count + 1 })
+                    .update({ click_count: (data.click_count || 0) + 1 })
                     .eq('table_name', photo.tableName)
                     .eq('photo_id', photo.id);
-
-                setClickCounts(prev => ({ ...prev, [key]: data.click_count + 1 }));
             } else {
                 await supabaseClient
                     .from('photo_clicks')
-                    .insert({ table_name: photo.tableName, photo_id: photo.id, click_count: 1 });
-
-                setClickCounts(prev => ({ ...prev, [key]: 1 }));
+                    .insert({ table_name: photo.tableName, photo_id: photo.id, click_count: 1, view_count: 0 });
             }
         } catch (error) {
             console.error('Error updating click count:', error);
         }
+    };
+
+    const handleView = (photo) => {
+        const key = `${photo.tableName}_${photo.id}`;
+
+        // Optimistic update locally
+        setCounts(prev => {
+            const current = prev[key] || { clicks: 0, views: 0 };
+            return {
+                ...prev,
+                [key]: {
+                    ...current,
+                    views: current.views + 1
+                }
+            };
+        });
+
+        // Add to batch queue
+        const currentBatch = viewQueueRef.current.get(key) || {
+            tableName: photo.tableName,
+            photoId: photo.id,
+            count: 0
+        };
+
+        viewQueueRef.current.set(key, {
+            ...currentBatch,
+            count: currentBatch.count + 1
+        });
     };
 
     const handleCloseModal = () => {
@@ -255,7 +346,8 @@ function App() {
                 photos={currentPhotos}
                 isLoading={isLoading}
                 onImageClick={handleImageClick}
-                clickCounts={clickCounts}
+                clickCounts={counts}
+                onView={handleView}
             />
 
             <div className="header">

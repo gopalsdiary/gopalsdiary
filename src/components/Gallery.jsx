@@ -1,7 +1,7 @@
 import React from 'react';
 import GalleryItem from './GalleryItem';
 
-function Gallery({ photos, isLoading, onImageClick, clickCounts }) {
+function Gallery({ photos, isLoading, onImageClick, clickCounts, onView }) {
     if (isLoading) {
         return (
             <div className="gallery">
@@ -22,14 +22,19 @@ function Gallery({ photos, isLoading, onImageClick, clickCounts }) {
 
     return (
         <div className="gallery">
-            {photos.map((photo, index) => (
-                <GalleryItem
-                    key={`${photo.tableName}_${photo.id}`}
-                    photo={photo}
-                    onClick={() => onImageClick(photo)}
-                    clickCount={clickCounts[`${photo.tableName}_${photo.id}`] || 0}
-                />
-            ))}
+            {photos.map((photo, index) => {
+                const counts = clickCounts[`${photo.tableName}_${photo.id}`] || { clicks: 0, views: 0 };
+                return (
+                    <GalleryItem
+                        key={`${photo.tableName}_${photo.id}`}
+                        photo={photo}
+                        onClick={() => onImageClick(photo)}
+                        clickCount={counts.clicks || 0}
+                        viewCount={counts.views || 0}
+                        onView={onView}
+                    />
+                );
+            })}
         </div>
     );
 }
