@@ -235,18 +235,64 @@ function App() {
         if (!modalImage) return;
 
         try {
-            const response = await fetch(modalImage.image_url);
+            // Use high-performance fetch with optimized settings
+            const response = await fetch(modalImage.image_url, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'force-cache', // Use cache if available for speed
+                credentials: 'omit',
+                priority: 'high', // High priority download
+                keepalive: true
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Get blob directly (faster than streaming for images)
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+
+            // Determine file extension from content type or URL
+            const contentType = response.headers.get('content-type') || 'image/jpeg';
+            const extension = contentType.includes('png') ? 'png' :
+                contentType.includes('webp') ? 'webp' : 'jpg';
+
+            // Create download link with optimized approach
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
-            a.download = `gopalsdiary_${modalImage.tableName}_${modalImage.id}.jpg`;
+            a.download = `gopalsdiary_${modalImage.tableName}_${modalImage.id}.${extension}`;
+
+            // Trigger download
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+
+            // Cleanup immediately after download starts
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+
+            console.log('✅ Download started successfully');
         } catch (error) {
-            console.error('Error downloading image:', error);
+            console.error('❌ Download failed:', error);
+
+            // Fallback: Try direct link download
+            try {
+                const a = document.createElement('a');
+                a.href = modalImage.image_url;
+                a.download = `gopalsdiary_${modalImage.tableName}_${modalImage.id}.jpg`;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                console.log('✅ Fallback download triggered');
+            } catch (fallbackError) {
+                console.error('❌ Fallback download also failed:', fallbackError);
+                alert('Download failed. Please try again or right-click the image to save.');
+            }
         }
     };
 
