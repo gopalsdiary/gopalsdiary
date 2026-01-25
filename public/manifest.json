@@ -1,0 +1,27 @@
+{
+  "name": "Gopals Diary",
+  "short_name": "Gopals Diary",
+  "description": "Beautiful aesthetic content - Bangla quotes, photography, illustrations. Free to use and download.",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#ff99cc",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle"],
+  "screenshots": []
+}
