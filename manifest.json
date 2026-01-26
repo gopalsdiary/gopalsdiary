@@ -1,30 +1,35 @@
 {
-  "name": "Gopals Diary",
-  "short_name": "Gopals Diary",
-  "description": "Beautiful aesthetic content - Bangla quotes, photography, illustrations. Free to use and download.",
-  "start_url": "index.html",
-  "scope": "./",
-  "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#ffffff",
-  "theme_color": "#ff99cc",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon",
-      "purpose": "any"
-    },
-    {
-      "src": "favicon.ico",
-      "sizes": "192x192",
-      "type": "image/x-icon",
-      "purpose": "maskable"
-    }
-  ],
-  "categories": [
-    "productivity",
-    "lifestyle"
-  ],
-  "screenshots": []
+    "name": "gallery_app",
+    "short_name": "gallery_app",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0175C2",
+    "theme_color": "#0175C2",
+    "description": "A new Flutter project.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
 }
