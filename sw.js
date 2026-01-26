@@ -5,7 +5,7 @@ const CORE_ASSETS = [
   'index.html',
   'offline.html',
   'manifest.json',
-  'favicon.svg'
+  'favicon.ico'
 ];
 
 // Install event
@@ -47,11 +47,11 @@ self.addEventListener('fetch', event => {
       (async () => {
         try {
           // Network first for navigations
-            const networkResponse = await fetch(req);
-            // Optionally update cache
-            const cache = await caches.open(CACHE_NAME);
-            cache.put('index.html', networkResponse.clone());
-            return networkResponse;
+          const networkResponse = await fetch(req);
+          // Optionally update cache
+          const cache = await caches.open(CACHE_NAME);
+          cache.put('index.html', networkResponse.clone());
+          return networkResponse;
         } catch (err) {
           console.warn('[SW] Navigation fetch failed, serving offline page');
           const cache = await caches.open(CACHE_NAME);
