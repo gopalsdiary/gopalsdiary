@@ -103,14 +103,35 @@ class _GalleryItemState extends State<GalleryItem> {
                     ),
                     padding: const EdgeInsets.all(12),
                     alignment: Alignment.bottomLeft,
-                    child: Text(
-                      widget.photo.category.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          widget.photo.category.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.remove_red_eye_outlined, size: 12, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatCount(widget.photo.clicks),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -120,5 +141,10 @@ class _GalleryItemState extends State<GalleryItem> {
         ),
       ),
     );
+  }
+  String _formatCount(int count) {
+    if (count < 1000) return count.toString();
+    if (count < 1000000) return '${(count / 1000).toStringAsFixed(1)}k';
+    return '${(count / 1000000).toStringAsFixed(1)}M';
   }
 }

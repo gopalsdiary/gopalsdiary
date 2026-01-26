@@ -6,7 +6,7 @@ class Photo {
   final String tableName;
   final String category;
   final String? title;
-  final int clicks;
+  int clicks;
 
   Photo({
     required this.id,

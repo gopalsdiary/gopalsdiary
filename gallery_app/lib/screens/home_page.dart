@@ -1,3 +1,5 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,6 +53,7 @@ class _HomePageState extends State<HomePage> {
       filtered.shuffle();
     } else if (category == 'popular') {
       filtered = List.from(_allPhotos);
+      filtered.sort((a, b) => b.clicks.compareTo(a.clicks));
     } else {
       filtered = _allPhotos.where((p) => p.category == category).toList();
       filtered.shuffle();
@@ -85,6 +88,12 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
   
   void _showPhoto(Photo photo) {
+    // Increment click count locally and in service
+    setState(() {
+      photo.clicks++;
+    });
+    _service.incrementClickCount(photo);
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.9),
@@ -97,7 +106,7 @@ class _HomePageState extends State<HomePage> {
     // Responsive column count
     final width = MediaQuery.of(context).size.width;
     int crossAxisCount = 8;
-    if (width < 600) crossAxisCount = 2;
+    if (width < 600) crossAxisCount = 3; // 3 columns on mobile
     else if (width < 960) crossAxisCount = 4;
     else if (width < 1400) crossAxisCount = 6;
 
@@ -112,8 +121,8 @@ class _HomePageState extends State<HomePage> {
           CustomScrollView(
             controller: _scrollController,
             slivers: [
-              // Header Space
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              // Header Space - Reduced since header is smaller
+              const SliverToBoxAdapter(child: SizedBox(height: 80)),
               
               if (_isLoading)
                 const SliverFillRemaining(
@@ -130,8 +139,8 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   sliver: SliverMasonryGrid.count(
                     crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 8, // Tighter spacing for mobile
+                    crossAxisSpacing: 8,
                     childCount: currentPhotos.length,
                     itemBuilder: (context, index) {
                       return GalleryItem(
@@ -191,10 +200,10 @@ class _HomePageState extends State<HomePage> {
                    ),
                  ),
 
-               // FILTERS moved here (Not fixed anymore)
+               // FILTERS moved here
                SliverToBoxAdapter(
                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 50, top: 10),
+                    margin: const EdgeInsets.only(bottom: 20, top: 10),
                     alignment: Alignment.center,
                     child: Wrap(
                       spacing: 8,
@@ -212,12 +221,30 @@ class _HomePageState extends State<HomePage> {
                  ),
                ),
 
+               // Total Count moved to bottom
+               if (!_isLoading)
+                 SliverToBoxAdapter(
+                   child: Padding(
+                     padding: const EdgeInsets.only(bottom: 50),
+                     child: Center(
+                       child: Text(
+                         '${_displayPhotos.length} photos', 
+                         style: GoogleFonts.outfit(
+                           fontSize: 14,
+                           color: Colors.black45,
+                           fontWeight: FontWeight.w600,
+                         ),
+                       ),
+                     ),
+                   ),
+                 ),
+                 
                // Bottom padding
                const SliverToBoxAdapter(child: SizedBox(height: 50)),
             ],
           ),
 
-          // Glassy Header (Remains fixed at top)
+          // Glassy Header (Fixed at top, Smaller)
           Positioned(
             top: 10,
             left: 16,
@@ -225,7 +252,8 @@ class _HomePageState extends State<HomePage> {
             child: Center(
               child: Container(
                 constraints: const BoxConstraints(maxWidth: 1200),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                // Reduced padding for smaller top bar
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.85),
                   borderRadius: BorderRadius.circular(16),
@@ -241,36 +269,25 @@ class _HomePageState extends State<HomePage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '📌 Gallery',
-                          style: GoogleFonts.outfit(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFFE60023),
-                          ),
-                        ),
-                        if (!_isLoading)
-                           Text(
-                            '${_displayPhotos.length} photos', 
-                            style: GoogleFonts.outfit(
-                              fontSize: 12,
-                              color: Colors.black54,
-                            ),
-                          ),
-                      ],
+                    Text(
+                      '📌 Gallery',
+                      style: GoogleFonts.outfit(
+                        fontSize: 20, // Smaller font
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFE60023),
+                      ),
                     ),
                     OutlinedButton(
                       onPressed: () {
-                         // Go home link
+                         html.window.location.href = 'home.html';
                       },
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFE60023), width: 2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        side: const BorderSide(color: Color(0xFFE60023), width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         foregroundColor: const Color(0xFFE60023),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Smaller button
+                        minimumSize: Size.zero, 
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: const Text('Home'),
                     )
