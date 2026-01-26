@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লিংক আপডেট - সুপাবেস</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Nikosh font - place the file at admin/fonts/Nikosh.ttf */
+        @font-face {
+            font-family: 'Nikosh';
+            src: url('./fonts/Nikosh.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'Nikosh', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .table-btn {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .table-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .table-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .settings-section {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .settings-title {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        .upload-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 লিংক আপডেট সিস্টেম</h1>
+
+        <!-- Table Selection Section -->
+        <div class="section">
+            <div class="section-title">📊 টেবিল নির্বাচন করুন:</div>
+            <div class="table-grid">
+                <button class="table-btn active" data-table="post_site">Posts</button>
+                <button class="table-btn" data-table="bangla_quotes_1">Bangla 1</button>
+                <button class="table-btn" data-table="bangla_quotes_2">Bangla 2</button>
+                <button class="table-btn" data-table="bangla_quotes_3">Bangla 3</button>
+                <button class="table-btn" data-table="bangla_quotes_4">Bangla 4</button>
+                <button class="table-btn" data-table="photography_1">Photo 1</button>
+                <button class="table-btn" data-table="photography_2">Photo 2</button>
+                <button class="table-btn" data-table="photography_3">Photo 3</button>
+                <button class="table-btn" data-table="photography_4">Photo 4</button>
+                <button class="table-btn" data-table="dotted_illustration_1">Dotted 1</button>
+                <button class="table-btn" data-table="dotted_illustration_2">Dotted 2</button>
+                <button class="table-btn" data-table="illustration_1">Illus 1</button>
+                <button class="table-btn" data-table="illustration_2">Illus 2</button>
+                <button class="table-btn" data-table="english_quote_1">English 1</button>
+                <button class="table-btn" data-table="english_quote_2">English 2</button>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">⚙️ সেটিংস</div>
+                <div class="table-grid">
+                    <button class="table-btn" data-table="id_password">Credentials</button>
+                </div>
+            </div>
+
+            <div class="info-text">
+                <strong>নির্বাচিত টেবিল:</strong> <span id="selectedTableName">Posts (post_site)</span>
+            </div>
+        </div>
+
+        <!-- Links Input Section -->
+        <div class="section">
+            <div class="section-title">🔗 লিংক যোগ করুন (প্রতিটি লাইনে একটি করে):</div>
+            <textarea 
+                id="linksInput" 
+                placeholder="এখানে লিংক পেস্ট করুন। প্রতিটি লিংক আলাদা লাইনে দিন।&#10;&#10;উদাহরণ:&#10;https://i.ibb.co.com/f6DP9Zb/DSC5904.jpg&#10;https://i.ibb.co.com/BK4wDDw7/DSC5905.jpg&#10;https://i.ibb.co.com/k2R5JmdN/DSC6134.jpg"
+            ></textarea>
+            <div class="info-text">
+                💡 প্রতিটি লিংক একটি নতুন লাইনে থাকবে। খালি লাইন এবং স্পেস স্বয়ংক্রিয়ভাবে বাদ দেওয়া হবে।
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="linkCount">0</div>
+                <div class="stat-label">মোট লিংক</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="uploadedCount">0</div>
+                <div class="stat-label">আপলোড সম্পন্ন</div>
+            </div>
+        </div>
+
+        <!-- Upload Button -->
+        <button class="upload-btn" onclick="uploadLinks()" id="uploadBtn">
+            📤 আপলোড করুন
+        </button>
+
+        <!-- Message Area -->
+        <div class="message" id="messageBox"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ============================================
+        // CONFIG - All Configuration Variables
+        // ============================================
+        const SUPABASE_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+
+        // Initialize Supabase client
+        const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Table names mapping
+        const tableNames = {
+            'bangla_quotes_1': 'Bangla Quotes 1',
+            'bangla_quotes_2': 'Bangla Quotes 2',
+            'bangla_quotes_3': 'Bangla Quotes 3',
+            'bangla_quotes_4': 'Bangla Quotes 4',
+            'photography_1': 'Photography 1',
+            'photography_2': 'Photography 2',
+            'photography_3': 'Photography 3',
+            'photography_4': 'Photography 4',
+            'post_site': 'Posts',
+            'dotted_illustration_1': 'Dotted Illustration 1',
+            'dotted_illustration_2': 'Dotted Illustration 2',
+            'illustration_1': 'Illustration 1',
+            'illustration_2': 'Illustration 2',
+            'english_quote_1': 'English Quote 1',
+            'english_quote_2': 'English Quote 2',
+            'id_password': 'Credentials'
+        };
+
+        // Current selected table
+        let currentTable = 'post_site';
+
+        // ============================================
+        // UI Functions
+        // ============================================
+        
+        function selectTable(tableName, button) {
+            currentTable = tableName;
+            
+            // Update button styles
+            document.querySelectorAll('.table-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            // Update selected table name
+            const displayName = tableNames[tableName] || tableName;
+            document.getElementById('selectedTableName').textContent = `${displayName} (${tableName})`;
+            
+            // Clear message
+            hideMessage();
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        function hideMessage() {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';
+        }
+
+        function updateLinkCount() {
+            const textarea = document.getElementById('linksInput');
+            const links = textarea.value.split('\n')
+                .map(link => link.trim())
+                .filter(link => link.length > 0);
+            
+            document.getElementById('linkCount').textContent = links.length;
+        }
+
+        // Update link count on input
+        document.getElementById('linksInput').addEventListener('input', updateLinkCount);
+
+        // ============================================
+        // Upload Function
+        // ============================================
+        
+        async function uploadLinks() {
+            const textarea = document.getElementById('linksInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            // Get all links and filter empty lines
+            const links = textarea.value.split('\n')
+                .map(link => link.trim())
+                .filter(link => link.length > 0);
+
+            // Validation
+            if (links.length === 0) {
+                showMessage('❌ কোনো লিংক পাওয়া যায়নি। অনুগ্রহ করে লিংক যোগ করুন।', 'error');
+                return;
+            }
+
+            // Confirm before upload
+            const confirmMsg = `আপনি কি নিশ্চিত যে "${tableNames[currentTable]}" টেবিলে ${links.length}টি লিংক আপলোড করতে চান?`;
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            // Disable button and show progress
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '⏳ আপলোড হচ্ছে...';
+            showMessage(`📊 ${links.length}টি লিংক আপলোড হচ্ছে...`, 'info');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            try {
+                // Upload each link as a separate row
+                for (let i = 0; i < links.length; i++) {
+                    const link = links[i];
+                    
+                    try {
+                        // Insert data into Supabase
+                        const { data, error } = await supabaseClient
+                            .from(currentTable)
+                            .insert([
+                                { image_url: link }
+                            ]);
+
+                        if (error) {
+                            console.error(`Error uploading link ${i + 1}:`, error);
+                            failCount++;
+                        } else {
+                            successCount++;
+                            document.getElementById('uploadedCount').textContent = successCount;
+                        }
+                    } catch (err) {
+                        console.error(`Exception uploading link ${i + 1}:`, err);
+                        failCount++;
+                    }
+
+                    // Update progress
+                    const progress = Math.round(((i + 1) / links.length) * 100);
+                    uploadBtn.textContent = `⏳ আপলোড হচ্ছে... ${progress}%`;
+                }
+
+                // Show final result
+                if (failCount === 0) {
+                    showMessage(`✅ সফল! ${successCount}টি লিংক "${tableNames[currentTable]}" টেবিলে আপলোড হয়েছে।`, 'success');
+                    textarea.value = ''; // Clear textarea
+                    updateLinkCount();
+                } else {
+                    showMessage(`⚠️ সম্পন্ন! ${successCount}টি সফল, ${failCount}টি ব্যর্থ।`, 'error');
+                }
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                showMessage(`❌ আপলোড ব্যর্থ: ${error.message}`, 'error');
+            } finally {
+                // Re-enable button
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = '📤 আপলোড করুন';
+            }
+        }
+
+        // ============================================
+        // Initialize
+        // ============================================
+        // ============================================
+        // Attach event listeners to table buttons after DOM is ready to avoid timing/inline handler issues
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.table-btn').forEach(btn => {
+                const table = btn.getAttribute('data-table');
+                if (table) {
+                    btn.addEventListener('click', () => selectTable(table, btn));
+                }
+            });
+        });
+        
+        // Set initial link count
+        updateLinkCount();
+    </script>
+</body>
+</html>

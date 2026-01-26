@@ -12,14 +12,24 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Nikosh font: will be injected at runtime only if available at ./fonts/Nikosh.ttf */
+
+        :root {
+            --primary: #0095f6;
+            --accent: #ff8c00;
+            --bg: #f5f5f5;
+            --muted: #666;
+            --card-radius: 8px;
+        }
+
         html {
             scroll-behavior: smooth;
             -webkit-text-size-adjust: 100%;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
-            background: #f5f5f5;
+            font-family: 'Nikosh', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: var(--bg);
             color: #262626;
             display: flex;
             flex-direction: column;
@@ -28,6 +38,56 @@
             -moz-osx-font-smoothing: grayscale;
             touch-action: manipulation;
         }
+
+        /* Dashboard stats */
+        .dashboard-stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+            align-items: stretch;
+        }
+
+        .stat-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.98));
+            border: 1px solid rgba(0,0,0,0.04);
+            padding: 12px 16px;
+            border-radius: var(--card-radius);
+            min-width: 120px;
+            box-shadow: 0 6px 18px rgba(12, 15, 30, 0.04);
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        /* Toasts */
+        .toast {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            box-shadow: 0 8px 26px rgba(12,15,30,0.08);
+            transition: transform 240ms ease, opacity 240ms ease;
+            transform: translateY(8px);
+            opacity: 0;
+            font-size: 14px;
+            color: #222;
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.visible { transform: translateY(0); opacity: 1; }
+
+        .toast.toast-success { border-left-color: #2e7d32; }
+        .toast.toast-error { border-left-color: #c62828; }
+        .toast.toast-info { border-left-color: var(--primary); }
 
         .navbar {
             background: white;
@@ -313,19 +373,25 @@
         }
 
         .photos-grid {
-            display: block;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
             width: 100%;
             will-change: contents;
+            align-items: start;
         }
 
         .photo-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
-            background: #f5f5f5;
-            border: 1px solid #dbdbdb;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.04);
             border-radius: 8px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform;
             contain: layout style paint;
             backface-visibility: hidden;
@@ -333,8 +399,8 @@
         }
 
         .photo-card:hover {
-            transform: translateZ(0) translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateZ(0) translateY(-6px);
+            box-shadow: 0 8px 20px rgba(12, 15, 30, 0.08);
         }
 
         .photo-image {
@@ -670,35 +736,18 @@
                 font-size: 14px;
             }
 
-            /* Photo Grid - Table view on mobile */
+            /* Photo Grid - Mobile friendly grid */
             .photos-grid {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
             }
-            
-            .photos-grid table {
-                min-width: 600px;
+
+            .photos-grid .photo-image {
+                height: 120px !important;
             }
-            
-            .photos-grid img {
-                width: 50px !important;
-                height: 50px !important;
-            }
-            
-            .photos-grid th {
-                padding: 4px 6px !important;
-                font-size: 9px !important;
-            }
-            
-            .photos-grid td {
-                padding: 3px 4px !important;
-                font-size: 9px !important;
-            }
-            
-            .photos-grid button {
-                padding: 2px 4px !important;
-                font-size: 8px !important;
-            }
+
+            .photo-title { font-size: 12px !important; }
+            .photo-actions .btn-sm { font-size: 11px !important; padding: 6px 8px !important; }
             
             #statsCard {
                 padding: 15px !important;
@@ -894,6 +943,23 @@
             }
         }
     </style>
+    <script>
+    (async function(){
+        try {
+            const res = await fetch('./fonts/Nikosh.ttf', { method: 'HEAD' });
+            if (res.ok) {
+                const s = document.createElement('style');
+                s.textContent = "@font-face{font-family:'Nikosh'; src: url('./fonts/Nikosh.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap;}";
+                document.head.appendChild(s);
+                console.info('Nikosh font loaded via admin/fonts/Nikosh.ttf');
+            } else {
+                console.info('Nikosh font not found at ./fonts/Nikosh.ttf — using fallback fonts');
+            }
+        } catch (err) {
+            console.info('Could not check Nikosh font (network/error) — using fallback fonts');
+        }
+    })();
+    </script>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -914,28 +980,44 @@
         <aside class="sidebar">
             <h3>📚 Select Table</h3>
             <div class="table-grid">
-                <button class="table-btn active" onclick="selectTable('post_site')">Posts</button>
-                <button class="table-btn" onclick="selectTable('bangla_quotes_1')">Bangla 1</button>
-                <button class="table-btn" onclick="selectTable('bangla_quotes_2')">Bangla 2</button>
-                <button class="table-btn" onclick="selectTable('bangla_quotes_3')">Bangla 3</button>
-                <button class="table-btn" onclick="selectTable('bangla_quotes_4')">Bangla 4</button>
-                <button class="table-btn" onclick="selectTable('photography_1')">Photo 1</button>
-                <button class="table-btn" onclick="selectTable('photography_2')">Photo 2</button>
-                <button class="table-btn" onclick="selectTable('photography_3')">Photo 3</button>
-                <button class="table-btn" onclick="selectTable('photography_4')">Photo 4</button>
-                <button class="table-btn" onclick="selectTable('dotted_illustration_1')">Dotted 1</button>
-                <button class="table-btn" onclick="selectTable('dotted_illustration_2')">Dotted 2</button>
-                <button class="table-btn" onclick="selectTable('illustration_1')">Illus 1</button>
-                <button class="table-btn" onclick="selectTable('illustration_2')">Illus 2</button>
-                <button class="table-btn" onclick="selectTable('english_quote_1')">English 1</button>
-                <button class="table-btn" onclick="selectTable('english_quote_2')">English 2</button>
+                <button class="table-btn active" data-table="post_site">Posts</button>
+                <button class="table-btn" data-table="bangla_quotes_1">Bangla 1</button>
+                <button class="table-btn" data-table="bangla_quotes_2">Bangla 2</button>
+                <button class="table-btn" data-table="bangla_quotes_3">Bangla 3</button>
+                <button class="table-btn" data-table="bangla_quotes_4">Bangla 4</button>
+                <button class="table-btn" data-table="photography_1">Photo 1</button>
+                <button class="table-btn" data-table="photography_2">Photo 2</button>
+                <button class="table-btn" data-table="photography_3">Photo 3</button>
+                <button class="table-btn" data-table="photography_4">Photo 4</button>
+                <button class="table-btn" data-table="dotted_illustration_1">Dotted 1</button>
+                <button class="table-btn" data-table="dotted_illustration_2">Dotted 2</button>
+                <button class="table-btn" data-table="illustration_1">Illus 1</button>
+                <button class="table-btn" data-table="illustration_2">Illus 2</button>
+                <button class="table-btn" data-table="english_quote_1">English 1</button>
+                <button class="table-btn" data-table="english_quote_2">English 2</button>
                 <h3 style="width:100%; margin-top:10px;">⚙ Settings</h3>
-                <button class="table-btn" onclick="selectTable('id_password')">Credentials</button>
+                <button class="table-btn" data-table="id_password">Credentials</button>
             </div>
         </aside>
 
         <!-- Admin Container -->
         <div class="admin-container">
+
+            <!-- Dashboard quick stats -->
+            <div class="dashboard-stats" role="region" aria-label="Quick stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotal">—</div>
+                    <div class="stat-label">Total items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statToday">—</div>
+                    <div class="stat-label">Uploaded today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statPending">—</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
 
         <!-- Photos Management Section -->
         <section class="admin-section">
@@ -2026,18 +2108,20 @@
             currentPage = 1;  // Reset to first page
             allPhotos = [];
             totalItems = 0;
-            
+
+            // Update active button using data attribute so event object isn't required
             document.querySelectorAll('.table-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const tableName = tableNames[table];
+            const activeBtn = document.querySelector(`.table-btn[data-table="${table}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const tableName = tableNames[table] || table;
             if (document.getElementById('currentTableName')) {
                 document.getElementById('currentTableName').textContent = tableName;
             }
             if (document.getElementById('currentTableNameModal')) {
                 document.getElementById('currentTableNameModal').textContent = tableName;
             }
-            
+
             // Toggle Thumbnail Generator button and section title for credentials view
             const thumbnailBtn = document.getElementById('thumbnailGeneratorBtn');
             const isCredentials = currentTable === 'id_password';
@@ -2052,16 +2136,71 @@
                 searchInput.placeholder = isCredentials ? 'Search by user_id...' : 'Search by title or description...';
             }
 
+            // update quick stats
+            updateStats();
+
             loadPhotos();
         }
 
         // Debounce function for search
         let searchTimeout;
         function debounce(func, delay) {
+            let timer;
             return function(...args) {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => func(...args), delay);
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, args), delay);
             };
+        }
+
+        // Attach data-driven event listeners to sidebar buttons to avoid load-order issues
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.table-btn').forEach(btn => {
+                const table = btn.getAttribute('data-table');
+                if (table) btn.addEventListener('click', () => selectTable(table));
+            });
+
+            // Ensure initial active state
+            const initial = document.querySelector(`.table-btn[data-table="${currentTable}"]`);
+            if (initial) initial.classList.add('active');
+
+            // Simple toast container
+            if (!document.getElementById('toastContainer')) {
+                const container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.style.position = 'fixed';
+                container.style.right = '20px';
+                container.style.bottom = '20px';
+                container.style.zIndex = 9999;
+                document.body.appendChild(container);
+            }
+
+            // Initial stats update
+            updateStats();
+        });
+
+        // Simple toast helper
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const el = document.createElement('div');
+            el.className = `toast toast-${type}`;
+            el.textContent = message;
+            container.appendChild(el);
+            requestAnimationFrame(() => el.classList.add('visible'));
+            setTimeout(() => {
+                el.classList.remove('visible');
+                setTimeout(() => el.remove(), 250);
+            }, 3500);
+        }
+
+        // Update stats (placeholder - uses existing variables; can be wired to real queries)
+        function updateStats() {
+            const totalEl = document.getElementById('statTotal');
+            const todayEl = document.getElementById('statToday');
+            const pendingEl = document.getElementById('statPending');
+            if (totalEl) totalEl.textContent = totalItems || '—';
+            if (todayEl) todayEl.textContent = '—';
+            if (pendingEl) pendingEl.textContent = '—';
         }
 
         // Load photos from current table
@@ -2156,81 +2295,34 @@
             const endIndex = startIndex + itemsPerPage;
             const paginatedPhotos = allPhotos.slice(startIndex, endIndex);
 
-            // Build table view
-            const tableHTML = `
-                <div style="width: 100%; overflow-x: auto; max-height: calc(100vh - 350px); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <table style="width: 100%; border-collapse: collapse; background: white;">
-                        <thead style="position: sticky; top: 0; z-index: 10;">
-                            <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                                <th style="padding: 6px 8px; text-align: left; font-weight: 600; font-size: 10px; border-right: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">ID</th>
-                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; border-right: 1px solid rgba(255,255,255,0.1); min-width: 100px; position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Image<br><small style="opacity: 0.8; font-weight: 400; font-size: 8px;">(Full)</small></th>
-                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; border-right: 1px solid rgba(255,255,255,0.1); min-width: 100px; position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Thumbnail<br><small style="opacity: 0.8; font-weight: 400; font-size: 8px;">(< 100KB)</small></th>
-                                <th style="padding: 6px 8px; text-align: center; font-weight: 600; font-size: 10px; position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${paginatedPhotos.map((photo, index) => {
-                                const hasThumbnail = !!photo.thumbnail_url;
-                                const rowBg = index % 2 === 0 ? '#ffffff' : '#f8f9fa';
-                                return `
-                                    <tr style="background: ${rowBg}; border-bottom: 1px solid #e9ecef; transition: all 0.2s;" onmouseover="this.style.background='#e3f2fd'" onmouseout="this.style.background='${rowBg}'">
-                                        <td style="padding: 4px 6px; font-size: 10px; color: #666; border-right: 1px solid #e9ecef;">#${photo.image_iid}</td>
-                                        <td style="padding: 4px; text-align: center; border-right: 1px solid #e9ecef;">
-                                            ${hasThumbnail ? `
-                                                <div style="display: flex; align-items: center; gap: 6px; justify-content: center;">
-                                                    <div style="width: 60px; height: 60px; display:flex; align-items:center; justify-content:center; border-radius:3px; background:#f1f8f1; border:1px dashed #c8e6c9; color:#4CAF50; font-size:11px;">Hidden</div>
-                                                    <a href="${photo.thumbnail_url}" target="_blank" style="font-size: 9px; color: #4CAF50; text-decoration: none; padding: 2px 4px; background: #e8f5e9; border-radius: 2px; white-space: nowrap;" onmouseover="this.style.background='#c8e6c9'" onmouseout="this.style.background='#e8f5e9'">🔗</a>
-                                                </div>
-                                            ` : `
-                                                <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
-                                                    <img src="${photo.image_url}" 
-                                                         alt="Original" 
-                                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 1px solid #dee2e6;"
-                                                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23e0e0e0%22 width=%2260%22 height=%2260%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%228%22%3ENo%3C/text%3E%3C/svg%3E'">
-                                                    <a href="${photo.image_url}" target="_blank" style="font-size: 9px; color: #0095f6; text-decoration: none; padding: 2px 4px; background: #e3f2fd; border-radius: 2px; white-space: nowrap;" onmouseover="this.style.background='#bbdefb'" onmouseout="this.style.background='#e3f2fd'">🔗</a>
-                                                </div>
-                                            `}
-                                        </td>
-                                        <td style="padding: 4px; text-align: center; border-right: 1px solid #e9ecef;">
-                                            ${hasThumbnail ? `
-                                                <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
-                                                    <div style="position: relative;">
-                                                        <img src="${photo.thumbnail_url}" 
-                                                             alt="Thumbnail" 
-                                                             style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px; border: 2px solid #4CAF50;"
-                                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22%3E%3Crect fill=%22%23e0e0e0%22 width=%2260%22 height=%2260%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%228%22%3ENo%3C/text%3E%3C/svg%3E'">
-                                                        <span style="position: absolute; top: -4px; right: -4px; background: #4CAF50; color: white; padding: 1px 3px; border-radius: 6px; font-size: 7px; font-weight: bold;">✓</span>
-                                                    </div>
-                                                    <a href="${photo.thumbnail_url}" target="_blank" style="font-size: 9px; color: #4CAF50; text-decoration: none; padding: 2px 4px; background: #e8f5e9; border-radius: 2px; white-space: nowrap;" onmouseover="this.style.background='#c8e6c9'" onmouseout="this.style.background='#e8f5e9'">🔗</a>
-                                                </div>
-                                            ` : `
-                                                <div style="display: flex; align-items: center; gap: 3px; justify-content: center;">
-                                                    <div style="width: 60px; height: 60px; border: 1px dashed #ccc; border-radius: 3px; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
-                                                        <div style="text-align: center; color: #999;">
-                                                            <div style="font-size: 20px;">📷</div>
-                                                            <div style="font-size: 7px; font-weight: 500;">Pending</div>
-                                                        </div>
-                                                    </div>
-                                                    <span style="font-size: 7px; color: #ff9800; padding: 1px 3px; background: #fff3e0; border-radius: 2px; font-weight: 500; writing-mode: vertical-rl;">⚠️</span>
-                                                </div>
-                                            `}
-                                        </td>
-                                        <td style="padding: 4px; text-align: center;">
-                                            <button class="btn-sm" onclick="compressSingleImage('${photo.image_iid}', '${photo.image_url}', ${hasThumbnail})" style="padding: 4px 10px; font-size: 9px; border-radius: 3px; background: ${hasThumbnail ? '#9E9E9E' : '#4CAF50'}; color: white; border: none; cursor: pointer; transition: all 0.2s; font-weight: 600; white-space: nowrap;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" ${hasThumbnail ? 'title="Re-generate thumbnail"' : 'title="Generate thumbnail"'}>🖼️ ${hasThumbnail ? 'ReGen' : 'Generate'}</button>
-                                        </td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
+            // Build responsive cards grid view
+            const gridHTML = paginatedPhotos.map(photo => {
+                const hasThumbnail = !!photo.thumbnail_url;
+                const imageSrc = photo.thumbnail_url || photo.image_url;
+                const truncatedTitle = (photo.title || '').length > 60 ? (photo.title || '').slice(0, 57) + '...' : (photo.title || '');
+
+                return `
+                    <div class="photo-card" role="group" aria-label="Photo ${photo.image_iid}">
+                        <img class="photo-image" src="${imageSrc}" alt="Photo #${photo.image_iid}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2290%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22120%22 height=%2290%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2210%22%3ENo%3C/text%3E%3C/svg%3E'">
+                        <div class="photo-info">
+                            <div class="photo-title">#${photo.image_iid} ${truncatedTitle ? '— ' + truncatedTitle : ''}</div>
+                            <div style="font-size:12px; color:var(--muted);">${photo.created_at ? new Date(photo.created_at).toLocaleString() : ''}</div>
+                            <div class="photo-actions">
+                                <a class="btn-sm" href="${photo.image_url}" target="_blank" style="background:#e3f2fd;color:var(--primary);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;">🔍 View</a>
+                                <button class="btn-sm" onclick="compressSingleImage('${photo.image_iid}', '${photo.image_url}', ${hasThumbnail})" style="background: ${hasThumbnail ? '#9E9E9E' : '#4CAF50'}; color: white;">${hasThumbnail ? 'ReGen' : 'Generate'}</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
             // Single DOM update
             requestAnimationFrame(() => {
-                grid.innerHTML = tableHTML;
+                grid.innerHTML = gridHTML;
                 grid.style.opacity = '1';
             });
+            
+
         }
 
         // Display id_password table (read-only)
