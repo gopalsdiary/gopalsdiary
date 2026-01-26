@@ -139,8 +139,8 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   sliver: SliverMasonryGrid.count(
                     crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 8, // Tighter spacing for mobile
-                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
                     childCount: currentPhotos.length,
                     itemBuilder: (context, index) {
                       return GalleryItem(

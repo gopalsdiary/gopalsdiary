@@ -120,19 +120,51 @@ class PhotoViewer extends StatelessWidget {
                 // Footer (Download Button)
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton.icon(
-                    onPressed: _downloadImage,
-                    icon: const Icon(Icons.download_rounded),
-                    label: const Text('Download High Res'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE60023), // Pinterest Red
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: _downloadImage,
+                        icon: const Icon(Icons.download_rounded),
+                        label: const Text('Download'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE60023), // Pinterest Red
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          elevation: 4,
+                        ),
                       ),
-                      elevation: 4,
-                    ),
+                      const SizedBox(width: 24),
+                      // Stats
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.touch_app_outlined, size: 18, color: Colors.black54),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${photo.clicks}',
+                              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
+                            ),
+                            const SizedBox(width: 16),
+                            const Icon(Icons.remove_red_eye_outlined, size: 18, color: Colors.black54),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${photo.clicks}',
+                              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
