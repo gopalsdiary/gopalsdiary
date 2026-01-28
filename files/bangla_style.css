@@ -439,10 +439,73 @@ body {
     .lightbox-details {
         flex: 0 0 auto;
         padding: 16px;
+        padding-bottom: 70px;
+        /* Space for bottom buttons */
         background: white;
         border-top-left-radius: 16px;
         border-top-right-radius: 16px;
         margin-top: -16px;
         /* Overlap effect */
+        position: relative;
+        /* Context for buttons */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Move Nav Buttons to Bottom Details Panel on Mobile */
+    .lightbox-image-wrapper {
+        position: static;
+        /* Release buttons from top section */
+    }
+
+    .nav-btn {
+        top: auto;
+        bottom: 20px;
+        /* Position in the white details area */
+        background: transparent;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        width: 36px;
+        height: 36px;
+        transform: none;
+        z-index: 2005;
+    }
+
+    .nav-btn.prev {
+        left: 20px;
+    }
+
+    .nav-btn.next {
+        right: 20px;
+    }
+
+    /* Make download button extremely small and centered at bottom */
+    .btn-download {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 0;
+        /* Hides text */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: unset;
+        margin: 0;
+        z-index: 2006;
+    }
+
+    .btn-download .material-icons {
+        font-size: 20px;
+        margin: 0;
+    }
+
+    .lightbox-controls {
+        text-align: center;
+        font-size: 12px;
     }
 }

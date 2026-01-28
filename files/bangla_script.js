@@ -535,11 +535,15 @@ async function downloadImage() {
         return;
     }
 
-    const downloadBtn = document.querySelector('.lightbox-download-btn');
-    const originalText = downloadBtn.textContent;
+    const downloadBtn = document.querySelector('.lightbox-download-btn') || document.querySelector('.btn-download');
+    if (!downloadBtn) return; // Guard clause
+
+    // Use innerHTML to preserve icons/structure when restoring
+    const originalContent = downloadBtn.innerHTML;
 
     try {
-        downloadBtn.textContent = '⏳ Downloading...';
+        // Show loading icon
+        downloadBtn.innerHTML = '<span class="material-icons" style="animation: spin 1s infinite linear;">sync</span>';
         downloadBtn.disabled = true;
 
         const response = await fetch(imageUrl);
@@ -568,24 +572,20 @@ async function downloadImage() {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
 
-        downloadBtn.textContent = '✅ Downloaded';
+        // Show success icon
+        downloadBtn.innerHTML = '<span class="material-icons">check_circle</span>';
         setTimeout(() => {
-            downloadBtn.textContent = originalText;
+            downloadBtn.innerHTML = originalContent;
             downloadBtn.disabled = false;
         }, 2000);
 
     } catch (error) {
-        downloadBtn.textContent = originalText;
+        console.error('Download failed, trying fallback:', error);
+        downloadBtn.innerHTML = originalContent;
         downloadBtn.disabled = false;
 
-        // Fallback method
-        const link = document.createElement('a');
-        link.href = imageUrl;
-        link.download = imageTitle || 'image';
-        link.setAttribute('target', '_blank');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Fallback method - Open in new tab which usually triggers download for images
+        window.open(imageUrl, '_blank');
     }
 }
 
