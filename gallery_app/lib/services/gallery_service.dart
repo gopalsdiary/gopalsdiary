@@ -58,32 +58,48 @@ class GalleryService {
 
   Future<void> incrementClickCount(Photo photo) async {
     final key = '${photo.tableName}-${photo.id}';
+    final int? photoId = int.tryParse(photo.id);
+
+    if (photoId == null) {
+      print('Error: Invalid photo ID (not an integer): ${photo.id}');
+      return;
+    }
     
     try {
-      // Try to invoke RPC if exists, essentially we want to atomically increment.
-      // Since we don't know if 'increment_click' RPC exists, we use a basic upsert logic.
-      // However, upsert with increment requires a function or reading first.
-      
-      // Attempt 1: Check existing
+      // 1. Check if row exists using the UNIQUE constraint columns (table_name, photo_id)
       final data = await _supabase
           .from('photo_clicks')
           .select('click_count')
-          .eq('table_image_iid', key)
+          .eq('table_name', photo.tableName)
+          .eq('photo_id', photoId)
           .maybeSingle();
 
-      int current = 0;
       if (data != null) {
-        current = data['click_count'] as int;
+        // Row exists: Update
+        int current = (data['click_count'] as int?) ?? 0;
+        
+        await _supabase.from('photo_clicks').update({
+          'click_count': current + 1,
+          'updated_at': DateTime.now().toIso8601String(),
+          // We also update table_image_iid just in case it was missing/null before
+          'table_image_iid': key, 
+        }).match({
+          'table_name': photo.tableName,
+          'photo_id': photoId,
+        });
+      } else {
+        // Row missing: Insert
+        await _supabase.from('photo_clicks').insert({
+          'table_name': photo.tableName,
+          'photo_id': photoId,
+          'table_image_iid': key,
+          'click_count': 1,
+        });
       }
-
-      await _supabase.from('photo_clicks').upsert({
-        'table_image_iid': key,
-        'click_count': current + 1,
-        'last_clicked': DateTime.now().toIso8601String(), 
-      });
       
     } catch (e) {
-      // debugPrint('Error incrementing click: $e');
+      // ignore: avoid_print
+      print('Error incrementing click for $key: $e');
     }
   }
 
