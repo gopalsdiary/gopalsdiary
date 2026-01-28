@@ -1,9 +1,13 @@
-﻿<!DOCTYPE html>
+
+$files = Get-ChildItem -Path "c:\xampp\htdocs\gopalsdiary\files" -Filter "*.html"
+
+$template = @'
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photography 1 - Gopals Diary</title>
+    <title>{{TITLE}} - Gopals Diary</title>
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -85,9 +89,24 @@
     <!-- Configuration & Logic -->
     <script>
         // Configuration for bangla_script.js
-        window.TABLE_NAME = 'photography_1';
+        window.TABLE_NAME = '{{TABLE_NAME}}';
         window.PHOTOS_PER_PAGE = 100; // Requested: 100 per page
     </script>
     <script src="bangla_script.js"></script>
 </body>
 </html>
+'@
+
+foreach ($file in $files) {
+    if ($file.Name -eq "home.html" -or $file.Name -eq "index.html") { continue }
+    
+    $tableName = $file.BaseName
+    $title = $tableName -replace "_", " "
+    $title = (Get-Culture).TextInfo.ToTitleCase($title)
+    
+    $content = $template -replace "{{TABLE_NAME}}", $tableName
+    $content = $content -replace "{{TITLE}}", $title
+    
+    Set-Content -Path $file.FullName -Value $content -Encoding UTF8
+    Write-Host "Updated $($file.Name)"
+}

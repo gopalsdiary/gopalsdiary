@@ -1,9 +1,14 @@
-﻿<!DOCTYPE html>
+
+import os
+import glob
+
+# Template matching the desired Flutter-like structure
+TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photography 1 - Gopals Diary</title>
+    <title>{{TITLE}} - Gopals Diary</title>
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -17,6 +22,7 @@
             <span class="material-icons" style="margin-right: 20px; cursor: pointer;">menu</span>
             <h1 class="app-title">Gopals Diary</h1>
             <div class="spacer"></div>
+            <!-- Home Navigation -->
             <a href="../index.html" class="icon-button" aria-label="Home">
                 <span class="material-icons">home</span>
             </a>
@@ -85,9 +91,48 @@
     <!-- Configuration & Logic -->
     <script>
         // Configuration for bangla_script.js
-        window.TABLE_NAME = 'photography_1';
+        window.TABLE_NAME = '{{TABLE_NAME}}';
         window.PHOTOS_PER_PAGE = 100; // Requested: 100 per page
     </script>
     <script src="bangla_script.js"></script>
 </body>
 </html>
+"""
+
+def main():
+    # Get directory of this script
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Process all .html files
+    files = glob.glob(os.path.join(current_dir, "*.html"))
+    
+    print(f"Found {len(files)} HTML files.")
+
+    for file_path in files:
+        filename = os.path.basename(file_path)
+        
+        # Skip if it's unrelated (not in the list we identified broadly)
+        # But we decided to process all galleries.
+        if filename == "home.html" or filename == "index.html":
+            continue
+            
+        # Determine table name from filename
+        # e.g. bangla_quotes_1.html -> bangla_quotes_1
+        table_name = os.path.splitext(filename)[0]
+        
+        # Title formatting
+        title_parts = table_name.split('_')
+        title = ' '.join([p.capitalize() for p in title_parts])
+        
+        # Create new content
+        new_content = TEMPLATE.replace('{{TABLE_NAME}}', table_name)
+        new_content = new_content.replace('{{TITLE}}', title)
+        
+        # Write back to file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(new_content)
+        
+        print(f"Updated {filename} with Table: {table_name}")
+
+if __name__ == '__main__':
+    main()

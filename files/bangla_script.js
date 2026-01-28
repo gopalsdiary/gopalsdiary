@@ -21,13 +21,13 @@ class ImageOptimizer {
      */
     static getOptimizedUrl(originalUrl, options = {}) {
         if (!originalUrl) return '';
-        
+
         const {
             width = 800,
             quality = 75,
             format = 'webp'
         } = options;
-        
+
         // Check if it's a Supabase storage URL
         if (originalUrl.includes('supabase.co/storage')) {
             const url = new URL(originalUrl);
@@ -38,10 +38,10 @@ class ImageOptimizer {
             }
             return url.toString();
         }
-        
+
         return originalUrl;
     }
-    
+
     /**
      * Get thumbnail version (very small for initial load)
      * Target: < 50KB for fast loading
@@ -55,7 +55,7 @@ class ImageOptimizer {
             format: 'webp'
         });
     }
-    
+
     /**
      * Get medium quality for gallery view
      */
@@ -69,7 +69,7 @@ class ImageOptimizer {
             format: 'webp'
         });
     }
-    
+
     /**
      * Get high quality for lightbox
      */
@@ -83,7 +83,7 @@ class ImageOptimizer {
             format: 'webp'
         });
     }
-    
+
     /**
      * Get original for download
      */
@@ -99,7 +99,7 @@ class SupabaseClient {
     constructor(url, anonKey) {
         if (!url) throw new Error('Supabase URL is required');
         if (!anonKey) throw new Error('Supabase API key is required');
-        
+
         this.url = url;
         this.anonKey = anonKey;
     }
@@ -109,9 +109,9 @@ class SupabaseClient {
             console.error('API key missing!');
             throw new Error('No API key found');
         }
-        
+
         const url = `${this.url}/rest/v1${path}`;
-        
+
         const headers = {
             'Content-Type': 'application/json',
             'apikey': this.anonKey,
@@ -133,7 +133,7 @@ class SupabaseClient {
         }
 
         const response = await fetch(url, config);
-        
+
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
             console.error('Request failed:', error);
@@ -141,11 +141,11 @@ class SupabaseClient {
         }
 
         const data = await response.json();
-        
+
         if (options.returnFullResponse) {
             return { data, response };
         }
-        
+
         return data;
     }
 
@@ -153,7 +153,7 @@ class SupabaseClient {
     async getPhotos(limit = 50, offset = 0, tableName) {
         const rangeStart = offset;
         const rangeEnd = offset + limit - 1;
-        
+
         const result = await this.request('GET', `/${tableName}?select=image_iid,title,description,image_url,thumbnail_url,section,created_at&order=image_iid.asc`, {
             headers: {
                 'Range': `${rangeStart}-${rangeEnd}`,
@@ -161,17 +161,17 @@ class SupabaseClient {
             },
             returnFullResponse: true,
         });
-        
+
         const contentRange = result.response.headers.get('Content-Range');
         let totalCount = 0;
-        
+
         if (contentRange) {
             const match = contentRange.match(/\/(\d+)$/);
             if (match) {
                 totalCount = parseInt(match[1], 10);
             }
         }
-        
+
         return {
             photos: result.data,
             totalCount: totalCount,
@@ -190,17 +190,17 @@ const imageObserver = new IntersectionObserver((entries, observer) => {
         if (entry.isIntersecting) {
             const img = entry.target;
             const photoImage = img.closest('.photo-image');
-            
+
             if (img.dataset.src && img.src.includes('data:image')) {
                 const originalSrc = img.dataset.src;
                 const thumbnailSrc = img.dataset.thumbnail;
                 const gallerySrc = img.dataset.gallery;
-                
+
                 // Function to load image with retry
                 const loadImageWithRetry = (src, maxRetries = 3) => {
                     return new Promise((resolve, reject) => {
                         let attempts = 0;
-                        
+
                         const attemptLoad = () => {
                             const tempImg = new Image();
                             tempImg.onload = () => resolve(tempImg);
@@ -215,34 +215,50 @@ const imageObserver = new IntersectionObserver((entries, observer) => {
                             };
                             tempImg.src = src;
                         };
-                        
+
                         attemptLoad();
                     });
                 };
-                
+
                 // Load thumbnail first with retry
                 loadImageWithRetry(thumbnailSrc)
                     .then(() => {
                         requestAnimationFrame(() => {
                             img.src = thumbnailSrc;
                             img.style.opacity = '1';
-                            img.style.filter = 'blur(2px)';
+                            // Only blur if we are going to load a better version
+                            if (gallerySrc) {
+                                img.style.filter = 'blur(2px)';
+                            } else {
+                                img.style.filter = 'none';
+                                img.classList.add('loaded');
+                                if (photoImage) photoImage.classList.add('loaded');
+                                img.removeAttribute('data-src');
+                                img.removeAttribute('data-thumbnail');
+                            }
                         });
-                        
-                        // Load gallery quality in background with retry
-                        return loadImageWithRetry(gallerySrc);
+
+                        // Load gallery quality in background with retry ONLY if different
+                        if (gallerySrc) {
+                            return loadImageWithRetry(gallerySrc).then(() => {
+                                requestAnimationFrame(() => {
+                                    img.src = gallerySrc;
+                                    img.style.filter = 'none';
+                                    img.classList.add('loaded');
+                                    if (photoImage) photoImage.classList.add('loaded');
+                                    img.removeAttribute('data-src');
+                                    img.removeAttribute('data-thumbnail');
+                                    img.removeAttribute('data-gallery');
+                                });
+                            });
+                        }
                     })
                     .then(() => {
-                        requestAnimationFrame(() => {
-                            img.src = gallerySrc;
-                            img.style.filter = 'none';
-                            img.classList.add('loaded');
-                            if (photoImage) photoImage.classList.add('loaded');
-                            img.removeAttribute('data-src');
-                            img.removeAttribute('data-thumbnail');
-                            img.removeAttribute('data-gallery');
-                        });
-                        observer.unobserve(img);
+                        if (gallerySrc) {
+                            observer.unobserve(img);
+                        } else {
+                            observer.unobserve(img);
+                        }
                     })
                     .catch((error) => {
                         console.error('Failed to load image:', error);
@@ -270,65 +286,19 @@ const imageObserver = new IntersectionObserver((entries, observer) => {
 let currentPage = 1;
 let totalPhotos = 0;
 
-// Force load all images function
-function forceLoadAllImages() {
-    const allImages = document.querySelectorAll('.photo-image-img[data-src]');
-    console.log(`Force loading ${allImages.length} images...`);
-    
-    allImages.forEach((img, index) => {
-        // Trigger intersection observer by scrolling image into view temporarily
-        // or directly trigger the loading
-        setTimeout(() => {
-            const event = new Event('intersect');
-            imageObserver.observe(img);
-            
-            // Force trigger by creating a fake intersection
-            const rect = img.getBoundingClientRect();
-            if (!img.src.includes('data:image')) {
-                return; // Already loaded
-            }
-            
-            // Manually trigger the load
-            const photoImage = img.closest('.photo-image');
-            const originalSrc = img.dataset.src;
-            const thumbnailSrc = img.dataset.thumbnail;
-            const gallerySrc = img.dataset.gallery;
-            
-            if (thumbnailSrc && gallerySrc) {
-                // Load thumbnail first
-                const thumbImg = new Image();
-                thumbImg.onload = () => {
-                    img.src = thumbnailSrc;
-                    img.style.opacity = '1';
-                    img.style.filter = 'blur(2px)';
-                    
-                    // Load gallery quality
-                    const galleryImg = new Image();
-                    galleryImg.onload = () => {
-                        img.src = gallerySrc;
-                        img.style.filter = 'none';
-                        img.classList.add('loaded');
-                        if (photoImage) photoImage.classList.add('loaded');
-                        img.removeAttribute('data-src');
-                        img.removeAttribute('data-thumbnail');
-                        img.removeAttribute('data-gallery');
-                    };
-                    galleryImg.src = gallerySrc;
-                };
-                thumbImg.src = thumbnailSrc;
-            }
-        }, index * 100); // Stagger loading to avoid overwhelming the browser
-    });
+// URL Sanitizer helper
+function sanitizeUrl(url) {
+    if (!url) return '';
+    // Fix common data entry errors
+    return url.replace('i.ibb.co.com', 'i.ibb.co');
 }
 
+// Force load removed to prevent network flooding (ERR_HTTP2_PROTOCOL_ERROR)
+// Images will strictly lazy load as user scrolls
+
 // Load photos on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadPhotos().then(() => {
-        // Auto force load all images after initial load
-        setTimeout(() => {
-            forceLoadAllImages();
-        }, 1000); // Wait 1 second after page load
-    });
+document.addEventListener('DOMContentLoaded', function () {
+    loadPhotos();
     setupEventListeners();
 });
 
@@ -343,14 +313,14 @@ function setupEventListeners() {
 async function loadPhotos() {
     const gallery = document.getElementById('gallery');
     const loading = document.getElementById('loading');
-    
+
     loading.style.display = 'block';
     gallery.innerHTML = '';
 
     try {
         const offset = (currentPage - 1) * window.PHOTOS_PER_PAGE;
         const result = await supabase.getPhotos(window.PHOTOS_PER_PAGE, offset, window.TABLE_NAME);
-        
+
         if (result.totalCount !== undefined) {
             totalPhotos = result.totalCount;
         }
@@ -381,31 +351,44 @@ let currentLightboxImages = [];
 function createPhotoCard(photo, index, total) {
     const card = document.createElement('div');
     card.className = 'photo-card';
-    
+
     // Store photo data as attribute
     const postDataJson = JSON.stringify(photo);
     card.setAttribute('data-photo', postDataJson);
     card.setAttribute('data-index', index);
     card.setAttribute('data-total', total);
-    
+
     // Use thumbnail_url for preview if available, fallback to image_url
-    const originalUrl = photo.image_url;
-    const previewUrl = photo.thumbnail_url || photo.image_url;
-    const thumbnailUrl = ImageOptimizer.getThumbnailUrl(previewUrl);
-    const galleryUrl = ImageOptimizer.getGalleryUrl(previewUrl);
+    const originalUrl = sanitizeUrl(photo.image_url);
+    const previewUrl = sanitizeUrl(photo.thumbnail_url || photo.image_url);
+
+    // Logic: In grid we ONLY use thumbnail. 
+    // If it's Supabase, we optimize it. If it's external (ibb.co), we use it as is.
+    const thumbnailSrc = ImageOptimizer.getThumbnailUrl(previewUrl);
+
+    // For grid, we don't need a separate "gallery" high-res load if we just want thumbnails
+    // However, if we want progressive enhancement (blur -> sharp), we can keep it.
+    // But to fix "ERR_HTTP2", let's avoid double loading identical URLs.
+    let gallerySrc = ImageOptimizer.getGalleryUrl(previewUrl);
+
+    if (thumbnailSrc === gallerySrc) {
+        // If they are identical (e.g. standard external image), don't load twice
+        gallerySrc = '';
+    }
+
     const lightboxUrl = ImageOptimizer.getLightboxUrl(previewUrl);
-    
+
     // Store original URL for download
     card.setAttribute('data-original-url', originalUrl);
     card.setAttribute('data-lightbox-url', lightboxUrl);
-    
+
     // Use data-src for lazy loading with progressive loading
     // Show "Loading...." text as placeholder
     card.innerHTML = `
         <div class="photo-image">
             <img data-src="${previewUrl}" 
-                 data-thumbnail="${thumbnailUrl}" 
-                 data-gallery="${galleryUrl}" 
+                 data-thumbnail="${thumbnailSrc}" 
+                 data-gallery="${gallerySrc}" 
                  alt="${photo.title}" 
                  loading="lazy" 
                  class="photo-image-img" 
@@ -425,14 +408,14 @@ function createPhotoCard(photo, index, total) {
     }
 
     // Add click event listener
-    card.addEventListener('click', function() {
+    card.addEventListener('click', function () {
         const photoDataJson = this.getAttribute('data-photo');
         const idx = parseInt(this.getAttribute('data-index'));
         const tot = parseInt(this.getAttribute('data-total'));
         const photoData = JSON.parse(photoDataJson);
         const lightboxImgUrl = this.getAttribute('data-lightbox-url');
         const originalImgUrl = this.getAttribute('data-original-url');
-        
+
         openLightbox(lightboxImgUrl, idx, tot, photoData, originalImgUrl);
     });
 
@@ -460,36 +443,36 @@ function openLightbox(lightboxImageSrc, index, total, photoData, originalUrl) {
     // Use high-quality lightbox image
     lightboxImage.src = lightboxImageSrc;
     lightboxImage.setAttribute('data-original-url', originalUrl); // Store for download
-    
+
     lightboxTitle.textContent = photoData.title || 'gopals_diary';
     lightboxDescription.textContent = photoData.description || '-';
     currentImageIndex = index;
-    
+
     // Get all photo cards from current gallery
     currentPhotos = Array.from(document.querySelectorAll('.photo-card'));
     currentLightboxImages = Array.from(document.querySelectorAll('.photo-image-img'));
-    
+
     imageCounter.textContent = index + 1;
     totalCounter.textContent = total;
-    
+
     lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
-    
+
     // Check if lightbox is actually open
     if (!lightbox.classList.contains('active')) return;
-    
+
     lightbox.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Remove hash from URL if present
     if (window.location.hash === '#lightbox') {
         history.back();
     }
-    
+
     // Restore scroll position
     window.scrollTo({
         top: savedScrollPosition,
@@ -499,19 +482,19 @@ function closeLightbox() {
 
 function nextImage() {
     if (currentPhotos.length === 0) return;
-    
+
     currentImageIndex = (currentImageIndex + 1) % currentPhotos.length;
     const nextCard = currentPhotos[currentImageIndex];
     const photoDataJson = nextCard.getAttribute('data-photo');
     const photoData = JSON.parse(photoDataJson);
     const nextLightboxUrl = nextCard.getAttribute('data-lightbox-url');
     const nextOriginalUrl = nextCard.getAttribute('data-original-url');
-    
+
     const lightboxImage = document.getElementById('lightboxImage');
     const lightboxTitle = document.getElementById('lightboxTitle');
     const lightboxDescription = document.getElementById('lightboxDescription');
     const imageCounter = document.getElementById('imageCounter');
-    
+
     lightboxImage.src = nextLightboxUrl;
     lightboxImage.setAttribute('data-original-url', nextOriginalUrl);
     lightboxTitle.textContent = photoData.title || 'gopals_diary';
@@ -521,19 +504,19 @@ function nextImage() {
 
 function prevImage() {
     if (currentPhotos.length === 0) return;
-    
+
     currentImageIndex = (currentImageIndex - 1 + currentPhotos.length) % currentPhotos.length;
     const prevCard = currentPhotos[currentImageIndex];
     const photoDataJson = prevCard.getAttribute('data-photo');
     const photoData = JSON.parse(photoDataJson);
     const prevLightboxUrl = prevCard.getAttribute('data-lightbox-url');
     const prevOriginalUrl = prevCard.getAttribute('data-original-url');
-    
+
     const lightboxImage = document.getElementById('lightboxImage');
     const lightboxTitle = document.getElementById('lightboxTitle');
     const lightboxDescription = document.getElementById('lightboxDescription');
     const imageCounter = document.getElementById('imageCounter');
-    
+
     lightboxImage.src = prevLightboxUrl;
     lightboxImage.setAttribute('data-original-url', prevOriginalUrl);
     lightboxTitle.textContent = photoData.title || 'gopals_diary';
@@ -546,36 +529,36 @@ async function downloadImage() {
     const lightboxImage = document.getElementById('lightboxImage');
     const imageUrl = lightboxImage.getAttribute('data-original-url') || lightboxImage.src;
     const imageTitle = document.getElementById('lightboxTitle').textContent || 'image';
-    
+
     if (!imageUrl) {
         alert('Image not found');
         return;
     }
-    
+
     const downloadBtn = document.querySelector('.lightbox-download-btn');
     const originalText = downloadBtn.textContent;
-    
+
     try {
         downloadBtn.textContent = '⏳ Downloading...';
         downloadBtn.disabled = true;
-        
+
         const response = await fetch(imageUrl);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const blob = await response.blob();
-        
+
         // Get file extension
         let filename = imageTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         if (!filename.includes('.')) {
-            const ext = blob.type === 'image/jpeg' ? '.jpg' : 
-                       blob.type === 'image/png' ? '.png' : 
-                       blob.type === 'image/webp' ? '.webp' : '.jpg';
+            const ext = blob.type === 'image/jpeg' ? '.jpg' :
+                blob.type === 'image/png' ? '.png' :
+                    blob.type === 'image/webp' ? '.webp' : '.jpg';
             filename = filename + ext;
         }
-        
+
         const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
@@ -584,17 +567,17 @@ async function downloadImage() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
-        
+
         downloadBtn.textContent = '✅ Downloaded';
         setTimeout(() => {
             downloadBtn.textContent = originalText;
             downloadBtn.disabled = false;
         }, 2000);
-        
+
     } catch (error) {
         downloadBtn.textContent = originalText;
         downloadBtn.disabled = false;
-        
+
         // Fallback method
         const link = document.createElement('a');
         link.href = imageUrl;
@@ -607,7 +590,7 @@ async function downloadImage() {
 }
 
 // Close lightbox on ESC key
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         closeLightbox();
     }
@@ -620,19 +603,60 @@ document.addEventListener('keydown', function(event) {
 });
 
 // Close lightbox when clicking outside
-document.getElementById('lightbox').addEventListener('click', function(event) {
+document.getElementById('lightbox').addEventListener('click', function (event) {
     if (event.target === this) {
         closeLightbox();
     }
 });
 
+// Mouse Wheel Navigation
+let lastScrollTime = 0;
+document.getElementById('lightbox').addEventListener('wheel', function (event) {
+    if (Date.now() - lastScrollTime < 300) return; // Debounce
+
+    // Check if we are at the edges of the description scroll?
+    // For now, prioritize navigation as requested.
+
+    if (Math.abs(event.deltaX) > 20 || Math.abs(event.deltaY) > 20) {
+        lastScrollTime = Date.now();
+        if (event.deltaX > 0 || event.deltaY > 0) {
+            nextImage();
+        } else {
+            prevImage();
+        }
+    }
+}, { passive: true });
+
+// Touch Swipe Navigation
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.getElementById('lightbox').addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.getElementById('lightbox').addEventListener('touchend', function (e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    if (touchStartX - touchEndX > swipeThreshold) {
+        nextImage(); // Swipe Left -> Next
+    }
+    if (touchEndX - touchStartX > swipeThreshold) {
+        prevImage(); // Swipe Right -> Prev
+    }
+}
+
 // Handle browser back button
-window.addEventListener('popstate', function(event) {
+window.addEventListener('popstate', function (event) {
     const lightbox = document.getElementById('lightbox');
     if (lightbox.classList.contains('active')) {
         lightbox.classList.remove('active');
         document.body.style.overflow = 'auto';
-        
+
         // Restore scroll position
         window.scrollTo({
             top: savedScrollPosition,
@@ -658,13 +682,13 @@ function escapeHtml(text) {
 
 function updatePaginationInfo() {
     const totalPages = Math.ceil(totalPhotos / window.PHOTOS_PER_PAGE);
-    
+
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
-    
+
     if (prevBtn) prevBtn.disabled = currentPage === 1;
     if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
-    
+
     renderPageNumbers(totalPages);
 }
 
