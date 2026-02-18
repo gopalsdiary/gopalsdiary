@@ -1,41 +1,86 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="bn">
 
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="./">
 
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="gallery_app">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- Primary Meta -->
+  <title>Gopals Diary</title>
+  <!-- Canonical app name (also controls browser tab & PWA title) -->
+  <meta name="description" content="Gopals Diary — বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন ও ইংলিশ কোটসের সুন্দর সংগ্রহ। Free to use.">
+  <meta name="author" content="Gopals Diary">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#ff99cc">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <!-- Open Graph (Facebook / WhatsApp preview) -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://gopalsdiary.netlify.app/">
+  <meta property="og:title"       content="Gopals Diary">
+  <meta property="og:description" content="বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন ও ইংলিশ কোটসের সুন্দর সংগ্রহ।">
+  <meta property="og:image"       content="icons/Icon-512.png">
 
-  <title>gallery_app</title>
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Gopals Diary">
+  <meta name="twitter:description" content="বাংলা কোটস, ফটোগ্রাফি ও ইলাস্ট্রেশনের সুন্দর সংগ্রহ।">
+  <meta name="twitter:image"       content="icons/Icon-512.png">
+
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gopals Diary">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png"     href="favicon.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Performance: preconnect to Supabase -->
+  <link rel="dns-prefetch"  href="https://vbfckjroisrhplrpqzkd.supabase.co">
+  <link rel="preconnect"    href="https://vbfckjroisrhplrpqzkd.supabase.co" crossorigin>
 </head>
 
 <body>
+  <!-- Minimal no-JS fallback -->
+  <noscript>
+    <style>
+      .noscript-msg { font-family: sans-serif; text-align: center; padding: 40px; }
+    </style>
+    <div class="noscript-msg">
+      <p>এই অ্যাপটি চালাতে JavaScript প্রয়োজন। অনুগ্রহ করে আপনার ব্রাউজারে JavaScript সক্রিয় করুন।</p>
+    </div>
+  </noscript>
+
   <script src="flutter_bootstrap.js" async></script>
+
+  <!-- Register custom service worker AFTER Flutter loads -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => {
+            // Prompt for update when a new SW is waiting
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New content available — you can show a toast here
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                }
+              });
+            });
+          })
+          .catch(err => console.warn('[SW] Registration failed:', err));
+      });
+    }
+  </script>
 </body>
 
 </html>

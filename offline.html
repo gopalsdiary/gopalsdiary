@@ -18,15 +18,17 @@
     .btns{margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center}
     .btn{appearance:none; border:none; background:linear-gradient(135deg, #ff99cc 0%, #ffb3d9 100%); color:#fff; font-weight:700; padding:12px 18px; border-radius:10px; cursor:pointer; box-shadow:0 4px 14px rgba(255,153,204,.35)}
     .btn.secondary{background:#fff; color:#333; border:1px solid #ddd}
+    .status{margin-top:14px; font-size:13px; padding:8px 14px; border-radius:8px; display:none}
+    .status.online{background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; display:block}
     small{display:block; margin-top:10px; color:#aaa}
   </style>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
   <main class="card" role="main">
     <div class="icon" aria-hidden="true">📡</div>
     <h1>আপনি এখন অফলাইন</h1>
-    <p>ইন্টারনেট সংযোগ নেই বলে এই পেজটি দেখানো হচ্ছে। সংযোগ ফিরে এলে আবার চেষ্টা করুন।</p>
+    <p>ইন্টারনেট সংযোগ নেই বলে এই পেজটি দেখানো হচ্ছে। সংযোগ ফিরে এলে স্বয়ংক্রিয়ভাবে হোমে ফিরে যাবেন।</p>
     <div class="tips">
       <strong>টিপস:</strong>
       <ul style="margin:8px 0 0 18px">
@@ -37,9 +39,41 @@
     </div>
     <div class="btns">
       <button class="btn" onclick="location.reload()">🔄 Reload</button>
-      <button class="btn secondary" onclick="window.location.href='index.html'">🏠 Home</button>
+      <button class="btn secondary" id="homeBtn">🏠 Home</button>
+    </div>
+    <div id="onlineStatus" class="status online" role="status" aria-live="polite" style="display:none">
+      ✅ সংযোগ ফিরে এসেছে! হোমে ফিরে যাচ্ছি…
     </div>
     <small>Gopals Diary</small>
   </main>
+
+  <script>
+    // Go to home (previous page or default home)
+    document.getElementById('homeBtn').addEventListener('click', function () {
+      const ref = document.referrer;
+      if (ref && !ref.includes('offline.html')) {
+        window.location.href = ref;
+      } else {
+        window.location.href = './home.html';
+      }
+    });
+
+    // Auto-redirect when back online
+    function handleOnline() {
+      const statusEl = document.getElementById('onlineStatus');
+      statusEl.style.display = 'block';
+      setTimeout(function () {
+        const ref = document.referrer;
+        window.location.href = (ref && !ref.includes('offline.html')) ? ref : './home.html';
+      }, 1500);
+    }
+
+    window.addEventListener('online', handleOnline);
+
+    // If already online (e.g. refreshed manually), redirect immediately
+    if (navigator.onLine) {
+      handleOnline();
+    }
+  </script>
 </body>
 </html>
