@@ -22,6 +22,8 @@ class _HomePageState extends State<HomePage> {
   List<Photo> _displayPhotos = [];
   bool _isLoading = true;
   String _currentCategory = 'all';
+  int _totalViews = 0;
+  bool _isViewsLoading = true;
 
   // Pagination
   static const int _itemsPerPage = 120;
@@ -31,6 +33,22 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadData();
+    _incrementView();
+  }
+
+  Future<void> _incrementView() async {
+    setState(() => _isViewsLoading = true);
+    try {
+      final data = await _service.updateAndGetViews();
+      if (mounted) {
+        setState(() {
+          _totalViews = (data['total'] as num?)?.toInt() ?? 0;
+          _isViewsLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isViewsLoading = false);
+    }
   }
 
   Future<void> _loadData() async {
@@ -217,22 +235,44 @@ class _HomePageState extends State<HomePage> {
                ),
 
                // Total Count moved to bottom
-               if (!_isLoading)
-                 SliverToBoxAdapter(
-                   child: Padding(
-                     padding: const EdgeInsets.only(bottom: 50),
-                     child: Center(
-                       child: Text(
-                         '${_displayPhotos.length} photos', 
-                         style: GoogleFonts.outfit(
-                           fontSize: 14,
-                           color: Colors.black45,
-                           fontWeight: FontWeight.w600,
-                         ),
-                       ),
-                     ),
-                   ),
-                 ),
+                if (!_isLoading)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              '${_displayPhotos.length} photos', 
+                              style: GoogleFonts.outfit(
+                                fontSize: 14,
+                                color: Colors.black45,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (_isViewsLoading) ...[
+                              const SizedBox(height: 8),
+                              const SizedBox(
+                                width: 12,
+                                height: 12,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black26),
+                              ),
+                            ] else ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                '👁 $_totalViews total views',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  color: Colors.black38,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                  
                // Bottom padding
                const SliverToBoxAdapter(child: SizedBox(height: 50)),
