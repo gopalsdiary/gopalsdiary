@@ -138,32 +138,8 @@ class PhotoViewer extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 24),
-                      // Stats
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.touch_app_outlined, size: 18, color: Colors.black54),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${photo.clicks}',
-                              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
-                            ),
-                            const SizedBox(width: 16),
-                            const Icon(Icons.remove_red_eye_outlined, size: 18, color: Colors.black54),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${photo.clicks}',
-                              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
-                            ),
-                          ],
-                        ),
-                      ),
+                      // Stats removed: clicks/views are no longer shown or tracked client-side
+                      const SizedBox.shrink(),
                     ],
                   ),
                 ),

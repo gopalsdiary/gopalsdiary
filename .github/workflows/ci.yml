@@ -34,6 +34,24 @@ jobs:
       - name: Run tests
         run: flutter test --coverage
 
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery_app-web
+          path: gallery_app/build/web
+
+      - name: Verify build does not reference photo_clicks
+        run: |
+          if grep -R --line-number "photo_clicks" gallery_app/build/web; then
+            echo "photo_clicks reference found in build — failing";
+            exit 1;
+          else
+            echo "No photo_clicks found in build";
+          fi
+
   # ── Next.js: type-check + build ──────────────────────────────
   nextjs:
     name: Next.js Type-Check & Build

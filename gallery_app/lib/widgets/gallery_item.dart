@@ -116,21 +116,8 @@ class _GalleryItemState extends State<GalleryItem> {
                             letterSpacing: 0.8,
                           ),
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.remove_red_eye_outlined, size: 12, color: Colors.white70),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatCount(widget.photo.clicks),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
+                        // Removed public click/view counters (disabled)
+                        const SizedBox.shrink(),
                       ],
                     ),
                   ),

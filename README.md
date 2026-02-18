@@ -67,6 +67,20 @@ Build for production:
 flutter build web --release
 ```
 
+Local helper script
+
+- A PowerShell helper is provided at `scripts/flutter-local-build.ps1` that will temporarily add
+  `%USERPROFILE%\develop\flutter\bin` to PATH (if present), run `flutter pub get`, and build the
+  web app. Run from project root:
+
+```powershell
+# build only
+./scripts/flutter-local-build.ps1
+
+# build and serve on http://localhost:8080 (requires Python)
+./scripts/flutter-local-build.ps1 -Serve
+```
+
 ### Next.js (with-typescript)
 
 ```bash

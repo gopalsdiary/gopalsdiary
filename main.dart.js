@@ -68868,7 +68868,7 @@ th(){var s=0,r=A.E(t._P),q,p=2,o=[],n=this,m,l,k,j,i,h,g
 var $async$th=A.F(function(a,b){if(a===1){o.push(b)
 s=p}for(;;)switch(s){case 0:p=4
 s=7
-return A.v(n.a.q3("photo_clicks").wP(0,"table_image_iid, click_count"),$async$th)
+return A.v(n.a.q3("photo_clicks_disabled").wP(0,"table_image_iid, click_count"),$async$th)
 case 7:m=b
 l=A.u(t.N,t.S)
 k=m
@@ -68902,7 +68902,7 @@ if(a==null){A.ajf("Error: Invalid photo ID (not an integer): "+c)
 s=1
 break}p=4
 c=n.a
-j=c.q3("photo_clicks").wP(0,"click_count").Nh("table_name",d).Nh("photo_id",a)
+j=c.q3("photo_clicks_disabled").wP(0,"click_count").Nh("table_name",d).Nh("photo_id",a)
 i=t.N
 h=A.cu(j.b,i,i)
 g=j.d
@@ -68916,7 +68916,7 @@ s=m!=null?8:10
 break
 case 8:f=A.m3(J.aE(m,"click_count"))
 l=f==null?0:f
-c=c.q3("photo_clicks")
+c=c.q3("photo_clicks_disabled")
 j=t.z
 j=A.ak(["click_count",l+1,"updated_at",new A.dt(Date.now(),0,!1).DS(),"table_image_iid",b],j,j)
 h=A.cu(c.b,i,i)
@@ -68925,7 +68925,7 @@ s=11
 return A.v(A.H2(c.Xv(j,h,"PATCH"),A.p(c).h("ln.T")).aaV(0,A.ak(["table_name",d,"photo_id",a],i,t.K)),$async$nu)
 case 11:s=9
 break
-case 10:c=c.q3("photo_clicks")
+case 10:c=c.q3("photo_clicks_disabled")
 d=A.ak(["table_name",d,"photo_id",a,"table_image_iid",b,"click_count",1],i,t.K)
 i=A.cu(c.b,i,i)
 i.l(0,"Prefer","")

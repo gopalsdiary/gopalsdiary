@@ -508,7 +508,8 @@ function sanitizeImageUrl(url) {
 async function loadClickCounts() {
     try {
         const { data, error } = await supabaseClient
-            .from('photo_clicks')
+            // Disabled client-side access to photo_clicks
+            .from('photo_clicks_disabled')
             .select('table_image_iid, click_count');
 
         if (error) {
@@ -819,41 +820,20 @@ function prevPage() {
 
 async function trackClick(tableName, photoId, tableImageIid) {
     try {
-        // Local state update (fast UI response)
-        AppState.clickCounts[tableImageIid] = (AppState.clickCounts[tableImageIid] || 0) + 1;
+        // Disabled client-side click-count updates — keep local user preference only
+        AppState.userPreferences[tableName] = (AppState.userPreferences[tableName] || 0) + 1;
+        saveUserPreferences();
 
-        // Database update
-        const { data: existing, error: selectError } = await supabaseClient
-            .from('photo_clicks')
-            .select('*')
-            .eq('table_name', tableName)
-            .eq('photo_id', photoId)
-            .maybeSingle();
+        // Database update — DISABLED (client should not access `photo_clicks`)
+        const { data: existing, error: selectError } = { data: null, error: null };
 
         if (selectError) {
             console.warn('Track click select error:', selectError);
             return;
         }
 
-        if (existing) {
-            await supabaseClient
-                .from('photo_clicks')
-                .update({
-                    click_count: existing.click_count + 1,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('table_name', tableName)
-                .eq('photo_id', photoId);
-        } else {
-            await supabaseClient
-                .from('photo_clicks')
-                .insert({
-                    table_name: tableName,
-                    photo_id: photoId,
-                    table_image_iid: tableImageIid,
-                    click_count: 1
-                });
-        }
+        // DB updates are disabled (photo_clicks not modified client-side)
+        // Existing server-side analytics should handle counts.
     } catch (error) {
         console.warn('Track click error:', error);
     }

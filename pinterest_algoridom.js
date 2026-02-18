@@ -506,27 +506,9 @@ function sanitizeImageUrl(url) {
  * Load click counts
  */
 async function loadClickCounts() {
-    try {
-        const { data, error } = await supabaseClient
-            .from('photo_clicks')
-            .select('table_image_iid, click_count');
-
-        if (error) {
-            console.warn('Click counts load warning:', error.message);
-            return {};
-        }
-
-        const counts = {};
-        if (data) {
-            data.forEach(row => {
-                counts[row.table_image_iid] = row.click_count || 0;
-            });
-        }
-        return counts;
-    } catch (error) {
-        console.warn('Click counts error:', error);
-        return {};
-    }
+    // Disabled: client-side must NOT read `photo_clicks`.
+    // Return an empty map so click counts are not shown anywhere.
+    return {};
 }
 
 /**
@@ -582,7 +564,8 @@ async function fetchTableData(tableName) {
                 categoryName: tableConfig?.name || tableName,
                 category: tableConfig?.category || 'other',
                 weight: tableConfig?.weight || 1,
-                clicks: AppState.clickCounts[tableImageIid] || 0,
+                // Click counts are intentionally hidden/disabled client-side
+                clicks: 0,
                 // Copy other fields if needed
                 title: item.title,
                 description: item.description,
@@ -611,8 +594,8 @@ async function loadAllPhotos() {
     updateLoadingUI(true);
 
     try {
-        // First load click counts
-        AppState.clickCounts = await loadClickCounts();
+        // Click counts are intentionally disabled client-side
+        AppState.clickCounts = {};
 
         // Load data from all tables together
         const promises = Object.keys(TABLE_CONFIG).map(tableName =>
@@ -818,44 +801,15 @@ function prevPage() {
 // ===========================================
 
 async function trackClick(tableName, photoId, tableImageIid) {
+    // Disabled: do NOT update `photo_clicks` table from client-side.
+    // We keep a local user-preference counter for algorithm tuning, but
+    // it is stored in localStorage only, not in Supabase.
     try {
-        // Local state update (fast UI response)
-        AppState.clickCounts[tableImageIid] = (AppState.clickCounts[tableImageIid] || 0) + 1;
-
-        // Database update
-        const { data: existing, error: selectError } = await supabaseClient
-            .from('photo_clicks')
-            .select('*')
-            .eq('table_name', tableName)
-            .eq('photo_id', photoId)
-            .maybeSingle();
-
-        if (selectError) {
-            console.warn('Track click select error:', selectError);
-            return;
-        }
-
-        if (existing) {
-            await supabaseClient
-                .from('photo_clicks')
-                .update({
-                    click_count: existing.click_count + 1,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('table_name', tableName)
-                .eq('photo_id', photoId);
-        } else {
-            await supabaseClient
-                .from('photo_clicks')
-                .insert({
-                    table_name: tableName,
-                    photo_id: photoId,
-                    table_image_iid: tableImageIid,
-                    click_count: 1
-                });
-        }
-    } catch (error) {
-        console.warn('Track click error:', error);
+        // Update local user preference (optional)
+        AppState.userPreferences[tableName] = (AppState.userPreferences[tableName] || 0) + 1;
+        saveUserPreferences();
+    } catch (e) {
+        console.warn('trackClick (local only) failed:', e);
     }
 }
 
@@ -955,7 +909,7 @@ function renderGallery(append = false) {
                  loading="lazy">
             <div class="item-info">
                 <div>${photo.categoryName}</div>
-                <div class="click-count">👁️ ${photo.clicks}</div>
+
             </div>
         </div>
     `).join('');

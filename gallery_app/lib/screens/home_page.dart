@@ -88,12 +88,7 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
   
   void _showPhoto(Photo photo) {
-    // Increment click count locally and in service
-    setState(() {
-      photo.clicks++;
-    });
-    _service.incrementClickCount(photo);
-
+    // Do NOT increment or update `photo_clicks` here — tracking is disabled.
     showDialog(
       context: context,
       barrierColor: Colors.black.withOpacity(0.9),
