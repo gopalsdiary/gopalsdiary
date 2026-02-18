@@ -31,6 +31,7 @@ class _GalleryItemState extends State<GalleryItem> {
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           transform: _isHovered 
+              // ignore: deprecated_member_use
               ? (Matrix4.identity()..translate(0, -6, 0)..scale(1.02)) 
               : Matrix4.identity(),
           decoration: BoxDecoration(
@@ -38,14 +39,14 @@ class _GalleryItemState extends State<GalleryItem> {
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withAlpha(38), // 0.15 * 255
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     )
                   ]
                 : [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withAlpha(20), // 0.08 * 255
                       blurRadius: 3,
                       offset: const Offset(0, 1),
                     )
@@ -95,8 +96,8 @@ class _GalleryItemState extends State<GalleryItem> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.0),
-                          Colors.black.withOpacity(0.6),
+                          Colors.black.withAlpha(0),
+                          Colors.black.withAlpha(153), // 0.6 * 255
                         ],
                         stops: const [0.0, 0.6, 1.0],
                       ),
@@ -128,10 +129,5 @@ class _GalleryItemState extends State<GalleryItem> {
         ),
       ),
     );
-  }
-  String _formatCount(int count) {
-    if (count < 1000) return count.toString();
-    if (count < 1000000) return '${(count / 1000).toStringAsFixed(1)}k';
-    return '${(count / 1000000).toStringAsFixed(1)}M';
   }
 }

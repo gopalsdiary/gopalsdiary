@@ -1,4 +1,4 @@
-// ignore: avoid_web_libraries_in_flutter
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -109,7 +109,7 @@ class _HomePageState extends State<HomePage> {
     // Do NOT increment or update `photo_clicks` here — tracking is disabled.
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withAlpha(230), // Was withOpacity(0.9)
       builder: (_) => PhotoViewer(photo: photo),
     );
   }
@@ -119,9 +119,13 @@ class _HomePageState extends State<HomePage> {
     // Responsive column count
     final width = MediaQuery.of(context).size.width;
     int crossAxisCount = 8;
-    if (width < 600) crossAxisCount = 3; // 3 columns on mobile
-    else if (width < 960) crossAxisCount = 4;
-    else if (width < 1400) crossAxisCount = 6;
+    if (width < 600) {
+      crossAxisCount = 3; // 3 columns on mobile
+    } else if (width < 960) {
+      crossAxisCount = 4;
+    } else if (width < 1400) {
+      crossAxisCount = 6;
+    }
 
     final currentPhotos = _paginatedPhotos;
     final totalPages = _totalPages;
@@ -290,12 +294,12 @@ class _HomePageState extends State<HomePage> {
                 // Reduced padding for smaller top bar
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withAlpha(217), // Was withOpacity(0.85)
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.5)),
+                  border: Border.all(color: Colors.white.withAlpha(127)), // Was withOpacity(0.5)
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha(13), // Was withOpacity(0.05)
                       blurRadius: 6,
                       offset: const Offset(0, 4),
                     ),
@@ -348,10 +352,10 @@ class _HomePageState extends State<HomePage> {
           color: isSelected ? const Color(0xFFE60023) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? const Color(0xFFE60023) : Colors.black.withOpacity(0.08),
+            color: isSelected ? const Color(0xFFE60023) : Colors.black.withAlpha(20), // Was withOpacity(0.08)
           ),
           boxShadow: isSelected 
-              ? [BoxShadow(color: const Color(0xFFE60023).withOpacity(0.25), blurRadius: 12, offset: const Offset(0, 4))]
+              ? [BoxShadow(color: const Color(0xFFE60023).withAlpha(64), blurRadius: 12, offset: const Offset(0, 4))] // Was withOpacity(0.25)
               : [],
         ),
         child: Text(

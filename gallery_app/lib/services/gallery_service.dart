@@ -22,9 +22,6 @@ class GalleryService {
     return allPhotos;
   }
 
-  Future<Map<String, int>> _loadClickCounts() async {
-    return <String, int>{};
-  }
 
   Future<void> incrementClickCount(Photo photo) async {
     return;
