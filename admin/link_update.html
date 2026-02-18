@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="bn">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>লিংক আপডেট - সুপাবেস</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,17 +14,8 @@
             box-sizing: border-box;
         }
 
-        /* Nikosh font - place the file at admin/fonts/Nikosh.ttf */
-        @font-face {
-            font-family: 'Nikosh';
-            src: url('./fonts/Nikosh.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-
         body {
-            font-family: 'Nikosh', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Hind Siliguri', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -212,6 +206,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🔗 লিংক আপডেট সিস্টেম</h1>
@@ -236,7 +231,7 @@
                 <button class="table-btn" data-table="english_quote_1">English 1</button>
                 <button class="table-btn" data-table="english_quote_2">English 2</button>
             </div>
-            
+
             <div class="settings-section">
                 <div class="settings-title">⚙️ সেটিংস</div>
                 <div class="table-grid">
@@ -252,10 +247,8 @@
         <!-- Links Input Section -->
         <div class="section">
             <div class="section-title">🔗 লিংক যোগ করুন (প্রতিটি লাইনে একটি করে):</div>
-            <textarea 
-                id="linksInput" 
-                placeholder="এখানে লিংক পেস্ট করুন। প্রতিটি লিংক আলাদা লাইনে দিন।&#10;&#10;উদাহরণ:&#10;https://i.ibb.co.com/f6DP9Zb/DSC5904.jpg&#10;https://i.ibb.co.com/BK4wDDw7/DSC5905.jpg&#10;https://i.ibb.co.com/k2R5JmdN/DSC6134.jpg"
-            ></textarea>
+            <textarea id="linksInput"
+                placeholder="এখানে লিংক পেস্ট করুন। প্রতিটি লিংক আলাদা লাইনে দিন।&#10;&#10;উদাহরণ:&#10;https://i.ibb.co.com/f6DP9Zb/DSC5904.jpg&#10;https://i.ibb.co.com/BK4wDDw7/DSC5905.jpg&#10;https://i.ibb.co.com/k2R5JmdN/DSC6134.jpg"></textarea>
             <div class="info-text">
                 💡 প্রতিটি লিংক একটি নতুন লাইনে থাকবে। খালি লাইন এবং স্পেস স্বয়ংক্রিয়ভাবে বাদ দেওয়া হবে।
             </div>
@@ -273,10 +266,14 @@
             </div>
         </div>
 
-        <!-- Upload Button -->
-        <button class="upload-btn" onclick="uploadLinks()" id="uploadBtn">
-            📤 আপলোড করুন
-        </button>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="upload-btn" onclick="uploadLinks()" id="uploadBtn" style="flex: 2; margin-top: 0;">
+                📤 আপলোড শুরু করুন
+            </button>
+            <button class="table-btn" onclick="clearInputs()" style="flex: 1; border-color: #f8d7da; color: #721c24;">
+                🗑️ পরিষ্কার করুন
+            </button>
+        </div>
 
         <!-- Message Area -->
         <div class="message" id="messageBox"></div>
@@ -319,20 +316,20 @@
         // ============================================
         // UI Functions
         // ============================================
-        
+
         function selectTable(tableName, button) {
             currentTable = tableName;
-            
+
             // Update button styles
             document.querySelectorAll('.table-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             button.classList.add('active');
-            
+
             // Update selected table name
             const displayName = tableNames[tableName] || tableName;
             document.getElementById('selectedTableName').textContent = `${displayName} (${tableName})`;
-            
+
             // Clear message
             hideMessage();
         }
@@ -354,7 +351,7 @@
             const links = textarea.value.split('\n')
                 .map(link => link.trim())
                 .filter(link => link.length > 0);
-            
+
             document.getElementById('linkCount').textContent = links.length;
         }
 
@@ -364,11 +361,11 @@
         // ============================================
         // Upload Function
         // ============================================
-        
+
         async function uploadLinks() {
             const textarea = document.getElementById('linksInput');
             const uploadBtn = document.getElementById('uploadBtn');
-            
+
             // Get all links and filter empty lines
             const links = textarea.value.split('\n')
                 .map(link => link.trim())
@@ -392,30 +389,38 @@
             showMessage(`📊 ${links.length}টি লিংক আপলোড হচ্ছে...`, 'info');
 
             let successCount = 0;
+            let skipCount = 0;
             let failCount = 0;
+
+            document.getElementById('uploadedCount').textContent = '0';
 
             try {
                 // Upload each link as a separate row
                 for (let i = 0; i < links.length; i++) {
                     const link = links[i];
-                    
+
                     try {
-                        // Insert data into Supabase
-                        const { data, error } = await supabaseClient
+                        // Use insert and handle duplicates manually
+                        // This avoids 400 errors from upsert when no unique constraint exists
+                        const { error } = await supabaseClient
                             .from(currentTable)
-                            .insert([
-                                { image_url: link }
-                            ]);
+                            .insert({ image_url: link });
 
                         if (error) {
-                            console.error(`Error uploading link ${i + 1}:`, error);
-                            failCount++;
+                            if (error.code === '23505') {
+                                // Duplicate key error - skip this link
+                                skipCount++;
+                            } else {
+                                // Other error
+                                throw error;
+                            }
                         } else {
                             successCount++;
-                            document.getElementById('uploadedCount').textContent = successCount;
                         }
+
+                        document.getElementById('uploadedCount').textContent = successCount;
                     } catch (err) {
-                        console.error(`Exception uploading link ${i + 1}:`, err);
+                        console.error(`Error uploading link ${i + 1}:`, err);
                         failCount++;
                     }
 
@@ -426,7 +431,10 @@
 
                 // Show final result
                 if (failCount === 0) {
-                    showMessage(`✅ সফল! ${successCount}টি লিংক "${tableNames[currentTable]}" টেবিলে আপলোড হয়েছে।`, 'success');
+                    const msg = skipCount > 0
+                        ? `✅ সফল! ${successCount}টি নতুন লিংক আপলোড হয়েছে (${skipCount}টি আগে থেকেই ছিল)।`
+                        : `✅ সফল! ${successCount}টি লিংক "${tableNames[currentTable]}" টেবিলে আপলোড হয়েছে।`;
+                    showMessage(msg, 'success');
                     textarea.value = ''; // Clear textarea
                     updateLinkCount();
                 } else {
@@ -456,9 +464,17 @@
                 }
             });
         });
-        
+
+        function clearInputs() {
+            document.getElementById('linksInput').value = '';
+            document.getElementById('uploadedCount').textContent = '0';
+            updateLinkCount();
+            hideMessage();
+        }
+
         // Set initial link count
         updateLinkCount();
     </script>
 </body>
+
 </html>
