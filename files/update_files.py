@@ -13,7 +13,7 @@ TEMPLATE = """<!DOCTYPE html>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Flutter-like Styling -->
-    <link rel="stylesheet" href="bangla_style.css">
+    <link rel="stylesheet" href="bangla_style.css?v=1.2">
 </head>
 <body>
     <!-- App Bar -->
@@ -28,7 +28,7 @@ TEMPLATE = """<!DOCTYPE html>
             </a>
         </div>
     </header>
-
+    
     <main class="container">
         <!-- Gallery Grid -->
         <div id="gallery" class="gallery-grid">
@@ -94,7 +94,7 @@ TEMPLATE = """<!DOCTYPE html>
         window.TABLE_NAME = '{{TABLE_NAME}}';
         window.PHOTOS_PER_PAGE = 100; // Requested: 100 per page
     </script>
-    <script src="bangla_script.js"></script>
+    <script src="bangla_script.js?v=1.2"></script>
 </body>
 </html>
 """
