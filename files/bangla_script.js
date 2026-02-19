@@ -47,8 +47,8 @@ class ImageOptimizer {
      * Target: < 50KB for fast loading
      */
     static getThumbnailUrl(originalUrl) {
-        // Mobile gets even smaller thumbnails
-        const width = this.isMobile() ? 250 : 300;
+        // Mobile gets even smaller thumbnails (adjusted for 4 columns)
+        const width = this.isMobile() ? 180 : 300;
         return this.getOptimizedUrl(originalUrl, {
             width: width,
             quality: 50, // Lower quality for smaller file size
