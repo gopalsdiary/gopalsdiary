@@ -1872,6 +1872,17 @@
 
                 // Store all photos and calculate total
                 allPhotos = data || [];
+
+                // Sort to put items without thumbnails first
+                allPhotos.sort((a, b) => {
+                    const aNeedsGen = !a.thumbnail_url ? 1 : 0;
+                    const bNeedsGen = !b.thumbnail_url ? 1 : 0;
+                    if (aNeedsGen !== bNeedsGen) {
+                        return bNeedsGen - aNeedsGen; // 1 (needs gen) comes before 0
+                    }
+                    return a.image_iid - b.image_iid; // Then sort by ID
+                });
+
                 totalItems = allPhotos.length;
                 currentPage = 1; // Reset to first page
 
@@ -1945,8 +1956,11 @@
             const gridHTML = paginatedPhotos.map(photo => {
                 const hasThumbnail = !!photo.thumbnail_url;
                 const imageSrc = photo.thumbnail_url || photo.image_url;
-                const title = photo.title || 'Untitled Archive';
-                const date = photo.created_at ? new Date(photo.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+
+                // Determine button style dynamically
+                const btnStyle = !hasThumbnail
+                    ? 'background: #fff7ed; color: #ea580c;'
+                    : '';
 
                 return `
                     <div class="photo-card" role="group" aria-label="Item ${photo.image_iid}">
@@ -1954,13 +1968,8 @@
                             <img class="photo-image" src="${imageSrc}" alt="Archive #${photo.image_iid}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%25%22 height=%22100%25%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22100%25%22 height=%22100%25%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2214%22%3ENo Preview%3C/text%3E%3C/svg%3E'">
                         </div>
                         <div class="photo-info">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                                <span style="font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase;">ID: #${photo.image_iid}</span>
-                                <span style="font-size: 10px; color: var(--text-muted);">${date}</span>
-                            </div>
-                            <div class="photo-title" title="${photo.title || ''}">${title}</div>
                             <div class="photo-actions">
-                                <button class="btn-sm btn-edit" onclick="compressSingleImage(this, '${photo.image_iid}', '${photo.image_url}', ${hasThumbnail})">${hasThumbnail ? 'Re-Gen' : 'Generate'}</button>
+                                <button class="btn-sm btn-edit" style="${btnStyle}" onclick="compressSingleImage(this, '${photo.image_iid}', '${photo.image_url}', ${hasThumbnail})">${hasThumbnail ? 'Re-Gen' : 'Generate'}</button>
                                 <a class="btn-sm btn-edit" href="${photo.image_url}" target="_blank" style="text-decoration: none;">View File</a>
                             </div>
                         </div>
