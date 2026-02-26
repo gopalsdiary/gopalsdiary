@@ -1,6 +1,6 @@
-class AppConstants {
-  static const String supabaseUrl = 'https://vbfckjroisrhplrpqzkd.supabase.co';
-  static const String supabaseAnnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+﻿class AppConstants {
+  static const String supabaseUrl = 'https://mwkoqxtyxdkkqlakrrvd.supabase.co';
+  static const String supabaseAnnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
 
   static const Map<String, TableConfig> tableConfig = {
     'bangla_quotes_1': TableConfig(name: 'Bangla Quotes 1', category: 'bangla', weight: 1),

@@ -8,8 +8,8 @@
 
 // ===========================================
 const CONFIG = {
-    SUPABASE_URL: 'https://vbfckjroisrhplrpqzkd.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y',
+    SUPABASE_URL: 'https://mwkoqxtyxdkkqlakrrvd.supabase.co',
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg',
     ITEMS_PER_PAGE: 150,
     ENABLE_INFINITE_SCROLL: false,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes cache
