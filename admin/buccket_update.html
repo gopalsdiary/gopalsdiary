@@ -1517,18 +1517,33 @@
                 this.updateProgress();
 
                 try {
-                    // Sequential processing to respect Supabase Storage rate limits
-                    for (let i = 0; i < itemsToProcess.length; i++) {
+                    // Process in parallel batches for faster upload (10 items per batch)
+                    const batchSize = 10;
+                    for (let i = 0; i < itemsToProcess.length; i += batchSize) {
                         if (this.shouldStop) {
                             this.log('⏸️ Stopped by user', 'warning');
                             break;
                         }
-                        await this.processItem(itemsToProcess[i], tableName);
-                        this.currentIndex = i + 1;
+
+                        const batch = itemsToProcess.slice(i, i + batchSize);
+                        this.log(`🔄 Processing batch ${Math.floor(i / batchSize) + 1}...`, 'info');
+
+                        // Process batch items in parallel
+                        const batchPromises = batch.map(async (item) => {
+                            try {
+                                await this.processItem(item, tableName);
+                            } catch (error) {
+                                console.error('Item error:', error);
+                            }
+                        });
+
+                        await Promise.all(batchPromises);
+                        this.currentIndex = Math.min(i + batchSize, itemsToProcess.length);
                         this.updateProgress();
-                        // Small delay between uploads
-                        if (i < itemsToProcess.length - 1) {
-                            await new Promise(r => setTimeout(r, 600));
+
+                        // Small delay between batches to avoid overwhelming the server
+                        if (i + batchSize < itemsToProcess.length) {
+                            await new Promise(r => setTimeout(r, 100));
                         }
                     }
 
@@ -2237,10 +2252,11 @@
 
             const gridHTML = paginatedPhotos.map(photo => {
                 const hasThumbnail = !!photo.thumbnail_url;
-                const imageSrc = photo.thumbnail_url || photo.image_url;
-
                 // Check if thumbnail is from bucket
                 const isBucketThumbnail = photo.thumbnail_url && photo.thumbnail_url.startsWith('https://mwkoqxtyxdkkqlakrrvd.supabase.co/storage/v1/object/public/photography/');
+                
+                // Show bucket thumbnail if available, otherwise show image_url
+                const imageSrc = isBucketThumbnail ? photo.thumbnail_url : photo.image_url;
 
                 // Determine button style dynamically
                 const btnStyle = !hasThumbnail
