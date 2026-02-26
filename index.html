@@ -3,71 +3,107 @@
 
 <head>
   <base href="./">
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-  <!-- Primary Meta -->
-  <title>Gopals Diary</title>
-  <!-- Canonical app name (also controls browser tab & PWA title) -->
-  <meta name="description"
-    content="Gopals Diary — বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন ও ইংলিশ কোটসের সুন্দর সংগ্রহ। Free to use.">
-  <meta name="author" content="Gopals Diary">
-  <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#ff99cc">
+  <title>Gopal's Diary - বাংলা কোটস ও ফটোগ্রাফি</title>
 
-  <!-- Open Graph (Facebook / WhatsApp preview) -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://gopalsdiary.netlify.app/">
-  <meta property="og:title" content="Gopals Diary">
-  <meta property="og:description" content="বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন ও ইংলিশ কোটসের সুন্দর সংগ্রহ।">
-  <meta property="og:image" content="icons/Icon-512.png">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gopals Diary">
-  <meta name="twitter:description" content="বাংলা কোটস, ফটোগ্রাফি ও ইলাস্ট্রেশনের সুন্দর সংগ্রহ।">
-  <meta name="twitter:image" content="icons/Icon-512.png">
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Gopals Diary">
-
-  <!-- Icons -->
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-
-  <!-- Performance: preconnect to Supabase -->
+  <!-- Performance Optimization: Preload Critical Assets -->
+  <link rel="preload" href="main.dart.js" as="script">
   <link rel="dns-prefetch" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co">
   <link rel="preconnect" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co" crossorigin>
+
+  <!-- PWA & SEO -->
+  <meta name="description" content="Gopals Diary — বাংলা কোটস, ফটোগ্রাফি ও ইলাস্ট্রেশনের সুন্দর সংগ্রহ।">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <style>
+    body {
+      inset: 0;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      position: fixed;
+      background: #f8fafc;
+      font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    #loading-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+      transition: opacity 0.4s ease-out;
+      background: #f8fafc;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(99, 102, 241, 0.1);
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .loading-text {
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-finished #loading-indicator {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Minimal no-JS fallback -->
-  <noscript>
-    <style>
-      .noscript-msg {
-        font-family: sans-serif;
-        text-align: center;
-        padding: 40px;
-      }
-    </style>
-    <div class="noscript-msg">
-      <p>#</p>
-    </div>
-  </noscript>
+  <!-- Elegant Splash Screen: Providing immediate feedback while Flutter loads -->
+  <div id="loading-indicator">
+    <div class="spinner"></div>
+    <div class="logo-text">✨ Gopal's Diary</div>
+    <div class="loading-text" id="status-msg">Initializing...</div>
+  </div>
 
   <script src="flutter_bootstrap.js" async></script>
 
   <script>
-    // Increase service worker timeout or handle it gracefully
+    // Remove splash screen when Flutter is ready
     window.addEventListener('load', function () {
+      const msg = document.getElementById('status-msg');
+      if (msg) msg.textContent = 'Loading App...';
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
           .then(reg => {
@@ -80,17 +116,34 @@
                 }
               };
             };
-          })
-          .catch(err => console.warn('[SW] Registration failed:', err));
+          }).catch(err => console.warn('[SW] Registration failed:', err));
       }
     });
 
-    // Custom configuration for Flutter Bootstrap to avoid the 4000ms timeout error
+    // Custom configuration to boost load performance
     window.flutterConfiguration = {
+      canvasKitVariant: "chromium", // Use optimized CanvasKit if available
       serviceWorker: {
-        timeoutMillis: 10000, // Increase to 10 seconds
+        timeoutMillis: 10000,
       }
     };
+
+    // Smooth transition from HTML fallback to Flutter app
+    const hideLoader = () => {
+      document.body.classList.add('loading-finished');
+      setTimeout(() => {
+        const loader = document.getElementById('loading-indicator');
+        if (loader) loader.remove();
+      }, 500);
+    };
+
+    // Listen for Flutter's first meaningful interaction
+    window.addEventListener('flutter-first-frame', hideLoader);
+
+    // Fallback: hide loader if app takes too long but has loaded
+    setTimeout(() => {
+      if (document.getElementById('loading-indicator')) hideLoader();
+    }, 15000); // 15s max timeout
   </script>
 </body>
 

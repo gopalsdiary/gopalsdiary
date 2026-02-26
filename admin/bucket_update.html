@@ -356,14 +356,14 @@
         /* --- Photos Grid --- */
         .photos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
             transition: opacity 0.3s;
         }
 
         .photo-card {
             background: var(--surface);
-            border-radius: 20px;
+            border-radius: 16px;
             overflow: hidden;
             border: 1px solid var(--border);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -396,7 +396,7 @@
         }
 
         .photo-info {
-            padding: 16px;
+            padding: 12px;
             background: var(--surface);
             flex: 1;
             display: flex;
@@ -632,8 +632,8 @@
             }
 
             .photos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 16px;
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 12px;
             }
 
             .btn span {
@@ -647,7 +647,8 @@
 
         @media (max-width: 480px) {
             .photos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                gap: 8px;
             }
 
             .section-header h2 {
