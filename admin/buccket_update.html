@@ -2258,8 +2258,8 @@
                 // Show bucket thumbnail if available, otherwise show image_url
                 const imageSrc = isBucketThumbnail ? photo.thumbnail_url : photo.image_url;
 
-                // Determine button style dynamically
-                const btnStyle = !hasThumbnail
+                // Determine button style dynamically - orange for "Gen" button
+                const btnStyle = !isBucketThumbnail
                     ? 'background: #fff7ed; color: #ea580c;'
                     : '';
 
