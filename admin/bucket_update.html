@@ -690,7 +690,7 @@
             </div>
             <div class="navbar-right">
                 <button id="bucketUploadBtn" class="btn btn-primary" style="display: none;">
-                    📦 <span style="margin-left:8px">Bucket Upload</span>
+                    📦 <span style="margin-left:8px">Update Bucket</span>
                 </button>
                 <div style="display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;">
                     <span id="userEmail" style="font-size: 13px; font-weight: 700; color: var(--text-main);"></span>
@@ -788,10 +788,15 @@
                 </p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                 <button id="startBucketBtn" class="btn btn-primary"
-                    style="justify-content: center; background: #8b5cf6;">▶️ Start Upload</button>
-                <button id="stopBucketBtn" class="btn btn-logout" style="justify-content: center; display: none;">⏸️
+                    style="justify-content: center; background: #8b5cf6;">▶️ Update Current</button>
+                <button id="updateAllBucketBtn" class="btn btn-primary"
+                    style="justify-content: center; background: #7c3aed;">🔄 Update All</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
+                <button id="stopBucketBtn" class="btn btn-logout"
+                    style="justify-content: center; display: none; width: 100%;">⏸️
                     Pause</button>
             </div>
 
@@ -1106,8 +1111,10 @@
                 this.isRunning = true; this.shouldStop = false; this.currentIndex = 0; this.totalItems = items.length;
                 this.processedCount = 0; this.skippedCount = 0; this.errorCount = 0;
                 const startBtn = document.getElementById('startBucketBtn');
+                const allBtn = document.getElementById('updateAllBucketBtn');
                 const stopBtn = document.getElementById('stopBucketBtn');
                 if (startBtn) startBtn.style.display = 'none';
+                if (allBtn) allBtn.style.display = 'none';
                 if (stopBtn) stopBtn.style.display = 'block';
                 const logs = document.getElementById('bucketLogs');
                 if (logs) logs.innerHTML = '';
@@ -1127,7 +1134,11 @@
                     refreshPhotographyPending();
                 } finally {
                     this.isRunning = false;
+                    const startBtn = document.getElementById('startBucketBtn');
+                    const allBtn = document.getElementById('updateAllBucketBtn');
+                    const stopBtn = document.getElementById('stopBucketBtn');
                     if (startBtn) startBtn.style.display = 'block';
+                    if (allBtn) allBtn.style.display = 'block';
                     if (stopBtn) stopBtn.style.display = 'none';
                 }
             }
@@ -1470,13 +1481,14 @@
             'id_password': 'Credentials',
         };
 
-        const tablesWithSection = ['photography_1', 'photography_2', 'photography_3', 'photography_4'];
+        const PHOTOGRAPHY_BUCKET_TABLES = ['photography_1', 'photography_2', 'photography_3', 'photography_4'];
+        const tablesWithSection = [...PHOTOGRAPHY_BUCKET_TABLES];
 
         // Tables with dropdown section
         const tablesWithDropdownSection = [];
 
         // Tables with text input section
-        const tablesWithTextSection = ['photography_1', 'photography_2', 'photography_3', 'photography_4'];
+        const tablesWithTextSection = [...PHOTOGRAPHY_BUCKET_TABLES];
 
         // Pagination variables
         let currentPage = 1;
@@ -1586,6 +1598,7 @@
             document.getElementById('userEmail').textContent = `👤 ${user.email}`;
             console.log('✅ Authentication successful:', user.email);
 
+            selectTable(currentTable);
             loadPhotos();
             refreshPhotographyPending();
         });
@@ -1964,6 +1977,12 @@
             const endIndex = startIndex + itemsPerPage;
             const itemsToProcess = allPhotos.slice(startIndex, endIndex);
             bucketUploader.start(currentTable, itemsToProcess);
+        });
+
+        document.getElementById('updateAllBucketBtn').addEventListener('click', function () {
+            if (confirm(`Do you want to update ALL ${allPhotos.length} records in this table? This may take some time.`)) {
+                bucketUploader.start(currentTable, allPhotos);
+            }
         });
 
         document.getElementById('stopBucketBtn').addEventListener('click', function () {
