@@ -67,6 +67,10 @@
             display: flex;
             align-items: center;
             padding: 0 12px;
+            transition: transform 0.3s ease;
+        }
+        .app-bar.hidden {
+            transform: translateY(-100%);
         }
         .app-bar-content {
             width: 100%;
@@ -98,28 +102,14 @@
         }
         .icon-btn:hover { background: rgba(255,255,255,0.15); }
 
-        /* ===== Stats Bar ===== */
+        /* ===== Stats Bar (bottom) ===== */
         .stats-bar {
             max-width: 1400px;
-            margin: 8px auto;
+            margin: 12px auto;
             padding: 0 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
+            text-align: center;
             font-size: 12px;
             color: var(--on-surface-dim);
-        }
-        .stats-bar .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: var(--surface);
-            padding: 4px 10px;
-            border-radius: 16px;
-            font-size: 11px;
-            font-weight: 500;
-            box-shadow: var(--elevation-1);
         }
 
         /* ===== Gallery Container ===== */
@@ -302,6 +292,13 @@
             border-top: 1px solid rgba(0,0,0,0.06);
             box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
             padding: 8px 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(100%);
+            opacity: 0;
+        }
+        .bottom-bar.visible {
+            transform: translateY(0);
+            opacity: 1;
         }
         .filter-scroll {
             display: flex;
@@ -526,8 +523,11 @@
             .lightbox-controls { text-align: center; font-size: 11px; }
         }
         @media (max-width: 480px) {
-            .gallery-grid { column-count: 2; column-gap: 5px; }
-            .photo-card { margin-bottom: 5px; border-radius: 6px; }
+            .gallery-grid { column-count: 3; column-gap: 4px; }
+            .photo-card { margin-bottom: 4px; border-radius: 6px; }
+            .photo-info { padding: 4px 6px; }
+            .photo-info h3 { font-size: 10px; }
+            .photo-info p { font-size: 8px; }
             body { padding-bottom: 70px; }
         }
     </style>
@@ -543,19 +543,9 @@
             <a href="home.html" class="icon-btn" aria-label="Profile" title="Profile">
                 <span class="material-icons">account_circle</span>
             </a>
-            <a href="admin/login.html" class="icon-btn" aria-label="Admin" title="Admin">
-                <span class="material-icons" style="font-size: 20px;">lock</span>
-            </a>
+            
         </div>
     </header>
-
-    <!-- ===== Stats Bar ===== -->
-    <div class="stats-bar">
-        <span id="statsText">লোড হচ্ছে...</span>
-        <div>
-            <span class="chip" id="tableChip">📁 —</span>
-        </div>
-    </div>
 
     <!-- ===== Gallery ===== -->
     <div class="container">
@@ -567,6 +557,11 @@
         <div class="loading-indicator" id="loadingIndicator">
             <div class="circular-progress"></div>
             <p style="margin-top: 8px; color: #888; font-size: 13px;">ছবি লোড হচ্ছে...</p>
+        </div>
+
+        <!-- Stats Bar (bottom) -->
+        <div class="stats-bar" id="statsBar">
+            <span id="statsText">লোড হচ্ছে...</span>
         </div>
 
         <!-- Pagination -->
@@ -631,7 +626,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
 
     const TABLE_CONFIG = {
-        'bangla_quotes_1':       { name: 'Bangla Quotes 1',       category: 'bangla',        emoji: '🇧🇩' },
+        'bangla_quotes_1':       { name: 'Bangla Quotes 1',       category: 'bangla',        emoji: 'বাংলা' },
         'bangla_quotes_2':       { name: 'Bangla Quotes 2',       category: 'bangla',        emoji: '🇧🇩' },
         'bangla_quotes_3':       { name: 'Bangla Quotes 3',       category: 'bangla',        emoji: '🇧🇩' },
         'bangla_quotes_4':       { name: 'Bangla Quotes 4',       category: 'bangla',        emoji: '🇧🇩' },
@@ -1231,9 +1226,6 @@
         const el = document.getElementById('statsText');
         const totalPages = getTotalPages();
         el.textContent = `মোট ${State.mixedPhotos.length} ছবি • পৃষ্ঠা ${State.currentPage}/${totalPages}`;
-
-        const loadedTables = Object.values(State.tableStats).filter(n => n > 0).length;
-        document.getElementById('tableChip').textContent = `📁 ${loadedTables} টেবিল`;
     }
 
     function updatePagination() {
@@ -1336,6 +1328,47 @@
     }
 
     document.addEventListener('DOMContentLoaded', init);
+
+    // ============================================
+    // SCROLL BEHAVIOR: hide header + show footer at bottom
+    // ============================================
+    (function() {
+        const appBar = document.querySelector('.app-bar');
+        const bottomBar = document.querySelector('.bottom-bar');
+        let lastScrollY = 0;
+        let ticking = false;
+
+        function onScroll() {
+            const currentY = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight;
+            const winHeight = window.innerHeight;
+            const distanceToBottom = docHeight - (currentY + winHeight);
+
+            // Header: hide on scroll down, show on scroll up
+            if (currentY > lastScrollY && currentY > 80) {
+                appBar.classList.add('hidden');
+            } else {
+                appBar.classList.remove('hidden');
+            }
+
+            // Footer: show only when near bottom (within 150px)
+            if (distanceToBottom < 150) {
+                bottomBar.classList.add('visible');
+            } else {
+                bottomBar.classList.remove('visible');
+            }
+
+            lastScrollY = currentY;
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(onScroll);
+                ticking = true;
+            }
+        }, { passive: true });
+    })();
     </script>
 </body>
 </html>
