@@ -1,701 +1,1341 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
-
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- "react-main" always follow this folder for react code idea-->
-    <!-- Google Fonts -->
+    <title>Gopal's Diary</title>
+    <meta name="description" content="Gopals Diary — Free to download and use beautiful aesthetic content.">
+    <meta name="theme-color" content="#eeb600">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Performance -->
+    <link rel="dns-prefetch" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co">
+    <link rel="preconnect" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://i.ibb.co">
+    <link rel="preconnect" href="https://i.ibb.co" crossorigin>
+
+    <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <title>Gopals Diary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ===== CSS Variables ===== */
+        :root {
+            --primary: #eeb600;
+            --primary-dark: #c99a00;
+            --secondary: #03dac6;
+            --bg: #f5f5f5;
+            --surface: #ffffff;
+            --on-surface: #1a1a1a;
+            --on-surface-dim: rgba(0,0,0,0.6);
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+            --elevation-2: 0 3px 6px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            --elevation-4: 0 6px 12px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08);
+            --radius: 12px;
+            --radius-sm: 8px;
         }
+
+        /* ===== Reset ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #f6f8fb 0%, #f1f4f9 100%);
-            padding: 10px;
-            color: #1a1a1a;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--on-surface);
+            line-height: 1.5;
             min-height: 100vh;
+            padding-bottom: 90px;
         }
 
-        .page-title {
+        /* ===== App Bar ===== */
+        .app-bar {
+            background: var(--primary);
+            color: #fff;
             position: sticky;
-            top: 10px;
-            z-index: 100;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 15px 60px 15px 15px;
-            margin-bottom: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        .home-link {
-            position: absolute;
-            right: 14px;
-            top: 14px;
-            border: 2px solid #e60023;
-            background: transparent;
-            color: #e60023;
-            padding: 8px 18px;
-            border-radius: 24px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .home-link:hover {
-            background: #e60023;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(230, 0, 35, 0.2);
-        }
-
-        .page-title h1 {
-            color: #e60023;
-            font-size: 28px;
-            margin: 0;
-            font-weight: 700;
-        }
-
-        .header {
-            text-align: center;
-            margin-top: 30px;
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        .filters {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .filter-btn {
-            padding: 10px 20px;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            background: white;
-            color: #444;
-            border-radius: 24px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-        }
-
-        .filter-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            border-color: #e60023;
-            color: #e60023;
-        }
-
-        .filter-btn.active {
-            background: #e60023;
-            color: white;
-            border-color: #e60023;
-            box-shadow: 0 4px 12px rgba(230, 0, 35, 0.25);
-        }
-
-        .stats {
-            margin-top: 15px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        /* Desktop default */
-        .gallery {
-            column-count: 8;
-            column-gap: 8px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        /* Skeleton Loading Animation - Pinterest Style */
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-
-            100% {
-                background-position: 200% 0;
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .skeleton {
-            background: linear-gradient(90deg, #ececec 25%, #f5f5f5 37%, #ececec 63%);
-            background-size: 400% 100%;
-            animation: shimmer 1.4s ease infinite, pulse 2s ease-in-out infinite;
-            border-radius: 16px;
-            margin-bottom: 15px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Skeleton inner shine effect */
-        .skeleton::after {
-            content: '';
-            position: absolute;
             top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(to bottom,
-                    rgba(255, 255, 255, 0) 0%,
-                    rgba(255, 255, 255, 0.4) 50%,
-                    rgba(255, 255, 255, 0) 100%);
-            opacity: 0;
-            animation: pulse 2s ease-in-out infinite;
+            z-index: 100;
+            box-shadow: var(--elevation-4);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
         }
-
-        /* Glassmorphism Utilities */
-        .glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-
-        /* Improved Gallery Item */
-        .gallery-item {
-            break-inside: avoid;
-            margin-bottom: 15px;
-            position: relative;
-            cursor: zoom-in;
-            border-radius: 16px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-            will-change: transform;
-            animation: fadeInUp 0.5s ease backwards;
-        }
-
-        /* Staggered animation delay for items */
-        .gallery-item:nth-child(1) {
-            animation-delay: 0.0s;
-        }
-
-        .gallery-item:nth-child(2) {
-            animation-delay: 0.05s;
-        }
-
-        .gallery-item:nth-child(3) {
-            animation-delay: 0.1s;
-        }
-
-        .gallery-item:nth-child(4) {
-            animation-delay: 0.15s;
-        }
-
-        .gallery-item:nth-child(5) {
-            animation-delay: 0.2s;
-        }
-
-        .gallery-item:nth-child(6) {
-            animation-delay: 0.25s;
-        }
-
-        .gallery-item:nth-child(7) {
-            animation-delay: 0.3s;
-        }
-
-        .gallery-item:nth-child(8) {
-            animation-delay: 0.35s;
-        }
-
-        .gallery-item:nth-child(n+9) {
-            animation-delay: 0.4s;
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
-            z-index: 2;
-        }
-
-        .gallery-item img {
+        .app-bar-content {
             width: 100%;
-            display: block;
-            border-radius: 16px;
-            opacity: 0;
-            transform: scale(1.02);
-            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-            background-color: transparent;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-
-        .gallery-item img.loaded {
-            opacity: 1;
-            transform: scale(1);
+        .app-title {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 0.15px;
+            white-space: nowrap;
         }
-
-        /* Refined Item Info Overlay */
-        .item-info {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
-            color: white;
-            padding: 20px 12px 12px;
-            font-size: 11px;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-            pointer-events: none;
+        .spacer { flex: 1; }
+        .icon-btn {
+            color: inherit;
+            text-decoration: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
         }
+        .icon-btn:hover { background: rgba(255,255,255,0.15); }
 
-        .gallery-item:hover .item-info {
-            opacity: 1;
-            transform: translateY(0);
+        /* ===== Stats Bar ===== */
+        .stats-bar {
+            max-width: 1400px;
+            margin: 8px auto;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--on-surface-dim);
         }
-
-        .click-count {
+        .stats-bar .chip {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(4px);
+            background: var(--surface);
             padding: 4px 10px;
-            border-radius: 20px;
-            margin-top: 6px;
+            border-radius: 16px;
+            font-size: 11px;
             font-weight: 500;
+            box-shadow: var(--elevation-1);
         }
 
-        .pagination {
+        /* ===== Gallery Container ===== */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 8px;
+        }
+
+        /* ===== Masonry Gallery ===== */
+        .gallery-grid {
+            column-count: 5;
+            column-gap: 10px;
+        }
+
+        /* ===== Skeleton Loading ===== */
+        @keyframes shimmer {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+        .skeleton-card {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+            background-size: 800px 100%;
+            animation: shimmer 1.4s ease infinite;
+        }
+        .skeleton-card .sk-img { width: 100%; background: #e8e8e8; }
+        .skeleton-card .sk-info { padding: 10px; }
+        .skeleton-card .sk-title { height: 12px; background: #e0e0e0; border-radius: 4px; width: 70%; margin-bottom: 6px; }
+        .skeleton-card .sk-desc { height: 10px; background: #e8e8e8; border-radius: 4px; width: 50%; }
+
+        /* ===== Photo Card (bangla_script style) ===== */
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .photo-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            break-inside: avoid;
+            box-shadow: var(--elevation-1);
+            transition: box-shadow 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.25s;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            animation: cardFadeIn 0.45s ease backwards;
+        }
+        .photo-card:hover {
+            box-shadow: var(--elevation-4);
+            transform: translateY(-3px);
+        }
+
+        .photo-image {
+            width: 100%;
+            position: relative;
+            background: #eee;
+            min-height: 120px;
+            overflow: hidden;
+        }
+        .photo-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0;
+            transition: opacity 0.5s ease, filter 0.5s ease;
+        }
+        .photo-image img.loaded {
+            opacity: 1;
+        }
+
+        /* Category badge on card */
+        .photo-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.55);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 10px;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .photo-info {
+            padding: 8px 10px;
+        }
+        .photo-info h3 {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 1px;
+            letter-spacing: 0.1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .photo-info p {
+            font-size: 10px;
+            color: var(--on-surface-dim);
+            letter-spacing: 0.2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ===== Loading Indicator ===== */
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 24px;
+        }
+        .loading-indicator.visible { display: block; }
+        .circular-progress {
+            display: inline-block;
+            width: 36px; height: 36px;
+            border: 3px solid rgba(238,182,0,0.2);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== Pagination ===== */
+        .pagination-bar {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
-            margin: 10px 0;
-            background: white;
-            padding: 15px 10px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 10px;
+            background: var(--surface);
+            border-radius: 28px;
+            box-shadow: var(--elevation-2);
         }
-
         .page-btn {
-            padding: 12px 24px;
+            min-width: 36px; height: 36px;
             border: none;
-            background: #f0f0f0;
-            color: #333;
-            border-radius: 12px;
+            background: transparent;
+            color: var(--on-surface);
+            border-radius: 18px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .page-btn:hover:not(:disabled) {
-            background: #e60023;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(230, 0, 35, 0.2);
-        }
-
-        .page-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .page-info {
-            color: #333;
             font-size: 13px;
             font-weight: 500;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            position: relative;
-        }
-
-        .modal-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            border-radius: 8px;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: -40px;
-            right: 0;
-            color: white;
-            font-size: 32px;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s, color 0.2s;
+            padding: 0 6px;
+            font-family: inherit;
+        }
+        .page-btn:hover:not(:disabled) { background: rgba(238,182,0,0.12); }
+        .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .page-btn.active { background: var(--primary); color: #fff; }
+        .page-info {
+            font-size: 12px;
+            color: var(--on-surface-dim);
+            font-weight: 500;
+            padding: 0 4px;
         }
 
-        .download-btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: #e60023;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 24px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(230, 0, 35, 0.4);
-            z-index: 1001;
-        }
-
-        .download-btn:hover:not(:disabled) {
-            background: #c8001f;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(230, 0, 35, 0.5);
-        }
-
-        .download-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        column-count: 4;
-        column-gap: 10px;
-        }
-        }
-
-        /* Large desktops tighten spacing slightly */
-        @media (min-width: 1400px) {
-            .gallery {
-                column-count: 10;
-                column-gap: 8px;
-            }
-        }
-
-        @media (max-width: 1100px) {
-            .gallery {
-                column-count: 3;
-                column-gap: 8px;
-            }
-
-            body {
-                padding: 8px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .page-title h1 {
-                font-size: 22px;
-            }
-
-            .gallery {
-                column-count: 3;
-                column-gap: 6px;
-            }
-
-            .gallery-item {
-                margin-bottom: 6px;
-                border-radius: 6px;
-            }
-
-            .gallery-item img {
-                border-radius: 6px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-
-            .filter-btn {
-                padding: 6px 12px;
-                font-size: 11px;
-            }
-
-            .stats {
-                font-size: 11px;
-            }
-
-            .page-btn {
-                padding: 8px 12px;
-                font-size: 11px;
-            }
-
-            .page-info {
-                font-size: 11px;
-            }
-
-            .item-info {
-                font-size: 9px;
-                padding: 8px 6px 6px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .page-title {
-                padding: 10px;
-                margin-bottom: 8px;
-            }
-
-            .page-title h1 {
-                font-size: 18px;
-            }
-
-            body {
-                padding: 5px;
-            }
-
-            .gallery {
-                column-count: 3;
-                column-gap: 5px;
-            }
-
-            .gallery-item {
-                margin-bottom: 5px;
-                border-radius: 4px;
-            }
-
-            .gallery-item img {
-                border-radius: 4px;
-            }
-
-            .header {
-                padding: 10px 8px;
-                margin-bottom: 10px;
-            }
-
-            h1 {
-                font-size: 18px;
-                margin-bottom: 8px;
-            }
-
-            .filters {
-                gap: 6px;
-            }
-
-            .filter-btn {
-                padding: 5px 10px;
-                font-size: 10px;
-            }
-
-            .stats {
-                font-size: 10px;
-                margin-top: 8px;
-            }
-
-            .pagination {
-                padding: 10px 5px;
-                gap: 5px;
-                margin: 10px 0;
-            }
-
-            .page-btn {
-                padding: 6px 10px;
-                font-size: 10px;
-            }
-
-            .page-info {
-                font-size: 10px;
-            }
-
-            .item-info {
-                display: none;
-            }
-
-            .modal-content {
-                max-width: 95%;
-                max-height: 95%;
-            }
-
-            .close-modal {
-                width: 35px;
-                height: 35px;
-                font-size: 28px;
-                top: -38px;
-            }
-
-            .download-btn {
-                bottom: 10px;
-                right: 10px;
-                padding: 8px 16px;
-                font-size: 12px;
-            }
-        }
-
-        /* Bottom fixed filter bar */
+        /* ===== Bottom Filter Bar ===== */
         .bottom-bar {
             position: fixed;
-            left: 20px;
-            right: 20px;
-            bottom: 20px;
-            background: rgba(255, 255, 255, 0.9);
+            left: 0; right: 0; bottom: 0;
+            z-index: 200;
+            background: rgba(255,255,255,0.92);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            padding: 12px;
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            z-index: 999;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            max-width: 800px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+            padding: 8px 0;
+        }
+        .filter-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 0 12px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            max-width: 1400px;
             margin: 0 auto;
         }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            flex-shrink: 0;
+            padding: 7px 16px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: var(--surface);
+            color: var(--on-surface);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: inherit;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-chip.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(238,182,0,0.3);
+        }
 
-        .bottom-bar .filters {
+        /* ===== Lightbox ===== */
+        .lightbox-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 8px;
         }
+        .lightbox-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* ensure page content isn't hidden behind bottom bar */
-        body {
-            padding-bottom: 80px;
+        .lightbox-content {
+            background: var(--surface);
+            border-radius: 20px;
+            max-width: 92vw;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--elevation-4);
         }
+        .lightbox-image-wrapper {
+            flex: 2;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 300px;
+        }
+        .lightbox-image-wrapper img {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            transition: opacity 0.3s;
+        }
+        .lightbox-details {
+            flex: 0 0 280px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+            overflow-y: auto;
+        }
+        .lightbox-details h2 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .lightbox-details .lb-desc {
+            font-size: 13px;
+            color: var(--on-surface-dim);
+            line-height: 1.5;
+            flex: 1;
+        }
+        .lightbox-details .lb-meta {
+            font-size: 11px;
+            color: rgba(0,0,0,0.4);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+        .lightbox-controls {
+            margin: 12px 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--on-surface-dim);
+        }
+        .btn-download {
+            background: var(--secondary);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: box-shadow 0.2s, transform 0.2s;
+            width: 100%;
+            margin-top: auto;
+        }
+        .btn-download:hover { box-shadow: 0 4px 12px rgba(3,218,198,0.4); transform: translateY(-1px); }
+        .close-btn {
+            position: absolute;
+            top: 12px; right: 12px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            color: #fff;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.45);
+            border: none;
+            color: #fff;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            z-index: 5;
+        }
+        .nav-btn:hover { background: rgba(0,0,0,0.7); }
+        .nav-btn.prev { left: 12px; }
+        .nav-btn.next { right: 12px; }
 
+        /* ===== Responsive ===== */
+        @media (min-width: 1600px) {
+            .gallery-grid { column-count: 7; }
+        }
+        @media (max-width: 1200px) {
+            .gallery-grid { column-count: 4; column-gap: 8px; }
+        }
+        @media (max-width: 768px) {
+            .app-bar { height: 48px; }
+            .app-title { font-size: 15px; }
+            .gallery-grid { column-count: 3; column-gap: 6px; }
+            .photo-card { margin-bottom: 6px; border-radius: var(--radius-sm); }
+            .photo-info { padding: 6px 8px; }
+            .photo-info h3 { font-size: 11px; }
+            .photo-info p { font-size: 9px; }
+            .photo-badge { font-size: 8px; padding: 1px 6px; top: 5px; left: 5px; }
+
+            .lightbox-content {
+                flex-direction: column;
+                width: 100%; height: 100%;
+                max-width: 100%; max-height: 100%;
+                border-radius: 0;
+            }
+            .lightbox-image-wrapper {
+                flex: 1;
+                position: static;
+            }
+            .lightbox-details {
+                flex: 0 0 auto;
+                padding: 14px 16px 70px;
+                border-top-left-radius: 16px;
+                border-top-right-radius: 16px;
+                margin-top: -12px;
+                position: relative;
+            }
+            .nav-btn {
+                top: auto; bottom: 18px;
+                background: transparent;
+                color: var(--primary);
+                border: 1.5px solid var(--primary);
+                width: 34px; height: 34px;
+                transform: none;
+                z-index: 2005;
+            }
+            .nav-btn.prev { left: 16px; }
+            .nav-btn.next { right: 16px; }
+            .btn-download {
+                position: absolute;
+                bottom: 18px; left: 50%;
+                transform: translateX(-50%);
+                width: 34px; height: 34px;
+                border-radius: 50%;
+                padding: 0;
+                font-size: 0;
+                min-width: unset;
+                z-index: 2006;
+            }
+            .btn-download .material-icons { font-size: 18px; margin: 0; }
+            .lightbox-controls { text-align: center; font-size: 11px; }
+        }
         @media (max-width: 480px) {
-            .bottom-bar {
-                padding: 8px 6px;
-            }
-
-            .bottom-bar .filter-btn {
-                padding: 5px 8px;
-                font-size: 10px;
-            }
-
-            .home-link {
-                top: 8px;
-                right: 8px;
-                padding: 6px 10px;
-                font-size: 12px;
-            }
+            .gallery-grid { column-count: 2; column-gap: 5px; }
+            .photo-card { margin-bottom: 5px; border-radius: 6px; }
+            body { padding-bottom: 70px; }
         }
     </style>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
-
 <body>
-    <div class="page-title">
-        <h1>📌 Pinterest Gallery</h1>
-        <a class="home-link" href="home.html" aria-label="Home">Home</a>
+
+    <!-- ===== App Bar ===== -->
+    <header class="app-bar">
+        <div class="app-bar-content">
+            <span class="material-icons" style="font-size: 22px;">auto_awesome</span>
+            <h1 class="app-title">Gopal's Diary</h1>
+            <div class="spacer"></div>
+            <a href="home.html" class="icon-btn" aria-label="Profile" title="Profile">
+                <span class="material-icons">account_circle</span>
+            </a>
+            <a href="admin/login.html" class="icon-btn" aria-label="Admin" title="Admin">
+                <span class="material-icons" style="font-size: 20px;">lock</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ===== Stats Bar ===== -->
+    <div class="stats-bar">
+        <span id="statsText">লোড হচ্ছে...</span>
+        <div>
+            <span class="chip" id="tableChip">📁 —</span>
+        </div>
     </div>
 
-    <div class="gallery" id="gallery">
-        <div class="loading">Loading photos...</div>
-    </div>
+    <!-- ===== Gallery ===== -->
+    <div class="container">
+        <div class="gallery-grid" id="gallery">
+            <!-- Skeleton placeholders injected by JS -->
+        </div>
 
-    <div class="header">
+        <!-- Loading Indicator -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="circular-progress"></div>
+            <p style="margin-top: 8px; color: #888; font-size: 13px;">ছবি লোড হচ্ছে...</p>
+        </div>
 
-        <div class="stats" id="stats">Loading...</div>
-    </div>
-
-    <div class="pagination" id="pagination">
-        <button class="page-btn" id="prevBtn">← Previous Page</button>
-        <span class="page-info" id="pageInfo">Page 1</span>
-        <button class="page-btn" id="nextBtn">Next Page →</button>
-        <button class="page-btn" id="homeBtn" onclick="window.location.href='index.html'">Home</button>
-    </div>
-
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeModal">&times;</span>
-            <img id="modalImage" src="" alt="">
-            <button class="download-btn" id="downloadBtn">
-                <span>⬇️</span>
-                <span>Download</span>
+        <!-- Pagination -->
+        <div class="pagination-bar" id="paginationBar" style="display:none;">
+            <button class="page-btn" id="prevBtn" aria-label="Previous">
+                <span class="material-icons" style="font-size: 20px;">chevron_left</span>
+            </button>
+            <div id="pageNumbers" style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;"></div>
+            <button class="page-btn" id="nextBtn" aria-label="Next">
+                <span class="material-icons" style="font-size: 20px;">chevron_right</span>
             </button>
         </div>
     </div>
 
-    <!-- Bottom fixed filters (duplicated so they are visible at the very bottom) -->
-    <div class="bottom-bar" aria-hidden="false">
-        <div class="filters bottom-filters">
-            <button class="filter-btn active" data-category="all">All</button>
-            <button class="filter-btn" data-category="popular">Popular</button>
-            <button class="filter-btn" data-category="bangla">Bangla</button>
-            <button class="filter-btn" data-category="english">English</button>
-            <button class="filter-btn" data-category="photography">Photography</button>
-            <button class="filter-btn" data-category="illustrations">Illustrations</button>
+    <!-- ===== Lightbox ===== -->
+    <div id="lightbox" class="lightbox-overlay">
+        <div class="lightbox-content">
+            <button class="close-btn" onclick="closeLightbox()" aria-label="Close">
+                <span class="material-icons">close</span>
+            </button>
+            <div class="lightbox-image-wrapper">
+                <img id="lightboxImage" src="" alt="Photo">
+                <button class="nav-btn prev" onclick="prevImage()" aria-label="Previous">
+                    <span class="material-icons">arrow_back</span>
+                </button>
+                <button class="nav-btn next" onclick="nextImage()" aria-label="Next">
+                    <span class="material-icons">arrow_forward</span>
+                </button>
+            </div>
+            <div class="lightbox-details">
+                <h2 id="lightboxTitle">Title</h2>
+                <p class="lb-desc" id="lightboxDescription">Description</p>
+                <div class="lightbox-controls">
+                    Image <span id="imageCounter">1</span> of <span id="totalCounter">1</span>
+                </div>
+                <p class="lb-meta" id="lightboxMeta"></p>
+                <button class="btn-download" onclick="downloadImage()">
+                    <span class="material-icons">download</span> Download
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Advanced gallery script with algorithms -->
-    <script src="pinterest_algoridom.js"></script>
+    <!-- ===== Bottom Filter Bar ===== -->
+    <div class="bottom-bar">
+        <div class="filter-scroll">
+            <button class="filter-chip active" data-category="all">✨ All</button>
+            <button class="filter-chip" data-category="bangla">🇧🇩 বাংলা কোটস</button>
+            <button class="filter-chip" data-category="photography">📸 Photography</button>
+            <button class="filter-chip" data-category="illustrations">🎨 Illustration</button>
+            <button class="filter-chip" data-category="english">🌍 English</button>
+            <button class="filter-chip" data-category="posts">📌 Posts</button>
+        </div>
+    </div>
 
+    <!-- ===== JavaScript ===== -->
+    <script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const SUPABASE_URL = 'https://mwkoqxtyxdkkqlakrrvd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
+
+    const TABLE_CONFIG = {
+        'bangla_quotes_1':       { name: 'Bangla Quotes 1',       category: 'bangla',        emoji: '🇧🇩' },
+        'bangla_quotes_2':       { name: 'Bangla Quotes 2',       category: 'bangla',        emoji: '🇧🇩' },
+        'bangla_quotes_3':       { name: 'Bangla Quotes 3',       category: 'bangla',        emoji: '🇧🇩' },
+        'bangla_quotes_4':       { name: 'Bangla Quotes 4',       category: 'bangla',        emoji: '🇧🇩' },
+        'photography_1':         { name: 'Photography 1',         category: 'photography',   emoji: '📸' },
+        'photography_2':         { name: 'Photography 2',         category: 'photography',   emoji: '📸' },
+        'photography_3':         { name: 'Photography 3',         category: 'photography',   emoji: '📸' },
+        'photography_4':         { name: 'Photography 4',         category: 'photography',   emoji: '📸' },
+        'english_quote_1':       { name: 'English Quotes 1',      category: 'english',       emoji: '🌍' },
+        'english_quote_2':       { name: 'English Quotes 2',      category: 'english',       emoji: '🌍' },
+        'illustration_1':        { name: 'Illustration 1',        category: 'illustrations', emoji: '🎨' },
+        'illustration_2':        { name: 'Illustration 2',        category: 'illustrations', emoji: '🎨' },
+        'dotted_illustration_1': { name: 'Dotted Illustration 1', category: 'illustrations', emoji: '🎨' },
+        'dotted_illustration_2': { name: 'Dotted Illustration 2', category: 'illustrations', emoji: '🎨' },
+        'post_site':             { name: 'Posts',                  category: 'posts',         emoji: '📌' }
+    };
+
+    const ITEMS_PER_PAGE = 80;
+
+    // ============================================
+    // STATE
+    // ============================================
+    const State = {
+        allPhotos: [],
+        filteredPhotos: [],
+        mixedPhotos: [],
+        currentPage: 1,
+        currentCategory: 'all',
+        isLoading: false,
+        tableStats: {},
+        cache: { data: null, ts: null },
+        CACHE_TTL: 5 * 60 * 1000
+    };
+
+    // ============================================
+    // IMAGE OPTIMIZER (like bangla_script.js)
+    // ============================================
+    const Img = {
+        isMobile: () => window.innerWidth <= 768,
+        optimize(url, opts = {}) {
+            if (!url) return '';
+            const { width = 800, quality = 75, format = 'webp' } = opts;
+            if (url.includes('supabase.co/storage')) {
+                const u = new URL(url);
+                u.searchParams.set('width', width);
+                u.searchParams.set('quality', quality);
+                if (format) u.searchParams.set('format', format);
+                return u.toString();
+            }
+            return url;
+        },
+        thumbnail(url) {
+            const w = this.isMobile() ? 200 : 320;
+            return this.optimize(url, { width: w, quality: 50, format: 'webp' });
+        },
+        gallery(url) {
+            const w = this.isMobile() ? 500 : 700;
+            return this.optimize(url, { width: w, quality: 70, format: 'webp' });
+        },
+        lightbox(url) {
+            const w = this.isMobile() ? 1200 : 1920;
+            return this.optimize(url, { width: w, quality: 85, format: 'webp' });
+        }
+    };
+
+    // ============================================
+    // SUPABASE REST CLIENT (no SDK needed)
+    // ============================================
+    async function supabaseGet(tableName) {
+        const url = `${SUPABASE_URL}/rest/v1/${tableName}?select=image_iid,title,description,image_url,thumbnail_url,section,created_at&order=image_iid.asc`;
+        try {
+            const resp = await fetch(url, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!resp.ok) {
+                console.warn(`⚠️ Table "${tableName}" → HTTP ${resp.status}`);
+                return [];
+            }
+            return await resp.json();
+        } catch (err) {
+            console.warn(`⚠️ Table "${tableName}" network error:`, err.message);
+            return [];
+        }
+    }
+
+    // ============================================
+    // URL SANITIZER
+    // ============================================
+    function sanitize(url) {
+        if (!url || typeof url !== 'string') return '';
+        url = url.split('#')[0].trim();
+        url = url.replace(/i\.ibb\.co\.com/g, 'i.ibb.co');
+        url = url.replace(/\.com\.com/g, '.com');
+        url = url.replace(/([^:]\/)\/+/g, '$1');
+        if (url.startsWith('//')) url = 'https:' + url;
+        else if (url.startsWith('http://')) url = url.replace('http://', 'https://');
+        return url;
+    }
+
+    // ============================================
+    // DATA LOADING — ALL 15 TABLES
+    // ============================================
+    async function loadAllPhotos() {
+        // Cache check
+        if (State.cache.data && State.cache.ts && Date.now() - State.cache.ts < State.CACHE_TTL) {
+            console.log('📦 Using cached data');
+            return State.cache.data;
+        }
+
+        State.isLoading = true;
+        showSkeletons();
+        document.getElementById('loadingIndicator').classList.add('visible');
+
+        try {
+            const tableNames = Object.keys(TABLE_CONFIG);
+
+            // Fetch ALL tables in parallel
+            const results = await Promise.all(
+                tableNames.map(t => supabaseGet(t))
+            );
+
+            const all = [];
+            State.tableStats = {};
+
+            results.forEach((rows, i) => {
+                const tableName = tableNames[i];
+                const cfg = TABLE_CONFIG[tableName];
+                State.tableStats[tableName] = rows.length;
+
+                rows.forEach(item => {
+                    const imageUrl = sanitize(item.image_url || '');
+                    const thumbUrl = sanitize(item.thumbnail_url || item.image_url || '');
+                    if (!imageUrl) return;
+
+                    all.push({
+                        id: item.image_iid || item.id,
+                        title: item.title || '',
+                        description: item.description || '',
+                        image_url: imageUrl,
+                        thumbnail_url: thumbUrl,
+                        tableName,
+                        categoryName: cfg.name,
+                        category: cfg.category,
+                        emoji: cfg.emoji,
+                        created_at: item.created_at
+                    });
+                });
+            });
+
+            // Cache
+            State.cache.data = all;
+            State.cache.ts = Date.now();
+
+            const loadedTables = Object.values(State.tableStats).filter(n => n > 0).length;
+            console.log(`✅ Loaded ${all.length} photos from ${loadedTables}/${tableNames.length} tables`);
+            console.log('📊 Per-table:', State.tableStats);
+
+            return all;
+        } catch (err) {
+            console.error('❌ Load error:', err);
+            return [];
+        } finally {
+            State.isLoading = false;
+            document.getElementById('loadingIndicator').classList.remove('visible');
+        }
+    }
+
+    // ============================================
+    // EQUAL-RATIO MIXING ALGORITHM
+    // ============================================
+
+    /** Fisher-Yates shuffle */
+    function fisherShuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    /**
+     * Equal-Ratio Round-Robin Mix
+     * ─────────────────────────────
+     * প্রতিটি টেবিল থেকে সমান সংখ্যক ছবি নিয়ে রাউন্ড-রবিন ইন্টারলিভ করে।
+     * প্রতিটি টেবিলের ভেতরে ছবিগুলো আসল ক্রম (প্রথম→শেষ) রাখে।
+     * একটি টেবিলের ১০টি ছবি দেখালে, পাতায় সেটি ১ম থেকে ১০ম পর্যন্ত
+     * সমানভাবে ছড়িয়ে থাকবে।
+     */
+    function equalRatioMix(photos) {
+        const tables = {};
+        photos.forEach(p => {
+            if (!tables[p.tableName]) tables[p.tableName] = [];
+            tables[p.tableName].push(p);
+        });
+
+        // Randomize table order (so different tables start first each time)
+        const tableNames = fisherShuffle(Object.keys(tables));
+        const maxLen = Math.max(...Object.values(tables).map(t => t.length), 0);
+
+        const result = [];
+        for (let i = 0; i < maxLen; i++) {
+            for (const tn of tableNames) {
+                if (tables[tn][i]) {
+                    result.push(tables[tn][i]);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Category-Aware Equal-Ratio Mix
+     * ──────────────────────────────
+     * ১. প্রতিটি ক্যাটাগরির ভেতরে টেবিল-লেভেল equal-ratio mix
+     * ২. তারপর ক্যাটাগরিগুলো নিজেরা round-robin interleave
+     * 
+     * ফলে: বাংলা, ফটোগ্রাফি, ইলাস্ট্রেশন, ইংলিশ, পোস্ট — সব
+     * সমানভাবে পাতাজুড়ে ছড়িয়ে থাকে।
+     */
+    function categoryEqualMix(photos) {
+        const categories = {};
+        photos.forEach(p => {
+            if (!categories[p.category]) categories[p.category] = [];
+            categories[p.category].push(p);
+        });
+
+        // Within each category: table-level equal-ratio
+        const catMixed = {};
+        for (const cat of Object.keys(categories)) {
+            catMixed[cat] = equalRatioMix(categories[cat]);
+        }
+
+        // Interleave categories round-robin
+        const catNames = fisherShuffle(Object.keys(catMixed));
+        const maxCatLen = Math.max(...Object.values(catMixed).map(a => a.length), 0);
+        const result = [];
+
+        for (let i = 0; i < maxCatLen; i++) {
+            for (const cn of catNames) {
+                if (catMixed[cn][i]) {
+                    result.push(catMixed[cn][i]);
+                }
+            }
+        }
+        return result;
+    }
+
+    // ============================================
+    // FILTERING
+    // ============================================
+    function filterPhotos(category) {
+        State.currentCategory = category;
+        State.currentPage = 1;
+
+        if (category === 'all') {
+            State.filteredPhotos = [...State.allPhotos];
+        } else {
+            State.filteredPhotos = State.allPhotos.filter(p => p.category === category);
+        }
+
+        // Apply the appropriate mixing algorithm
+        State.mixedPhotos = category === 'all'
+            ? categoryEqualMix(State.filteredPhotos)
+            : equalRatioMix(State.filteredPhotos);
+
+        renderGallery();
+        updateUI();
+    }
+
+    // ============================================
+    // SKELETON LOADING (beautiful placeholders)
+    // ============================================
+    function showSkeletons() {
+        const gallery = document.getElementById('gallery');
+        const heights = [180, 240, 200, 280, 220, 160, 260, 190, 230, 250,
+                         210, 170, 300, 195, 225, 275, 205, 185, 245, 215,
+                         190, 270, 200, 235];
+        gallery.innerHTML = heights.map((h, i) => `
+            <div class="skeleton-card" style="animation-delay: ${(i % 8) * 0.06}s;">
+                <div class="sk-img" style="height:${h}px;"></div>
+                <div class="sk-info">
+                    <div class="sk-title"></div>
+                    <div class="sk-desc"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ============================================
+    // PROGRESSIVE IMAGE LOADING (IntersectionObserver)
+    // ============================================
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const img = entry.target;
+            if (!img.dataset.src || !img.src.includes('data:image')) return;
+
+            const thumbSrc = img.dataset.thumbnail;
+            const gallerySrc = img.dataset.gallery;
+
+            // Step 1: Load thumbnail (fast, small)
+            loadImgWithRetry(thumbSrc).then(() => {
+                requestAnimationFrame(() => {
+                    img.src = thumbSrc;
+                    img.style.opacity = '1';
+
+                    // Step 2: If gallery-quality is different, upgrade
+                    if (gallerySrc && gallerySrc !== thumbSrc) {
+                        img.style.filter = 'blur(2px)';
+                        loadImgWithRetry(gallerySrc).then(() => {
+                            requestAnimationFrame(() => {
+                                img.src = gallerySrc;
+                                img.style.filter = 'none';
+                                img.classList.add('loaded');
+                            });
+                        }).catch(() => {
+                            img.style.filter = 'none';
+                            img.classList.add('loaded');
+                        });
+                    } else {
+                        img.style.filter = 'none';
+                        img.classList.add('loaded');
+                    }
+                });
+                observer.unobserve(img);
+            }).catch(() => {
+                // Fallback: try original URL directly
+                img.src = img.dataset.src;
+                img.style.opacity = '1';
+                img.style.filter = 'none';
+                img.classList.add('loaded');
+                observer.unobserve(img);
+            });
+        });
+    }, { rootMargin: '400px', threshold: 0.01 });
+
+    /** Load image with retry (exponential backoff) */
+    function loadImgWithRetry(src, maxRetries = 2) {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const tryLoad = () => {
+                const i = new Image();
+                i.onload = () => resolve(i);
+                i.onerror = () => {
+                    if (++attempts <= maxRetries) {
+                        setTimeout(tryLoad, 800 * attempts);
+                    } else {
+                        reject(new Error('Image load failed'));
+                    }
+                };
+                i.src = src;
+            };
+            tryLoad();
+        });
+    }
+
+    // ============================================
+    // RENDER GALLERY (bangla_script.js card style)
+    // ============================================
+    function getPagePhotos() {
+        const start = (State.currentPage - 1) * ITEMS_PER_PAGE;
+        return State.mixedPhotos.slice(start, start + ITEMS_PER_PAGE);
+    }
+
+    function getTotalPages() {
+        return Math.ceil(State.mixedPhotos.length / ITEMS_PER_PAGE) || 1;
+    }
+
+    function renderGallery() {
+        const gallery = document.getElementById('gallery');
+        const photos = getPagePhotos();
+
+        if (photos.length === 0) {
+            gallery.innerHTML = '<p style="text-align:center;padding:40px;color:#999;">কোনো ছবি পাওয়া যায়নি</p>';
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        photos.forEach((photo, idx) => {
+            const previewUrl = photo.thumbnail_url || photo.image_url;
+            const thumbSrc = Img.thumbnail(previewUrl);
+            let gallerySrc = Img.gallery(previewUrl);
+            if (thumbSrc === gallerySrc) gallerySrc = ''; // avoid double loading
+            const lightboxUrl = Img.lightbox(previewUrl);
+
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            card.style.animationDelay = `${Math.min(idx * 0.03, 0.6)}s`;
+
+            // Store data for lightbox
+            card.setAttribute('data-photo', JSON.stringify(photo));
+            card.setAttribute('data-index', idx);
+            card.setAttribute('data-lightbox-url', lightboxUrl);
+            card.setAttribute('data-original-url', photo.image_url);
+
+            const cfg = TABLE_CONFIG[photo.tableName];
+            const badgeText = cfg ? cfg.emoji + ' ' + cfg.name : photo.tableName;
+
+            card.innerHTML = `
+                <div class="photo-image">
+                    <span class="photo-badge">${escapeHtml(badgeText)}</span>
+                    <img data-src="${escapeHtml(previewUrl)}"
+                         data-thumbnail="${escapeHtml(thumbSrc)}"
+                         data-gallery="${escapeHtml(gallerySrc)}"
+                         alt="${escapeHtml(photo.title)}"
+                         loading="lazy"
+                         style="cursor:pointer;opacity:0;transition:opacity 0.5s ease,filter 0.5s ease;"
+                         src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+                </div>
+                <div class="photo-info">
+                    <h3>${escapeHtml(photo.title)}</h3>
+                    <p>${escapeHtml(photo.description)}</p>
+                </div>
+            `;
+
+            // Lazy load observer
+            const img = card.querySelector('img');
+            imageObserver.observe(img);
+
+            // Click → open lightbox
+            card.addEventListener('click', () => {
+                const data = JSON.parse(card.getAttribute('data-photo'));
+                openLightbox(
+                    card.getAttribute('data-lightbox-url'),
+                    parseInt(card.getAttribute('data-index')),
+                    photos.length,
+                    data,
+                    card.getAttribute('data-original-url')
+                );
+            });
+
+            fragment.appendChild(card);
+        });
+
+        gallery.innerHTML = '';
+        gallery.appendChild(fragment);
+    }
+
+    // ============================================
+    // LIGHTBOX (full-featured)
+    // ============================================
+    let currentPhotos = [];
+    let currentImageIndex = 0;
+    let savedScrollY = 0;
+
+    function openLightbox(imgSrc, index, total, photoData, originalUrl) {
+        savedScrollY = window.scrollY;
+        currentPhotos = Array.from(document.querySelectorAll('.photo-card'));
+        currentImageIndex = index;
+
+        const lb = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lightboxImage');
+        lbImg.src = imgSrc;
+        lbImg.setAttribute('data-original-url', originalUrl);
+
+        document.getElementById('lightboxTitle').textContent = photoData.title || 'Gopal\'s Diary';
+        document.getElementById('lightboxDescription').textContent = photoData.description || '';
+        document.getElementById('imageCounter').textContent = index + 1;
+        document.getElementById('totalCounter').textContent = total;
+
+        const cfg = TABLE_CONFIG[photoData.tableName];
+        document.getElementById('lightboxMeta').textContent = cfg
+            ? `${cfg.emoji} ${cfg.name}`
+            : photoData.tableName;
+
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        history.pushState({ lightbox: true }, '', '#view');
+    }
+
+    function closeLightbox() {
+        const lb = document.getElementById('lightbox');
+        if (!lb.classList.contains('active')) return;
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+        if (location.hash === '#view') history.back();
+        window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+    }
+
+    function navigateLightbox(dir) {
+        if (!currentPhotos.length) return;
+        currentImageIndex = (currentImageIndex + dir + currentPhotos.length) % currentPhotos.length;
+        const card = currentPhotos[currentImageIndex];
+        const data = JSON.parse(card.getAttribute('data-photo'));
+
+        document.getElementById('lightboxImage').src = card.getAttribute('data-lightbox-url');
+        document.getElementById('lightboxImage').setAttribute('data-original-url', card.getAttribute('data-original-url'));
+        document.getElementById('lightboxTitle').textContent = data.title || 'Gopal\'s Diary';
+        document.getElementById('lightboxDescription').textContent = data.description || '';
+        document.getElementById('imageCounter').textContent = currentImageIndex + 1;
+
+        const cfg = TABLE_CONFIG[data.tableName];
+        document.getElementById('lightboxMeta').textContent = cfg ? `${cfg.emoji} ${cfg.name}` : data.tableName;
+    }
+
+    function nextImage() { navigateLightbox(1); }
+    function prevImage() { navigateLightbox(-1); }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') nextImage();
+        if (e.key === 'ArrowLeft') prevImage();
+    });
+
+    // Click outside to close
+    document.getElementById('lightbox').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeLightbox();
+    });
+
+    // Touch swipe
+    let touchX = 0;
+    document.getElementById('lightbox').addEventListener('touchstart', e => {
+        touchX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    document.getElementById('lightbox').addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].screenX - touchX;
+        if (dx > 50) prevImage();
+        else if (dx < -50) nextImage();
+    }, { passive: true });
+
+    // Mouse wheel navigation
+    let lastWheel = 0;
+    document.getElementById('lightbox').addEventListener('wheel', e => {
+        if (Date.now() - lastWheel < 300) return;
+        if (Math.abs(e.deltaX) > 20 || Math.abs(e.deltaY) > 20) {
+            lastWheel = Date.now();
+            (e.deltaX > 0 || e.deltaY > 0) ? nextImage() : prevImage();
+        }
+    }, { passive: true });
+
+    // Browser back button
+    window.addEventListener('popstate', () => {
+        const lb = document.getElementById('lightbox');
+        if (lb.classList.contains('active')) {
+            lb.classList.remove('active');
+            document.body.style.overflow = '';
+            window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+        }
+    });
+
+    // ============================================
+    // DOWNLOAD (with blob fallback)
+    // ============================================
+    async function downloadImage() {
+        const img = document.getElementById('lightboxImage');
+        const url = img.getAttribute('data-original-url') || img.src;
+        const title = document.getElementById('lightboxTitle').textContent || 'gopals_diary';
+        if (!url) { alert('ছবি পাওয়া যায়নি'); return; }
+
+        const btn = document.querySelector('.btn-download');
+        const origHTML = btn.innerHTML;
+        try {
+            btn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite;">sync</span>';
+            btn.disabled = true;
+
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('Fetch failed');
+            const blob = await resp.blob();
+
+            let fname = title.replace(/[^a-z0-9\u0980-\u09FF]/gi, '_').substring(0, 50);
+            const ext = blob.type === 'image/png' ? '.png' : blob.type === 'image/webp' ? '.webp' : '.jpg';
+            fname += ext;
+
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = fname;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(a.href), 500);
+
+            btn.innerHTML = '<span class="material-icons">check_circle</span> Done';
+            setTimeout(() => { btn.innerHTML = origHTML; btn.disabled = false; }, 2000);
+        } catch (e) {
+            console.error('Download failed:', e);
+            btn.innerHTML = origHTML;
+            btn.disabled = false;
+            window.open(url, '_blank');
+        }
+    }
+
+    // ============================================
+    // UI UPDATES
+    // ============================================
+    function updateUI() {
+        updateStats();
+        updatePagination();
+    }
+
+    function updateStats() {
+        const el = document.getElementById('statsText');
+        const totalPages = getTotalPages();
+        el.textContent = `মোট ${State.mixedPhotos.length} ছবি • পৃষ্ঠা ${State.currentPage}/${totalPages}`;
+
+        const loadedTables = Object.values(State.tableStats).filter(n => n > 0).length;
+        document.getElementById('tableChip').textContent = `📁 ${loadedTables} টেবিল`;
+    }
+
+    function updatePagination() {
+        const totalPages = getTotalPages();
+        const bar = document.getElementById('paginationBar');
+        bar.style.display = totalPages > 1 ? 'flex' : 'none';
+
+        document.getElementById('prevBtn').disabled = State.currentPage <= 1;
+        document.getElementById('nextBtn').disabled = State.currentPage >= totalPages;
+
+        // Smart page numbers (show first, last, current ± 2)
+        const container = document.getElementById('pageNumbers');
+        container.innerHTML = '';
+
+        const pages = new Set();
+        pages.add(1);
+        pages.add(totalPages);
+        for (let i = Math.max(1, State.currentPage - 2); i <= Math.min(totalPages, State.currentPage + 2); i++) {
+            pages.add(i);
+        }
+
+        const sorted = [...pages].sort((a, b) => a - b);
+        let last = 0;
+        sorted.forEach(p => {
+            if (last && p - last > 1) {
+                const dots = document.createElement('span');
+                dots.className = 'page-info';
+                dots.textContent = '…';
+                container.appendChild(dots);
+            }
+            const btn = document.createElement('button');
+            btn.className = 'page-btn' + (p === State.currentPage ? ' active' : '');
+            btn.textContent = p;
+            btn.addEventListener('click', () => goToPage(p));
+            container.appendChild(btn);
+            last = p;
+        });
+    }
+
+    function goToPage(page) {
+        State.currentPage = page;
+        renderGallery();
+        updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================
+    // FILTER BUTTONS
+    // ============================================
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filterPhotos(this.dataset.category);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    // Pagination nav buttons
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        if (State.currentPage > 1) goToPage(State.currentPage - 1);
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        if (State.currentPage < getTotalPages()) goToPage(State.currentPage + 1);
+    });
+
+    // ============================================
+    // UTILITY
+    // ============================================
+    function escapeHtml(text) {
+        if (!text || typeof text !== 'string') return '';
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // ============================================
+    // PWA SERVICE WORKER
+    // ============================================
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function init() {
+        console.log('🎨 Gopal\'s Diary Gallery initializing...');
+        showSkeletons();
+
+        State.allPhotos = await loadAllPhotos();
+        State.filteredPhotos = [...State.allPhotos];
+
+        // Equal-ratio mix across all categories & tables
+        State.mixedPhotos = categoryEqualMix(State.filteredPhotos);
+
+        renderGallery();
+        updateUI();
+
+        console.log('✅ Gallery ready!');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
-
 </html>
