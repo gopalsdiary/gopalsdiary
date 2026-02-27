@@ -1,5 +1,0 @@
-﻿Analyzing gallery_app...                                        
-
-  error - 4 positional arguments expected by 'translateByDouble', but 3 found - lib\widgets\gallery_item.dart:34:64 - not_enough_positional_arguments
-  error - 4 positional arguments expected by 'scaleByDouble', but 1 found - lib\widgets\gallery_item.dart:34:85 - not_enough_positional_arguments
-

@@ -10,7 +10,7 @@
 const CONFIG = {
     SUPABASE_URL: 'https://mwkoqxtyxdkkqlakrrvd.supabase.co',
     SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg',
-    ITEMS_PER_PAGE: 150,
+    ITEMS_PER_PAGE: 100,
     ENABLE_INFINITE_SCROLL: false,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes cache
     RETRY_ATTEMPTS: 3,
@@ -19,16 +19,20 @@ const CONFIG = {
 
 // Table configuration
 const TABLE_CONFIG = {
+    'photography_1': { name: 'Photography 1', category: 'photography', weight: 1.5 },
+    'photography_2': { name: 'Photography 2', category: 'photography', weight: 1.5 },
+    'photography_3': { name: 'Photography 3', category: 'photography', weight: 1.5 },
+    'photography_4': { name: 'Photography 4', category: 'photography', weight: 1.5 },
+    'dotted_illustration_1': { name: 'Dotted Illustration 1', category: 'illustrations', weight: 1 },
+    'dotted_illustration_2': { name: 'Dotted Illustration 2', category: 'illustrations', weight: 1 },
+    'illustration_1': { name: 'Illustration 1', category: 'illustrations', weight: 1 },
+    'illustration_2': { name: 'Illustration 2', category: 'illustrations', weight: 1 },
     'bangla_quotes_1': { name: 'Bangla Quotes 1', category: 'bangla', weight: 1 },
     'bangla_quotes_2': { name: 'Bangla Quotes 2', category: 'bangla', weight: 1 },
     'bangla_quotes_3': { name: 'Bangla Quotes 3', category: 'bangla', weight: 1 },
     'bangla_quotes_4': { name: 'Bangla Quotes 4', category: 'bangla', weight: 1 },
     'english_quote_1': { name: 'English Quotes 1', category: 'english', weight: 1 },
     'english_quote_2': { name: 'English Quotes 2', category: 'english', weight: 1 },
-    'photography_1': { name: 'Photography 1', category: 'photography', weight: 1.5 },
-    'photography_2': { name: 'Photography 2', category: 'photography', weight: 1.5 },
-    'photography_3': { name: 'Photography 3', category: 'photography', weight: 1.5 },
-    'photography_4': { name: 'Photography 4', category: 'photography', weight: 1.5 },
     'post_site': { name: 'Posts', category: 'photography', weight: 1.2 },
     'dotted_illustration_1': { name: 'Dotted Illustration 1', category: 'illustrations', weight: 1 },
     'dotted_illustration_2': { name: 'Dotted Illustration 2', category: 'illustrations', weight: 1 },
