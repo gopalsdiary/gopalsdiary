@@ -15,6 +15,11 @@
 	<link rel="preconnect" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co">
 	<link rel="preconnect" href="https://i.ibb.co.com">
 
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 	<!-- PWA Manifest and Meta Tags -->
 	<link rel="manifest" href="manifest.json">
 	<link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -39,9 +44,11 @@
 		}
 
 		body {
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 			background: #fafafa;
 			color: #262626;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
 		}
 
 		/* Make all embeds/media scale to container */
@@ -311,6 +318,178 @@
 			background: #ff99cc;
 		}
 
+		/* ===== Creations Footer Section ===== */
+		.creations-footer {
+			max-width: 800px;
+			margin: 50px auto 30px;
+			padding: 0 12px;
+		}
+		.creations-header {
+			text-align: center;
+			margin-bottom: 28px;
+		}
+		.creations-header h2 {
+			font-size: 22px;
+			font-weight: 700;
+			color: #262626;
+			margin-bottom: 6px;
+		}
+		.creations-header p {
+			font-size: 13px;
+			color: #8e8e8e;
+			line-height: 1.5;
+		}
+
+		/* Featured card (Pinterest) */
+		.featured-card {
+			background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 50%, #f0932b 100%);
+			border-radius: 16px;
+			padding: 20px 24px;
+			color: #fff;
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			margin-bottom: 16px;
+			box-shadow: 0 4px 16px rgba(238, 90, 36, 0.25);
+			transition: transform 0.25s, box-shadow 0.25s;
+		}
+		.featured-card:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 24px rgba(238, 90, 36, 0.35);
+		}
+		.featured-card .fc-icon {
+			font-size: 32px;
+			line-height: 1;
+		}
+		.featured-card .fc-text h3 {
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 2px;
+		}
+		.featured-card .fc-text p {
+			font-size: 12px;
+			opacity: 0.85;
+		}
+		.featured-card .fc-arrow {
+			margin-left: auto;
+			font-size: 20px;
+			opacity: 0.7;
+		}
+
+		/* Category card */
+		.cat-card {
+			background: #fff;
+			border-radius: 14px;
+			padding: 16px;
+			margin-bottom: 12px;
+			box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+			border: 1px solid rgba(0,0,0,0.04);
+		}
+		.cat-card-header {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			margin-bottom: 12px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #f0f0f0;
+		}
+		.cat-icon {
+			width: 36px;
+			height: 36px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			flex-shrink: 0;
+		}
+		.cat-icon.bangla { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+		.cat-icon.photo { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+		.cat-icon.english { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+		.cat-icon.illust { background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+		.cat-icon.dotted { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+		.cat-card-header h4 {
+			font-size: 14px;
+			font-weight: 600;
+			color: #262626;
+		}
+		.cat-card-header span {
+			font-size: 11px;
+			color: #8e8e8e;
+			margin-left: auto;
+		}
+		.cat-links {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 8px;
+		}
+		.cat-link {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			padding: 10px 12px;
+			border-radius: 10px;
+			font-size: 13px;
+			font-weight: 500;
+			text-decoration: none;
+			transition: all 0.2s;
+			border: 1px solid transparent;
+		}
+		.cat-link:active { transform: scale(0.97); }
+		.cat-link .link-num {
+			width: 20px;
+			height: 20px;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 11px;
+			font-weight: 700;
+			flex-shrink: 0;
+		}
+		/* Color variants for cat-links */
+		.cat-link.green { background: #f1f8e9; color: #33691e; }
+		.cat-link.green:hover { background: #dcedc8; border-color: #aed581; }
+		.cat-link.green .link-num { background: #c5e1a5; color: #33691e; }
+		.cat-link.blue { background: #e3f2fd; color: #0d47a1; }
+		.cat-link.blue:hover { background: #bbdefb; border-color: #64b5f6; }
+		.cat-link.blue .link-num { background: #90caf9; color: #0d47a1; }
+		.cat-link.amber { background: #fff8e1; color: #e65100; }
+		.cat-link.amber:hover { background: #ffecb3; border-color: #ffb74d; }
+		.cat-link.amber .link-num { background: #ffe082; color: #e65100; }
+		.cat-link.pink { background: #fce4ec; color: #880e4f; }
+		.cat-link.pink:hover { background: #f8bbd0; border-color: #f06292; }
+		.cat-link.pink .link-num { background: #f48fb1; color: #880e4f; }
+		.cat-link.purple { background: #f3e5f5; color: #4a148c; }
+		.cat-link.purple:hover { background: #e1bee7; border-color: #ba68c8; }
+		.cat-link.purple .link-num { background: #ce93d8; color: #4a148c; }
+
+		/* Install footer */
+		.install-footer {
+			text-align: center;
+			margin-top: 32px;
+			padding-top: 24px;
+			border-top: 1px solid #eee;
+		}
+
+		@media (max-width: 480px) {
+			.cat-links {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 6px;
+			}
+			.cat-link {
+				padding: 9px 8px;
+				font-size: 12px;
+			}
+			.featured-card {
+				padding: 16px 18px;
+			}
+			.featured-card .fc-icon { font-size: 28px; }
+			.featured-card .fc-text h3 { font-size: 14px; }
+		}
+
 		/* Highlights Section */
 		.highlights-section {
 			margin: 8px 0;
@@ -348,11 +527,17 @@
 			height: 70px;
 			border-radius: 50%;
 			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			border: 2px solid #dbdbdb;
+			border: 3px solid transparent;
+			background-clip: padding-box;
+			box-shadow: 0 0 0 2px #dbdbdb;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			font-size: 32px;
+			transition: box-shadow 0.2s;
+		}
+		.highlight-circle:hover {
+			box-shadow: 0 0 0 2px #a855f7;
 		}
 
 		.highlight-name {
@@ -365,21 +550,30 @@
 		.gallery-grid {
 			display: grid;
 			grid-template-columns: repeat(3, 1fr);
-			gap: 20px;
-			margin: 40px 0;
+			gap: 4px;
+			margin: 12px 0;
+		}
+
+		@keyframes galleryFadeIn {
+			from { opacity: 0; transform: scale(0.96); }
+			to { opacity: 1; transform: scale(1); }
 		}
 
 		.gallery-item {
 			aspect-ratio: 1;
 			background: #f0f0f0;
-			border-radius: 8px;
+			border-radius: 4px;
 			overflow: hidden;
 			cursor: pointer;
-			transition: transform 0.3s ease;
+			transition: transform 0.2s ease, opacity 0.2s;
+			animation: galleryFadeIn 0.4s ease backwards;
 		}
 
 		.gallery-item:hover {
 			transform: scale(1.02);
+		}
+		.gallery-item:active {
+			transform: scale(0.97);
 		}
 
 		.gallery-item img {
@@ -387,6 +581,7 @@
 			height: 100%;
 			object-fit: cover;
 			cursor: pointer;
+			transition: opacity 0.3s;
 		}
 
 		/* Lightbox for gallery images */
@@ -576,31 +771,36 @@
 		/* Tabs */
 		.tabs {
 			display: flex;
-			gap: 40px;
+			gap: 0;
 			border-top: 1px solid #dbdbdb;
-			margin: 40px 0 0 0;
-			overflow-x: auto; /* allow horizontal scroll if needed */
+			margin: 20px 0 0 0;
+			overflow-x: auto;
 			white-space: nowrap;
-			-ms-overflow-style: none; /* IE/Edge */
-			scrollbar-width: none; /* Firefox */
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+			justify-content: space-around;
 		}
 
 		.tabs::-webkit-scrollbar { display: none; }
 
 		.tab {
-			padding: 16px 0;
+			padding: 12px 8px;
 			font-size: 12px;
 			font-weight: 600;
 			color: #8e8e8e;
-			border-top: 1px solid transparent;
+			border-top: 2px solid transparent;
 			cursor: pointer;
-			transition: all 0.3s ease;
-			flex: 0 0 auto; /* prevent squishing when tabs overflow */
+			transition: all 0.2s ease;
+			flex: 1;
+			text-align: center;
 		}
 
 		.tab.active {
 			color: #262626;
 			border-top-color: #262626;
+		}
+		.tab:hover:not(.active) {
+			color: #555;
 		}
 
 		/* Modal for highlights */
@@ -673,43 +873,54 @@
 			text-align: center;
 			padding: 40px;
 			color: #999;
+			font-size: 13px;
+		}
+
+		/* Smooth page load */
+		@keyframes pageIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+		.profile-container {
+			animation: pageIn 0.4s ease;
 		}
 
 		@media (max-width: 768px) {
 			.profile-header {
-				grid-template-columns: 1fr;
-				gap: 10px;
-				text-align: center;
+				grid-template-columns: 80px 1fr;
+				gap: 12px;
+				text-align: left;
 			}
 
 			.profile-header-top {
-				justify-content: center;
-				margin-bottom: 6px;
+				justify-content: flex-start;
+				margin-bottom: 4px;
 			}
 
 			.profile-avatar img {
-				width: 90px;
-				height: 90px;
+				width: 80px;
+				height: 80px;
 			}
 
 			.profile-stats {
-				justify-content: center;
-				gap: 15px;
+				justify-content: flex-start;
+				gap: 16px;
 				flex-wrap: wrap;
 			}
 
 			.btn-follow-inline {
 				margin-left: 0;
-				margin-top: 5px;
+				margin-top: 0;
 				width: auto;
 				max-width: none;
-				padding: 5px 12px;
-				font-size: 11px;
+				padding: 5px 14px;
+				font-size: 12px;
+				border-radius: 6px;
 			}
 
 			.gallery-grid {
 				grid-template-columns: repeat(3, 1fr);
-				gap: 10px;
+				gap: 3px;
 			}
 
 			/* Make highlight modal grid single-column on tablets/phones */
@@ -722,28 +933,58 @@
 			}
 
 			.highlights {
-				gap: 10px;
+				gap: 12px;
 			}
 
 			.highlight-circle {
-				width: 60px;
-				height: 60px;
+				width: 62px;
+				height: 62px;
 				font-size: 26px;
+			}
+
+			.lightbox-content {
+				max-width: 100%;
+				max-height: 100%;
+				border-radius: 0;
+			}
+			.lightbox-close {
+				top: 8px;
+				right: 8px;
+				font-size: 28px;
+				width: 40px;
+				height: 40px;
+				background: rgba(255,255,255,0.9);
+				border-radius: 50%;
+			}
+			.lightbox-nav {
+				padding: 12px;
+				width: 40px;
+				height: 40px;
+				font-size: 24px;
+				background: rgba(255,255,255,0.85);
+				border-radius: 50%;
 			}
 		}
 
 		@media (max-width: 480px) {
 			.profile-container {
-				padding: 8px;
+				padding: 6px;
 			}
 
 			.profile-header {
+				grid-template-columns: 70px 1fr;
 				margin: 6px 0;
 				padding-bottom: 10px;
+				gap: 10px;
+			}
+
+			.profile-avatar img {
+				width: 70px;
+				height: 70px;
 			}
 
 			.profile-username {
-				font-size: 18px;
+				font-size: 17px;
 			}
 
 			.profile-stats {
@@ -752,89 +993,58 @@
 			}
 
 			.stat-number {
-				font-size: 14px;
+				font-size: 15px;
 			}
 
 			.btn-follow-inline {
 				font-size: 11px;
-				padding: 4px 10px;
+				padding: 5px 12px;
 				width: auto;
 				min-width: auto;
 			}
 
 			.highlight-circle {
-				width: 50px;
-				height: 50px;
-				font-size: 22px;
+				width: 56px;
+				height: 56px;
+				font-size: 24px;
 			}
 
 			.highlight-name {
 				font-size: 10px;
-				max-width: 70px;
+				max-width: 65px;
 			}
 
 			.gallery-grid {
 				grid-template-columns: repeat(3, 1fr);
-				gap: 5px;
+				gap: 2px;
 			}
 
 			.profile-buttons {
 				gap: 8px;
 			}
-			
-			/* Tablet buttons adjustment */
-			.buttons-section {
-				gap: 10px;
-			}
-			
-			.buttons-section .btn {
-				flex: 1 1 calc(50% - 10px);
-				min-width: 140px;
-			}
-		}
 
-		@media (max-width: 600px) {
-			.btn {
-				padding: 12px 20px;
-				font-size: 13px;
-				min-height: 48px; /* comfortable tap size */
-				font-weight: 600;
+			.tabs {
+				gap: 20px;
+				margin: 16px 0 0 0;
+				justify-content: space-around;
+			}
+			.tab {
+				padding: 10px 0;
+				font-size: 11px;
 			}
 
-			/* Make nav button rows wrap nicely on phones */
-			.buttons-section {
-				gap: 8px;
-				padding: 0 10px;
-				max-width: 100%;
-			}
-			
-			.buttons-section .btn {
-				flex: 1 1 calc(50% - 8px);
-				text-align: center;
-				min-width: 0;
-				white-space: normal;
-				line-height: 1.4;
-				word-wrap: break-word;
+			.profile-bio {
+				font-size: 12px;
 			}
 		}
 
 		@media (max-width: 360px) {
 			.gallery-grid {
 				grid-template-columns: repeat(3, 1fr);
-				gap: 3px;
+				gap: 1px;
 			}
-			
-			.buttons-section {
-				gap: 8px;
-				padding: 0 10px;
-			}
-			
-			.buttons-section .btn { 
-				flex: 1 1 100%;
-				max-width: 100%;
-				min-width: 0;
-				padding: 14px 16px;
-				font-size: 14px;
+			.gallery-item {
+				border-radius: 2px;
 			}
 		}
 	</style>
@@ -996,10 +1206,12 @@
 		<!-- Tabs -->
 		<div class="tabs">
 			<div class="tab active" data-section="POSTS">📷 POSTS</div>
+			<a href=".//story/story.html" class="tab" style="text-decoration: none; color: inherit;">📌 STORY</a>
 			<a href="pinterest.html" class="tab" style="text-decoration: none; color: inherit;">📌 PINTEREST</a>
 			<div class="tab" data-section="REELS">🎬 REELS</div>
 			<div class="tab" data-section="SAVED">❤️ SAVED</div>
 			<div class="tab" data-section="TAGGED">👤 TAGGED</div>
+
 		</div>
 
 		<!-- Gallery Grids for each section -->
@@ -1050,52 +1262,99 @@
 		</div>
 	</div>
 
-	<div class="profile-buttons" style="justify-content: center; flex-direction: column; align-items: center; text-align: center; margin-top: 60px; padding: 0 15px;">
-		<h2 style="font-size: 24px; margin-bottom: 10px; color: #262626; font-weight: 700;">✨ All Creations Available Here</h2>
-		<p style="font-size: 16px; color: #666; margin-bottom: 5px; font-weight: 500;">Free to use and share with attribution</p>
-		<p style="font-size: 14px; color: #999; margin-bottom: 20px;">বাংলা কোটস, ফটোগ্রাফি, ইলাস্ট্রেশন - সব ফ্রি ব্যবহার করুন</p>
-
-		<div class="buttons-section">
-			<a href="files/index.html" class="btn btn-orange external-link">Pinterest (mixed) ↗</a>
-			
+	<!-- ===== Creations Footer ===== -->
+	<div class="creations-footer">
+		<div class="creations-header">
+			<h2>✨ All Creations</h2>
+			<p>Free to use and share with attribution</p>
+			<p>বাংলা কোটস, ফটোগ্রাফি, ইলাস্ট্রেশন — সব ফ্রি</p>
 		</div>
 
-		<div class="buttons-section">
-			<a href="files/bangla_quotes_1.html" class="btn btn-orange external-link">Bangla Quotes ↗</a>
-			<a href="files/bangla_quotes_2.html" class="btn btn-pink external-link">Bangla Quotes 2 ↗</a>
-			<a href="files/bangla_quotes_3.html" class="btn btn-orange external-link">Bangla Quotes 3 ↗</a>
-			<a href="files/bangla_quotes_4.html" class="btn btn-pink external-link">Bangla Quotes 4 ↗</a>
+		<!-- Featured: Pinterest Mixed -->
+		<a href="index.html" class="featured-card external-link">
+			<span class="fc-icon">📌</span>
+			<div class="fc-text">
+				<h3>Pinterest Gallery</h3>
+				<p>সব ক্যাটাগরি মিক্স করে দেখুন</p>
+			</div>
+			<span class="fc-arrow">→</span>
+		</a>
+
+		<!-- Bangla Quotes -->
+		<div class="cat-card">
+			<div class="cat-card-header">
+				<div class="cat-icon bangla">🇧🇩</div>
+				<h4>বাংলা কোটস</h4>
+				<span>4 collections</span>
+			</div>
+			<div class="cat-links">
+				<a href="files/bangla_quotes_1.html" class="cat-link green external-link"><span class="link-num">1</span> Bangla Quotes</a>
+				<a href="files/bangla_quotes_2.html" class="cat-link green external-link"><span class="link-num">2</span> Bangla Quotes</a>
+				<a href="files/bangla_quotes_3.html" class="cat-link green external-link"><span class="link-num">3</span> Bangla Quotes</a>
+				<a href="files/bangla_quotes_4.html" class="cat-link green external-link"><span class="link-num">4</span> Bangla Quotes</a>
+			</div>
 		</div>
 
-		<div class="buttons-section">
-			<a href="files/photography_1.html" class="btn btn-orange external-link">Photography ↗</a>
-			<a href="files/photography_2.html" class="btn btn-pink external-link">Photography 2 ↗</a>
-			<a href="files/photography_3.html" class="btn btn-orange external-link">Photography 3 ↗</a>
-			<a href="files/photography_4.html" class="btn btn-pink external-link">Photography 4 ↗</a>
+		<!-- Photography -->
+		<div class="cat-card">
+			<div class="cat-card-header">
+				<div class="cat-icon photo">📸</div>
+				<h4>Photography</h4>
+				<span>4 collections</span>
+			</div>
+			<div class="cat-links">
+				<a href="files/photography_1.html" class="cat-link blue external-link"><span class="link-num">1</span> Photography</a>
+				<a href="files/photography_2.html" class="cat-link blue external-link"><span class="link-num">2</span> Photography</a>
+				<a href="files/photography_3.html" class="cat-link blue external-link"><span class="link-num">3</span> Photography</a>
+				<a href="files/photography_4.html" class="cat-link blue external-link"><span class="link-num">4</span> Photography</a>
+			</div>
 		</div>
 
-		<div class="buttons-section">
-			<a href="files/english_quotes_1.html" class="btn btn-orange external-link">English Quotes ↗</a>
-			<a href="files/english_quotes_2.html" class="btn btn-pink external-link">English Quotes 2 ↗</a>
+		<!-- English Quotes -->
+		<div class="cat-card">
+			<div class="cat-card-header">
+				<div class="cat-icon english">🌍</div>
+				<h4>English Quotes</h4>
+				<span>2 collections</span>
+			</div>
+			<div class="cat-links">
+				<a href="files/english_quotes_1.html" class="cat-link amber external-link"><span class="link-num">1</span> English Quotes</a>
+				<a href="files/english_quotes_2.html" class="cat-link amber external-link"><span class="link-num">2</span> English Quotes</a>
+			</div>
 		</div>
 
-		<div class="buttons-section">
-			<a href="files/illustration_1.html" class="btn btn-orange external-link">Illustration ↗</a>
-			<a href="files/illustration_2.html" class="btn btn-pink external-link">Illustration 2 ↗</a>
+		<!-- Illustration -->
+		<div class="cat-card">
+			<div class="cat-card-header">
+				<div class="cat-icon illust">🎨</div>
+				<h4>Illustration</h4>
+				<span>2 collections</span>
+			</div>
+			<div class="cat-links">
+				<a href="files/illustration_1.html" class="cat-link pink external-link"><span class="link-num">1</span> Illustration</a>
+				<a href="files/illustration_2.html" class="cat-link pink external-link"><span class="link-num">2</span> Illustration</a>
+			</div>
 		</div>
 
-		<div class="buttons-section">
-			<a href="files/dotted_illustration_1.html" class="btn btn-orange external-link">Dotted Illustration ↗</a>
-			<a href="files/dotted_illustration_2.html" class="btn btn-pink external-link">Dotted Illustration 2 ↗</a>
+		<!-- Dotted Illustration -->
+		<div class="cat-card">
+			<div class="cat-card-header">
+				<div class="cat-icon dotted">✏️</div>
+				<h4>Dotted Illustration</h4>
+				<span>2 collections</span>
+			</div>
+			<div class="cat-links">
+				<a href="files/dotted_illustration_1.html" class="cat-link purple external-link"><span class="link-num">1</span> Dotted Illust.</a>
+				<a href="files/dotted_illustration_2.html" class="cat-link purple external-link"><span class="link-num">2</span> Dotted Illust.</a>
+			</div>
 		</div>
 
-		<!-- Install App Button Footer -->
-		<div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #dbdbdb; width: 100%; max-width: 800px;">
-			<button id="installBtn" class="btn btn-primary" style="display: none; width: 100%; max-width: 300px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+		<!-- Install App -->
+		<div class="install-footer">
+			<button id="installBtn" class="btn btn-primary" style="display: none; width: 100%; max-width: 300px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px;">
 				📱 Install App
 			</button>
 		</div>
-
 	</div>
 
 	<script>
