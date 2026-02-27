@@ -626,10 +626,10 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
 
     const TABLE_CONFIG = {
-        'bangla_quotes_1':       { name: 'Bangla Quotes 1',       category: 'bangla',        emoji: 'বাংলা' },
-        'bangla_quotes_2':       { name: 'Bangla Quotes 2',       category: 'bangla',        emoji: '🇧🇩' },
-        'bangla_quotes_3':       { name: 'Bangla Quotes 3',       category: 'bangla',        emoji: '🇧🇩' },
-        'bangla_quotes_4':       { name: 'Bangla Quotes 4',       category: 'bangla',        emoji: '🇧🇩' },
+        'bangla_quotes_1':       { name: 'Bangla Quotes 1',       category: 'bangla',        emoji: '' },
+        'bangla_quotes_2':       { name: 'Bangla Quotes 2',       category: 'bangla',        emoji: '' },
+        'bangla_quotes_3':       { name: 'Bangla Quotes 3',       category: 'bangla',        emoji: '' },
+        'bangla_quotes_4':       { name: 'Bangla Quotes 4',       category: 'bangla',        emoji: '' },
         'photography_1':         { name: 'Photography 1',         category: 'photography',   emoji: '📸' },
         'photography_2':         { name: 'Photography 2',         category: 'photography',   emoji: '📸' },
         'photography_3':         { name: 'Photography 3',         category: 'photography',   emoji: '📸' },
@@ -798,10 +798,12 @@
     }
 
     // ============================================
-    // EQUAL-RATIO MIXING ALGORITHM
+    // ADVANCED MIXING ALGORITHM SYSTEM
     // ============================================
 
-    /** Fisher-Yates shuffle */
+    // ── 1. Core Utility ──────────────────────────────────────
+
+    /** Fisher-Yates O(n) shuffle */
     function fisherShuffle(arr) {
         const a = [...arr];
         for (let i = a.length - 1; i > 0; i--) {
@@ -811,71 +813,199 @@
         return a;
     }
 
+    // ── 2. User Preference Tracking (localStorage) ───────────
+
+    const Prefs = {
+        KEY: 'gd_prefs_v1',
+        data: { catClicks: {}, tableClicks: {} },
+
+        load() {
+            try {
+                const raw = localStorage.getItem(this.KEY);
+                if (raw) this.data = JSON.parse(raw);
+            } catch (_) {}
+        },
+
+        save() {
+            try { localStorage.setItem(this.KEY, JSON.stringify(this.data)); } catch (_) {}
+        },
+
+        record(tableName, category) {
+            this.data.tableClicks[tableName] = (this.data.tableClicks[tableName] || 0) + 1;
+            this.data.catClicks[category]    = (this.data.catClicks[category]    || 0) + 1;
+            this.save();
+        },
+
+        tableWeight(tn) {
+            const c = this.data.tableClicks[tn] || 0;
+            if (c === 0) return 1;
+            if (c < 5)   return 1.3;
+            if (c < 15)  return 1.8;
+            if (c < 40)  return 2.5;
+            return 4;
+        },
+
+        catWeight(cat) {
+            const c = this.data.catClicks[cat] || 0;
+            if (c === 0) return 1;
+            if (c < 10)  return 1.4;
+            if (c < 30)  return 2;
+            return 3;
+        }
+    };
+    Prefs.load();
+
+    // ── 3. Photo Scoring ──────────────────────────────────────
+
+    const _NOW      = Date.now();
+    const _WEEK_MS  = 7  * 86400000;
+    const _MONTH_MS = 30 * 86400000;
+    const _Q3MO_MS  = 90 * 86400000;
+
     /**
-     * Equal-Ratio Round-Robin Mix
-     * ─────────────────────────────
-     * প্রতিটি টেবিল থেকে সমান সংখ্যক ছবি নিয়ে রাউন্ড-রবিন ইন্টারলিভ করে।
-     * প্রতিটি টেবিলের ভেতরে ছবিগুলো আসল ক্রম (প্রথম→শেষ) রাখে।
-     * একটি টেবিলের ১০টি ছবি দেখালে, পাতায় সেটি ১ম থেকে ১০ম পর্যন্ত
-     * সমানভাবে ছড়িয়ে থাকবে।
+     * প্রতিটি ছবিকে score দেওয়া হয়:
+     *   Recency   : নতুন ছবি সামনে আসে (+0–+40)
+     *   Quality   : title/description থাকলে বোনাস (+0–+20)
+     *   Preference: ইউজার যা বেশি দেখে (+0–+40)
+     *   Noise     : প্রতিবার ভিন্ন মিশ্রণ (+0–+30)
      */
-    function equalRatioMix(photos) {
+    function scorePhoto(p) {
+        let recency = 0;
+        if (p.created_at) {
+            const age = _NOW - new Date(p.created_at).getTime();
+            if      (age < _WEEK_MS)  recency = 40;
+            else if (age < _MONTH_MS) recency = 25;
+            else if (age < _Q3MO_MS)  recency = 10;
+        }
+        const quality = (p.title ? 12 : 0) + (p.description ? 8 : 0);
+        const pref    = Prefs.tableWeight(p.tableName) * 8 + Prefs.catWeight(p.category) * 5;
+        const noise   = Math.random() * 30;
+        return recency + quality + pref + noise;
+    }
+
+    // ── 4. Diversity Pass ─────────────────────────────────────
+
+    /**
+     * যদি maxRun বা তার বেশি পরপর ছবি একই key (category / tableName)
+     * থেকে আসে, সামনের ভিন্ন key-এর ছবির সাথে swap করে diversity রাখে।
+     */
+    function diversityPass(arr, key = 'category', maxRun = 3) {
+        const a = [...arr];
+        for (let i = maxRun; i < a.length; i++) {
+            const run = a.slice(i - maxRun, i).every(x => x[key] === a[i - maxRun][key]);
+            if (!run || a[i][key] !== a[i - maxRun][key]) continue;
+            let swapIdx = -1;
+            for (let j = i + 1; j < Math.min(i + 20, a.length); j++) {
+                if (a[j][key] !== a[i][key]) { swapIdx = j; break; }
+            }
+            if (swapIdx !== -1) [a[i], a[swapIdx]] = [a[swapIdx], a[i]];
+        }
+        return a;
+    }
+
+    // ── 5. Table-Level Scored Mix ─────────────────────────────
+
+    /**
+     * প্রতিটি টেবিলের ছবি score অনুযায়ী sort করে,
+     * তারপর user preference weighted round-robin interleave।
+     */
+    function scoredTableMix(photos) {
         const tables = {};
         photos.forEach(p => {
             if (!tables[p.tableName]) tables[p.tableName] = [];
             tables[p.tableName].push(p);
         });
 
-        // Randomize table order (so different tables start first each time)
-        const tableNames = fisherShuffle(Object.keys(tables));
-        const maxLen = Math.max(...Object.values(tables).map(t => t.length), 0);
+        for (const tn of Object.keys(tables)) {
+            tables[tn] = tables[tn]
+                .map(p => ({ p, s: scorePhoto(p) }))
+                .sort((a, b) => b.s - a.s)
+                .map(x => x.p);
+        }
 
+        const tableNames   = Object.keys(tables);
+        const weightedPool = fisherShuffle(
+            tableNames.flatMap(tn => Array(Math.max(1, Math.round(Prefs.tableWeight(tn)))).fill(tn))
+        );
+
+        const idx    = {};
+        tableNames.forEach(tn => idx[tn] = 0);
         const result = [];
-        for (let i = 0; i < maxLen; i++) {
-            for (const tn of tableNames) {
-                if (tables[tn][i]) {
-                    result.push(tables[tn][i]);
+        const total  = photos.length;
+        let placed   = 0, cycle = 0;
+
+        while (placed < total) {
+            const order = cycle === 0 ? weightedPool : fisherShuffle([...tableNames]);
+            let added = 0;
+            for (const tn of order) {
+                if (idx[tn] < tables[tn].length) {
+                    result.push(tables[tn][idx[tn]++]);
+                    placed++; added++;
+                    if (placed >= total) break;
                 }
             }
+            if (added === 0) break;
+            cycle++;
         }
         return result;
     }
 
+    // ── 6. Smart Global Mix — main algorithm ──────────────────
+
     /**
-     * Category-Aware Equal-Ratio Mix
-     * ──────────────────────────────
-     * ১. প্রতিটি ক্যাটাগরির ভেতরে টেবিল-লেভেল equal-ratio mix
-     * ২. তারপর ক্যাটাগরিগুলো নিজেরা round-robin interleave
-     * 
-     * ফলে: বাংলা, ফটোগ্রাফি, ইলাস্ট্রেশন, ইংলিশ, পোস্ট — সব
-     * সমানভাবে পাতাজুড়ে ছড়িয়ে থাকে।
+     * সর্বোত্তম অ্যালগরিদম — সব টেবিল এবং সব ক্যাটাগরির জন্য
+     *
+     *  1. category অনুযায়ী ভাগ → প্রতিটিতে scoredTableMix
+     *  2. category preference weighted round-robin
+     *  3. category diversity pass (max 3 পরপর একই category)
+     *  4. table diversity pass (max 4 পরপর একই table)
      */
-    function categoryEqualMix(photos) {
+    function smartGlobalMix(photos) {
         const categories = {};
         photos.forEach(p => {
             if (!categories[p.category]) categories[p.category] = [];
             categories[p.category].push(p);
         });
 
-        // Within each category: table-level equal-ratio
         const catMixed = {};
         for (const cat of Object.keys(categories)) {
-            catMixed[cat] = equalRatioMix(categories[cat]);
+            catMixed[cat] = scoredTableMix(categories[cat]);
         }
 
-        // Interleave categories round-robin
-        const catNames = fisherShuffle(Object.keys(catMixed));
-        const maxCatLen = Math.max(...Object.values(catMixed).map(a => a.length), 0);
-        const result = [];
+        const catNames    = Object.keys(catMixed);
+        const catPool     = fisherShuffle(
+            catNames.flatMap(cn => Array(Math.max(1, Math.round(Prefs.catWeight(cn)))).fill(cn))
+        );
+        const catIdx     = {};
+        catNames.forEach(cn => catIdx[cn] = 0);
 
-        for (let i = 0; i < maxCatLen; i++) {
-            for (const cn of catNames) {
-                if (catMixed[cn][i]) {
-                    result.push(catMixed[cn][i]);
+        const result = [];
+        const total  = photos.length;
+        let placed   = 0, cycle = 0;
+
+        while (placed < total) {
+            const order = cycle === 0 ? catPool : fisherShuffle([...catNames]);
+            let added = 0;
+            for (const cn of order) {
+                if (catIdx[cn] < catMixed[cn].length) {
+                    result.push(catMixed[cn][catIdx[cn]++]);
+                    placed++; added++;
+                    if (placed >= total) break;
                 }
             }
+            if (added === 0) break;
+            cycle++;
         }
-        return result;
+
+        let out = diversityPass(result, 'category', 3);
+        out     = diversityPass(out,    'tableName', 4);
+        console.log(`🌟 smartGlobalMix: ${photos.length} photos, ${catNames.length} categories`);
+        return out;
+    }
+
+    /** একটি category filter এর জন্য — scored + table diversity */
+    function smartCategoryMix(photos) {
+        return diversityPass(scoredTableMix(photos), 'tableName', 4);
     }
 
     // ============================================
@@ -891,10 +1021,9 @@
             State.filteredPhotos = State.allPhotos.filter(p => p.category === category);
         }
 
-        // Apply the appropriate mixing algorithm
         State.mixedPhotos = category === 'all'
-            ? categoryEqualMix(State.filteredPhotos)
-            : equalRatioMix(State.filteredPhotos);
+            ? smartGlobalMix(State.filteredPhotos)
+            : smartCategoryMix(State.filteredPhotos);
 
         renderGallery();
         updateUI();
@@ -1096,6 +1225,11 @@
         document.getElementById('lightboxMeta').textContent = cfg
             ? `${cfg.emoji} ${cfg.name}`
             : photoData.tableName;
+
+        // Track user preference (for smarter mixing on next load)
+        if (photoData.tableName && photoData.category) {
+            Prefs.record(photoData.tableName, photoData.category);
+        }
 
         lb.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -1318,8 +1452,8 @@
         State.allPhotos = await loadAllPhotos();
         State.filteredPhotos = [...State.allPhotos];
 
-        // Equal-ratio mix across all categories & tables
-        State.mixedPhotos = categoryEqualMix(State.filteredPhotos);
+        // Smart global mix: recency + quality + user preference + diversity
+        State.mixedPhotos = smartGlobalMix(State.filteredPhotos);
 
         renderGallery();
         updateUI();

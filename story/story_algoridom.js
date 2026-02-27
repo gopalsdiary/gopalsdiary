@@ -408,6 +408,167 @@ function smartPersonalizedShuffle(array) {
     return result;
 }
 
+// ===========================================
+// Story-Optimised Algorithms (3-Table Single Category)
+// ===========================================
+
+/**
+ * Strict Round Robin - ৩টি টেবিল থেকে পালাক্রমে নেয়
+ * T1[0] → T2[0] → T3[0] → T1[1] → T2[1] → T3[1] …
+ * Guaranteed perfect 1:1:1 ratio per page.
+ */
+function strictRoundRobinShuffle(array) {
+    const tables = {};
+    array.forEach(item => {
+        if (!tables[item.tableName]) tables[item.tableName] = [];
+        tables[item.tableName].push(item);
+    });
+
+    // Use TABLE_CONFIG key order so the sequence is predictable
+    const tableNames = Object.keys(TABLE_CONFIG).filter(t => tables[t]);
+    tableNames.forEach(t => { tables[t] = fisherYatesShuffle(tables[t]); });
+
+    const result = [];
+    const maxLen = Math.max(...tableNames.map(t => tables[t].length));
+    for (let i = 0; i < maxLen; i++) {
+        for (const t of tableNames) {
+            if (tables[t] && tables[t][i]) result.push(tables[t][i]);
+        }
+    }
+    return result;
+}
+
+/**
+ * Adaptive Table Shuffle - টেবিল সাইজ অনুযায়ী adapt করে
+ * প্রথমে সকল টেবিল থেকে সমান সংখ্যক ছবি নেয়,
+ * তারপর বড় টেবিলের বাকি ছবি শেষে যোগ করে।
+ */
+function adaptiveTableShuffle(array) {
+    const tables = {};
+    array.forEach(item => {
+        if (!tables[item.tableName]) tables[item.tableName] = [];
+        tables[item.tableName].push(item);
+    });
+
+    const tableNames = Object.keys(tables);
+    tableNames.forEach(t => { tables[t] = fisherYatesShuffle(tables[t]); });
+
+    const minSize = Math.min(...tableNames.map(t => tables[t].length));
+
+    // Equal first pass — strict round-robin up to minSize
+    const result = [];
+    for (let i = 0; i < minSize; i++) {
+        const shuffledOrder = fisherYatesShuffle([...tableNames]);
+        for (const t of shuffledOrder) {
+            if (tables[t][i]) result.push(tables[t][i]);
+        }
+    }
+
+    // Leftover items from larger tables — appended shuffled
+    const leftovers = tableNames.flatMap(t => tables[t].slice(minSize));
+    result.push(...fisherYatesShuffle(leftovers));
+
+    return result;
+}
+
+/**
+ * Recency Weighted Shuffle - নতুন ছবি উপরে আসবে
+ * created_at অনুযায়ী score দেয়; এক সপ্তাহের মধ্যে +100, মাসের মধ্যে +50
+ */
+function recencyWeightedShuffle(array) {
+    const now = Date.now();
+    const WEEK_MS  = 7  * 24 * 60 * 60 * 1000;
+    const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+    return array
+        .map(item => {
+            const age = item.created_at
+                ? now - new Date(item.created_at).getTime()
+                : Infinity;
+            const recencyBoost = age < WEEK_MS ? 100 : age < MONTH_MS ? 50 : 0;
+            return {
+                item,
+                score: recencyBoost
+                    + Math.random() * 40
+                    + (TABLE_CONFIG[item.tableName]?.weight || 1) * 5
+            };
+        })
+        .sort((a, b) => b.score - a.score)
+        .map(x => x.item);
+}
+
+/**
+ * Quality First Shuffle - শিরোনাম / বিবরণ আছে এমন ছবি আগে
+ * ৩টি মেটাডেটা-সমৃদ্ধ ছবির পর ১টি সাধারণ ছবি (3:1 ratio)
+ */
+function qualityFirstShuffle(array) {
+    const withMeta    = fisherYatesShuffle(array.filter(i => i.title || i.description));
+    const withoutMeta = fisherYatesShuffle(array.filter(i => !i.title && !i.description));
+
+    const result = [];
+    let mi = 0, wi = 0;
+    while (mi < withMeta.length || wi < withoutMeta.length) {
+        for (let k = 0; k < 3 && mi < withMeta.length; k++) result.push(withMeta[mi++]);
+        if (wi < withoutMeta.length) result.push(withoutMeta[wi++]);
+    }
+    return result;
+}
+
+/**
+ * Smart Story Mix  🎯  — সর্বোত্তম অ্যালগরিদম ৩টি story টেবিলের জন্য
+ *
+ * পদ্ধতি:
+ *  1. প্রতিটি টেবিলের মধ্যে recency-score দিয়ে sort
+ *  2. Strict round-robin interleave (equal first pass)
+ *  3. User preference weight দিয়ে table order adjust
+ *  4. বাকি ছবি shuffled করে শেষে যোগ
+ */
+function smartStoryMix(array) {
+    const tables = {};
+    array.forEach(item => {
+        if (!tables[item.tableName]) tables[item.tableName] = [];
+        tables[item.tableName].push(item);
+    });
+
+    const tableNames = Object.keys(TABLE_CONFIG).filter(t => tables[t]);
+    const now = Date.now();
+    const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+    // Step 1: Sort within each table by recency + user preference + randomness
+    tableNames.forEach(t => {
+        const userW = getUserTableWeight(t);
+        tables[t].sort((a, b) => {
+            const aAge = a.created_at ? now - new Date(a.created_at).getTime() : Infinity;
+            const bAge = b.created_at ? now - new Date(b.created_at).getTime() : Infinity;
+            const aScore = (aAge < MONTH_MS ? 50 : 0) + Math.random() * 30 + userW * 10;
+            const bScore = (bAge < MONTH_MS ? 50 : 0) + Math.random() * 30 + userW * 10;
+            return bScore - aScore;
+        });
+    });
+
+    // Step 2: Equal first pass — pick one from each table per round
+    const minSize       = Math.min(...tableNames.map(t => tables[t].length));
+    const firstPassSize = Math.min(minSize, Math.ceil(array.length / tableNames.length));
+
+    const result = [];
+    for (let i = 0; i < firstPassSize; i++) {
+        // Sort table order by user preference (most preferred first), break ties randomly
+        const orderedTables = [...tableNames].sort((a, b) =>
+            getUserTableWeight(b) - getUserTableWeight(a) + (Math.random() - 0.5) * 0.1
+        );
+        for (const t of orderedTables) {
+            if (tables[t][i]) result.push(tables[t][i]);
+        }
+    }
+
+    // Step 3: Remaining items shuffled and appended
+    const remaining = tableNames.flatMap(t => tables[t].slice(firstPassSize));
+    result.push(...fisherYatesShuffle(remaining));
+
+    console.log(`🎬 smartStoryMix: ${tableNames.length} tables, first-pass ${firstPassSize * tableNames.length} photos, remainder ${remaining.length}`);
+    return result;
+}
+
 /**
  * Time-Based Shuffle Seed
  * Same order within the same hour
@@ -635,7 +796,7 @@ const SHUFFLE_ALGORITHMS = {
     // Category-balanced
     balanced: (arr) => categoryBalancedShuffle(arr),
 
-    // Table-balanced - নতুন! প্রতিটি টেবিল থেকে সমানভাবে
+    // Table-balanced - প্রতিটি টেবিল থেকে সমানভাবে
     tableBalanced: (arr) => tableBalancedShuffle(arr),
 
     // Advanced mixed - Category এবং Table উভয় balance
@@ -649,6 +810,23 @@ const SHUFFLE_ALGORITHMS = {
 
     // Time-based (same order within the same hour)
     timeBased: (arr) => seededShuffle(arr, getTimeSeed()),
+
+    // --- Story-Optimised (3-Table Single Category) ---
+
+    // Strict 1:1:1 round-robin (পালাক্রম)
+    roundRobin: (arr) => strictRoundRobinShuffle(arr),
+
+    // Equal first-pass then leftovers
+    adaptive: (arr) => adaptiveTableShuffle(arr),
+
+    // Newer photos first (recency boost)
+    recency: (arr) => recencyWeightedShuffle(arr),
+
+    // Photos with title/description first
+    quality: (arr) => qualityFirstShuffle(arr),
+
+    // Best overall for 3 story tables 🌟
+    smartStoryMix: (arr) => smartStoryMix(arr),
 
     // Hybrid - popular + random mix
     hybrid: (arr) => {
@@ -702,7 +880,7 @@ const SHUFFLE_ALGORITHMS = {
  * Shuffle photos
  * @param {string} algorithm - Algorithm name
  */
-function shufflePhotos(algorithm = 'smartPersonalized') {
+function shufflePhotos(algorithm = 'smartStoryMix') {
     const shuffleFn = SHUFFLE_ALGORITHMS[algorithm] || SHUFFLE_ALGORITHMS.smartPersonalized;
     AppState.displayPhotos = shuffleFn(AppState.filteredPhotos);
     AppState.lastShuffleTime = Date.now();
@@ -731,7 +909,7 @@ function filterByCategory(category) {
 
     if (category === 'all') {
         AppState.filteredPhotos = [...AppState.allPhotos];
-        shufflePhotos('smartPersonalized'); // Use smart personalized algorithm
+        shufflePhotos('smartStoryMix'); // Best algorithm for 3 story tables
     } else if (category === 'popular') {
         // Sort by click count (most popular first)
         AppState.filteredPhotos = [...AppState.allPhotos].sort((a, b) => {
@@ -742,7 +920,7 @@ function filterByCategory(category) {
         AppState.filteredPhotos = AppState.allPhotos.filter(
             photo => photo.category === category
         );
-        shufflePhotos('personalized'); // Category filter তে personalized ব্যবহার করো
+        shufflePhotos('smartStoryMix'); // Story tables এর জন্য smartStoryMix সবচেয়ে ভালো
     }
 
     AppState.currentPage = 1;
@@ -1112,8 +1290,8 @@ async function initGallery() {
     AppState.allPhotos = await loadAllPhotos();
     AppState.filteredPhotos = [...AppState.allPhotos];
 
-    // Shuffle with smart personalized algorithm
-    shufflePhotos('smartPersonalized');
+    // Shuffle with the story-optimised algorithm
+    shufflePhotos('smartStoryMix');
 
     // Render
     renderGallery();
