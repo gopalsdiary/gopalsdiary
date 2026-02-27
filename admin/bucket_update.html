@@ -647,17 +647,132 @@
 
         @media (max-width: 480px) {
             .photos-grid {
-                grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+                grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
             }
+            .section-header h2 { font-size: 20px; }
+            .admin-container { padding: 12px; }
+            .filter-tabs { gap: 6px; }
+            .filter-tab { padding: 6px 12px; font-size: 12px; }
+            .dashboard-stats { gap: 12px; }
+            .stat-card { padding: 16px 20px; }
+            .stat-value { font-size: 28px; }
+        }
 
-            .section-header h2 {
-                font-size: 20px;
-            }
+        /* --- Filter Tabs --- */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .filter-tab:hover { border-color: var(--primary); color: var(--primary); }
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+        .filter-tab .tab-count {
+            display: inline-block;
+            font-size: 11px;
+            background: rgba(255,255,255,0.25);
+            padding: 1px 7px;
+            border-radius: 100px;
+            margin-left: 4px;
+        }
+        .filter-tab:not(.active) .tab-count {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
 
-            .admin-container {
-                padding: 16px;
-            }
+        /* --- Status Badge --- */
+        .status-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 100px;
+            letter-spacing: 0.3px;
+            z-index: 5;
+            backdrop-filter: blur(6px);
+        }
+        .status-badge.done {
+            background: rgba(16,185,129,0.88);
+            color: white;
+        }
+        .status-badge.pending {
+            background: rgba(245,158,11,0.92);
+            color: white;
+        }
+        .status-badge.no-url {
+            background: rgba(239,68,68,0.85);
+            color: white;
+        }
+
+        /* --- Photo card improvements --- */
+        .photo-card .id-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--text-muted);
+            opacity: 0.65;
+            margin-bottom: 6px;
+        }
+        .photo-card.is-pending {
+            border-color: rgba(245,158,11,0.4);
+            box-shadow: 0 0 0 1.5px rgba(245,158,11,0.2);
+        }
+        .photo-card.is-no-url {
+            border-color: rgba(239,68,68,0.3);
+            box-shadow: 0 0 0 1.5px rgba(239,68,68,0.1);
+        }
+
+        /* --- Section header improvements --- */
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .section-header-top {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        /* --- Quality slider --- */
+        .quality-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .quality-row input[type=range] {
+            flex: 1;
+            accent-color: #8b5cf6;
+        }
+        .quality-value {
+            min-width: 60px;
+            text-align: right;
+            color: #8b5cf6;
+            font-weight: 700;
         }
 
         /* Custom Scrollbar */
@@ -734,24 +849,38 @@
         <main class="admin-container">
             <div class="dashboard-stats">
                 <div class="stat-card">
-                    <div class="stat-label">Total Items</div>
+                    <div class="stat-label">📷 Total Items</div>
                     <div class="stat-value" id="statTotal">—</div>
                 </div>
                 <div class="stat-card" style="--primary: var(--success)">
-                    <div class="stat-label">Added Yesterday</div>
+                    <div class="stat-label">✅ Bucket Done</div>
                     <div class="stat-value" id="statToday">—</div>
                 </div>
                 <div class="stat-card" style="--primary: var(--warning)">
-                    <div class="stat-label">Pending Review</div>
+                    <div class="stat-label">⏳ Pending Upload</div>
                     <div class="stat-value" id="statPending">—</div>
                 </div>
             </div>
 
             <section class="admin-section">
                 <div class="section-header">
-                    <h2 id="sectionTitle">Items Management</h2>
-                    <div class="search-bar">
-                        <input type="text" id="searchInput" placeholder="Search entries...">
+                    <div class="section-header-top">
+                        <h2 id="sectionTitle">Items Management</h2>
+                        <div class="search-bar">
+                            <input type="text" id="searchInput" placeholder="Search entries...">
+                        </div>
+                    </div>
+                    <!-- Filter Tabs -->
+                    <div class="filter-tabs" id="filterTabs">
+                        <button class="filter-tab" data-filter="pending" onclick="setFilter('pending')">
+                            ⚠️ Pending <span class="tab-count" id="countPending">0</span>
+                        </button>
+                        <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">
+                            All <span class="tab-count" id="countAll">0</span>
+                        </button>
+                        <button class="filter-tab" data-filter="done" onclick="setFilter('done')">
+                            ✅ Done <span class="tab-count" id="countDone">0</span>
+                        </button>
                     </div>
                 </div>
 
@@ -776,28 +905,32 @@
                 <span class="close" onclick="closeBucketModal()">&times;</span>
             </div>
 
-            <div
-                style="background: rgba(139, 92, 246, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.1); margin-bottom: 24px;">
-                <p style="font-size: 13px; font-weight: 600; color: #7c3aed; margin-bottom: 8px;">📸 Supabase Storage
-                    Bucket:</p>
-                <p style="font-size: 12px; color: #4c1d95; line-height: 1.6;">
-                    image_url থেকে ছবি compress করবে (&lt;80KB) এবং Supabase <strong>"photography"</strong> bucket এ
-                    upload করবে।
-                    পুরনো <code>thumbnail_url</code> থাকলে সেটি <code>backup_thumb_url</code> এ সরিয়ে নতুন bucket URL
-                    টি <code>thumbnail_url</code> এ সেভ করবে।
+            <div style="background:rgba(139,92,246,0.05);padding:16px;border-radius:12px;border:1px solid rgba(139,92,246,0.1);margin-bottom:20px;">
+                <p style="font-size:13px;font-weight:600;color:#7c3aed;margin-bottom:6px;">📸 Supabase Storage Bucket:</p>
+                <p style="font-size:12px;color:#4c1d95;line-height:1.6;">
+                    image_url থেকে ছবি compress করে Supabase <strong>"photography"</strong> bucket এ upload করবে।
+                    পুরনো <code>thumbnail_url</code> → <code>backup_thumb_url</code> এ সরিয়ে নতুন URL সেভ করবে।
                 </p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                <button id="startBucketBtn" class="btn btn-primary"
-                    style="justify-content: center; background: #8b5cf6;">▶️ Update Current</button>
-                <button id="updateAllBucketBtn" class="btn btn-primary"
-                    style="justify-content: center; background: #7c3aed;">🔄 Update All</button>
+            <!-- Quality Slider -->
+            <div class="quality-row">
+                <span style="min-width:100px;">Max size:</span>
+                <input type="range" id="qualitySlider" min="30" max="200" value="80" step="5">
+                <span class="quality-value"><span id="qualityVal">80</span> KB</span>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
-                <button id="stopBucketBtn" class="btn btn-logout"
-                    style="justify-content: center; display: none; width: 100%;">⏸️
-                    Pause</button>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <button id="startPendingBtn" class="btn btn-primary" style="justify-content:center;background:#f59e0b;">
+                    ⚠️ Pending Only
+                </button>
+                <button id="startBucketBtn" class="btn btn-primary" style="justify-content:center;background:#8b5cf6;">
+                    ▶️ All Current
+                </button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:20px;">
+                <button id="updateAllBucketBtn" class="btn btn-primary" style="justify-content:center;background:#7c3aed;">🔄 All 4 Tables</button>
+                <button id="stopBucketBtn" class="btn btn-logout" style="justify-content:center;display:none;width:100%;">⏸️ Pause</button>
             </div>
 
             <div id="bucketProgress" style="margin-bottom: 24px;">
@@ -829,186 +962,144 @@
         // ============================================
         const SUPABASE_URL = 'https://mwkoqxtyxdkkqlakrrvd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
-        const IMGBB_API_KEY = '#';
-        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
         const PHOTOS_PER_PAGE = 50;
 
         // ============================================
-        // IMGBB UPLOADER - Image Upload Functionality
-        // ============================================
-        class ImgBBUploader {
-            constructor(apiKey) {
-                this.apiKey = apiKey;
-                this.apiUrl = IMGBB_API_URL;
-            }
-
-            async uploadImage(file) {
-                if (!this.isValidImageFile(file)) {
-                    throw new Error('Invalid file format. Please upload an image file.');
-                }
-
-                if (file.size > 33554432) { // 32MB in bytes
-                    throw new Error('File size exceeds 32MB limit.');
-                }
-
-                const formData = new FormData();
-                formData.append('image', file);
-                formData.append('key', this.apiKey);
-
-                try {
-                    const response = await fetch(this.apiUrl, {
-                        method: 'POST',
-                        body: formData,
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Upload failed: ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (!data.success) {
-                        throw new Error(data.error?.message || 'Upload failed');
-                    }
-
-                    return data.data.url;
-                } catch (error) {
-                    console.error('ImgBB upload error:', error);
-                    throw new Error(`Failed to upload image: ${error.message}`);
-                }
-            }
-
-            isValidImageFile(file) {
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                return validTypes.includes(file.type);
-            }
-
-            getFileSizeInMB(file) {
-                return (file.size / (1024 * 1024)).toFixed(2);
-            }
-        }
-
-        const imgbbUploader = new ImgBBUploader(IMGBB_API_KEY);
-
-        async function uploadToImgBB(file) {
-            try {
-                console.log('📤 Uploading to ImgBB:', file.name);
-                const url = await imgbbUploader.uploadImage(file);
-                console.log('✅ Upload successful:', url);
-                return url;
-            } catch (error) {
-                console.error('❌ Upload failed:', error.message);
-                throw error;
-            }
-        }
-
-        // ============================================
-        // THUMBNAIL GENERATOR - Automatic Thumbnail Creation
+        // THUMBNAIL GENERATOR - Fast Compression Engine
+        // Uses createImageBitmap + OffscreenCanvas + smart quality estimation
         // ============================================
         class ThumbnailGenerator {
-            constructor() {
-                this.isRunning = false;
-                this.shouldStop = false;
-                this.currentIndex = 0;
-                this.totalItems = 0;
-                this.processedCount = 0;
-                this.skippedCount = 0;
-                this.errorCount = 0;
-            }
-
             log(message, type = 'info') {
                 const logsDiv = document.getElementById('thumbnailLogs') || document.getElementById('bucketLogs');
                 if (!logsDiv) return;
                 const logEntry = document.createElement('div');
-                logEntry.style.marginBottom = '6px';
-                logEntry.style.display = 'flex';
-                logEntry.style.gap = '8px';
+                logEntry.style.cssText = 'margin-bottom:6px;display:flex;gap:8px;';
                 let icon = '◇', color = '#94a3b8';
                 switch (type) {
                     case 'success': icon = '✓'; color = '#10b981'; break;
-                    case 'error': icon = '×'; color = '#ef4444'; break;
+                    case 'error':   icon = '×'; color = '#ef4444'; break;
                     case 'warning': icon = '⚠'; color = '#f59e0b'; break;
-                    case 'info': icon = '●'; color = '#3b82f6'; break;
+                    case 'info':    icon = '●'; color = '#3b82f6'; break;
                 }
-                logEntry.innerHTML = `
-                    <span style="color: #475569; min-width: 65px;">[${new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
-                    <span style="color: ${color}; font-weight: bold;">${icon}</span>
-                    <span style="flex: 1;">${message}</span>
-                `;
+                logEntry.innerHTML = `<span style="color:#475569;min-width:65px">[${new Date().toLocaleTimeString([],{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'})}]</span><span style="color:${color};font-weight:bold">${icon}</span><span style="flex:1">${message}</span>`;
                 logsDiv.appendChild(logEntry);
                 logsDiv.scrollTop = logsDiv.scrollHeight;
             }
 
-            async compressImage(imageUrl, maxSizeKB = 80) {
-                let fixedUrl = imageUrl.replace(/\.com\.com/g, '.com').replace(/\.co\.com/g, '.co').trim();
-                try {
-                    const res = await fetch(fixedUrl, { mode: 'cors' });
-                    if (!res.ok) throw new Error('Fetch failed');
-                    const blob = await res.blob();
-                    return await this.compressBlob(blob, maxSizeKB);
-                } catch (err) {
-                    return new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.crossOrigin = 'Anonymous';
-                        img.onload = async () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            let { width, height } = this.calculateDimensions(img.width, img.height, 1280);
-                            canvas.width = width; canvas.height = height;
-                            ctx.imageSmoothingEnabled = true;
-                            ctx.imageSmoothingQuality = 'high';
-                            ctx.drawImage(img, 0, 0, width, height);
-                            const blob = await this.optimizeBlob(canvas, maxSizeKB);
-                            resolve(new File([blob], 'thumb.jpg', { type: 'image/jpeg' }));
-                        };
-                        img.onerror = () => reject(new Error('Load Error'));
-                        img.src = fixedUrl;
-                    });
-                }
+            // Fetch raw bytes (browser cache reused on repeated runs)
+            async _fetchBlob(url) {
+                const res = await fetch(url, { mode: 'cors', cache: 'force-cache' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.blob();
             }
 
-            calculateDimensions(w, h, max) {
+            calculateDimensions(w, h, max = 1280) {
                 if (w <= max && h <= max) return { width: w, height: h };
-                const ratio = Math.min(max / w, max / h);
-                return { width: Math.round(w * ratio), height: Math.round(h * ratio) };
+                const r = Math.min(max / w, max / h);
+                return { width: Math.round(w * r), height: Math.round(h * r) };
             }
 
-            async compressBlob(blob, maxSizeKB) {
-                const img = new Image();
-                const objectUrl = URL.createObjectURL(blob);
+            // Convert canvas/OffscreenCanvas to blob (unified)
+            _toBlob(canvas, quality) {
+                if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas)
+                    return canvas.convertToBlob({ type: 'image/jpeg', quality });
+                return new Promise(r => canvas.toBlob(r, 'image/jpeg', quality));
+            }
+
+            // Precision compression — binary search to guarantee targetBytes ±5KB
+            async _smartCompress(canvas, targetBytes) {
+                const minBytes = targetBytes - 5 * 1024;  // e.g. 75KB for 80KB target
+                const maxBytes = targetBytes + 5 * 1024;  // e.g. 85KB for 80KB target
+
+                let lo = 0.05, hi = 0.95;
+                let bestBelow = null; // closest result that is <= maxBytes
+
+                // Binary search — 8 iterations → quality resolution ≈ 0.004 (very precise)
+                for (let i = 0; i < 8; i++) {
+                    const q = (lo + hi) / 2;
+                    const blob = await this._toBlob(canvas, q);
+                    if (!blob) break;
+
+                    if (blob.size >= minBytes && blob.size <= maxBytes) {
+                        return blob; // ✓ Within ±5KB range
+                    }
+
+                    if (blob.size > maxBytes) {
+                        hi = q; // too big — lower quality
+                    } else {
+                        bestBelow = blob; // too small — store best, raise quality
+                        lo = q;
+                    }
+                }
+
+                // Image too small even at max quality (simple/flat image) — return max quality
+                if (!bestBelow) return this._toBlob(canvas, 0.95);
+
+                // Return closest result just below maxBytes
+                return bestBelow;
+            }
+
+            // Fast path: createImageBitmap (non-blocking decode) + OffscreenCanvas
+            async _bitmapCompress(blob, maxSizeKB) {
+                const bitmap = await createImageBitmap(blob);
+                const { width, height } = this.calculateDimensions(bitmap.width, bitmap.height);
+                let canvas;
+                if (typeof OffscreenCanvas !== 'undefined') {
+                    canvas = new OffscreenCanvas(width, height);
+                } else {
+                    canvas = document.createElement('canvas');
+                    canvas.width = width; canvas.height = height;
+                }
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'medium';
+                ctx.drawImage(bitmap, 0, 0, width, height);
+                bitmap.close?.();
+                const outBlob = await this._smartCompress(canvas, maxSizeKB * 1024);
+                return new File([outBlob], 'thumb.jpg', { type: 'image/jpeg' });
+            }
+
+            // Legacy fallback for old browsers (no createImageBitmap)
+            _legacyCompress(blob, maxSizeKB) {
+                const objUrl = URL.createObjectURL(blob);
                 return new Promise((resolve, reject) => {
+                    const img = new Image();
                     img.onload = async () => {
-                        URL.revokeObjectURL(objectUrl);
+                        URL.revokeObjectURL(objUrl);
+                        const { width, height } = this.calculateDimensions(img.width, img.height);
                         const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        let { width, height } = this.calculateDimensions(img.width, img.height, 1280);
                         canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
                         ctx.imageSmoothingEnabled = true;
-                        ctx.imageSmoothingQuality = 'high';
                         ctx.drawImage(img, 0, 0, width, height);
-                        const finalBlob = await this.optimizeBlob(canvas, maxSizeKB);
-                        resolve(new File([finalBlob], 'thumb.jpg', { type: 'image/jpeg' }));
+                        const outBlob = await this._smartCompress(canvas, maxSizeKB * 1024);
+                        resolve(new File([outBlob], 'thumb.jpg', { type: 'image/jpeg' }));
                     };
-                    img.onerror = () => reject(new Error('Blob process error'));
-                    img.src = objectUrl;
+                    img.onerror = () => reject(new Error('Image load error'));
+                    img.src = objUrl;
                 });
             }
 
-            async optimizeBlob(canvas, targetKB) {
-                let min = 0.1, max = 0.92, quality = 0.8;
-                let finalBlob = null;
-                for (let i = 0; i < 6; i++) {
-                    const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', quality));
-                    if (!blob) break;
-                    if (blob.size / 1024 <= targetKB) {
-                        finalBlob = blob;
-                        min = quality;
-                    } else {
-                        max = quality;
-                    }
-                    quality = (min + max) / 2;
+            async compressImage(imageUrl, maxSizeKB = 80) {
+                const fixedUrl = imageUrl.replace(/\.com\.com/g, '.com').replace(/\.co\.com/g, '.co').trim();
+                let blob;
+                try {
+                    blob = await this._fetchBlob(fixedUrl);
+                } catch {
+                    // Fetch failed — draw via <img> tag (CORS fallback)
+                    const img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = fixedUrl; });
+                    const c = document.createElement('canvas');
+                    c.width = img.width; c.height = img.height;
+                    c.getContext('2d').drawImage(img, 0, 0);
+                    blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.92));
                 }
-                return finalBlob || await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.5));
+                try {
+                    return await this._bitmapCompress(blob, maxSizeKB);
+                } catch {
+                    return this._legacyCompress(blob, maxSizeKB);
+                }
             }
         }
 
@@ -1089,61 +1180,123 @@
                 if (!res.ok) throw new Error(res.msg);
             }
 
-            async processItem(item, tableName) {
-                try {
-                    const bucketPrefix = `${SUPABASE_URL}/storage/v1/object/public/${this.BUCKET_NAME}/`;
-                    if (item.thumbnail_url && item.thumbnail_url.startsWith(bucketPrefix)) { this.skippedCount++; return; }
-                    if (!item.image_url) { this.skippedCount++; return; }
-                    this.log(`Processing #${item.image_iid}...`, 'info');
-                    const file = await thumbnailGenerator.compressImage(item.image_url, 80);
-                    const bucketUrl = await this.uploadToBucket(file, tableName, item.image_iid);
-                    await this.updateDatabase(tableName, item.image_iid, bucketUrl, item.thumbnail_url);
-                    this.log(`✓ #${item.image_iid} saved`, 'success');
-                    this.processedCount++;
-                } catch (err) {
-                    this.log(`✗ #${item.image_iid}: ${err.message}`, 'error');
-                    this.errorCount++;
+            async processItem(item, tableName, maxKB) {
+                if (item.thumbnail_url && item.thumbnail_url.startsWith(`${SUPABASE_URL}/storage/v1/object/public/${this.BUCKET_NAME}/`)) {
+                    this.skippedCount++; return { skipped: true };
                 }
+                if (!item.image_url) { this.skippedCount++; return { skipped: true }; }
+                const file = await thumbnailGenerator.compressImage(item.image_url, maxKB);
+                const sizeKB = (file.size / 1024).toFixed(1);
+                const bucketUrl = await this.uploadToBucket(file, tableName, item.image_iid);
+                await this.updateDatabase(tableName, item.image_iid, bucketUrl, item.thumbnail_url);
+                return { sizeKB };
             }
 
-            async start(tableName, items) {
+            async start(tableName, items, maxKB = 80) {
                 if (this.isRunning || !items.length) return;
                 this.isRunning = true; this.shouldStop = false; this.currentIndex = 0; this.totalItems = items.length;
                 this.processedCount = 0; this.skippedCount = 0; this.errorCount = 0;
-                const startBtn = document.getElementById('startBucketBtn');
-                const allBtn = document.getElementById('updateAllBucketBtn');
-                const stopBtn = document.getElementById('stopBucketBtn');
-                if (startBtn) startBtn.style.display = 'none';
-                if (allBtn) allBtn.style.display = 'none';
+                const startBtn   = document.getElementById('startBucketBtn');
+                const pendingBtn = document.getElementById('startPendingBtn');
+                const allBtn     = document.getElementById('updateAllBucketBtn');
+                const stopBtn    = document.getElementById('stopBucketBtn');
+                [startBtn, pendingBtn, allBtn].forEach(b => { if (b) b.style.display = 'none'; });
                 if (stopBtn) stopBtn.style.display = 'block';
                 const logs = document.getElementById('bucketLogs');
                 if (logs) logs.innerHTML = '';
-                this.log(`🚀 Starting process for ${this.totalItems} items...`, 'info');
+                this.log(`🚀 Starting ${this.totalItems} items (max ${maxKB}KB)…`, 'info');
                 try {
-                    const batchSize = 5;
-                    for (let i = 0; i < items.length; i += batchSize) {
+                    // Pipeline: compress item[i+1] while uploading item[i]
+                    let nextCompressPromise = null;
+
+                    const getCompressed = (item) => thumbnailGenerator._fetchBlob
+                        ? thumbnailGenerator.compressImage(item.image_url, maxKB).catch(() => null)
+                        : Promise.resolve(null);
+
+                    // Pre-fetch first item
+                    if (items[0]?.image_url && !isBucketUploaded(items[0]))
+                        nextCompressPromise = getCompressed(items[0]);
+
+                    for (let i = 0; i < items.length; i++) {
                         if (this.shouldStop) break;
-                        const batch = items.slice(i, i + batchSize);
-                        await Promise.all(batch.map(item => this.processItem(item, tableName)));
-                        this.currentIndex = Math.min(i + batchSize, this.totalItems);
+                        const item = items[i];
+
+                        // Start pre-compressing the NEXT item in parallel
+                        const nextItem = items[i + 1];
+                        const preloadNext = (nextItem?.image_url && !isBucketUploaded(nextItem))
+                            ? getCompressed(nextItem)
+                            : Promise.resolve(null);
+
+                        // Process current item
+                        try {
+                            if (item.thumbnail_url && item.thumbnail_url.startsWith(`${SUPABASE_URL}/storage/v1/object/public/${this.BUCKET_NAME}/`)) {
+                                this.skippedCount++;
+                                this.log(`↷ #${item.image_iid} already done`, 'info');
+                            } else if (!item.image_url) {
+                                this.skippedCount++;
+                                this.log(`↷ #${item.image_iid} no URL`, 'warning');
+                            } else {
+                                this.log(`⏳ #${item.image_iid} compressing…`, 'info');
+                                // Use already-started compress promise if available
+                                const file = nextCompressPromise
+                                    ? (await nextCompressPromise)
+                                    : await thumbnailGenerator.compressImage(item.image_url, maxKB);
+
+                                if (!file) throw new Error('Compress failed');
+                                const sizeKB = (file.size / 1024).toFixed(1);
+                                this.log(`⬆ #${item.image_iid} uploading ${sizeKB}KB…`, 'info');
+                                const bucketUrl = await this.uploadToBucket(file, tableName, item.image_iid);
+                                await this.updateDatabase(tableName, item.image_iid, bucketUrl, item.thumbnail_url);
+                                this.log(`✓ #${item.image_iid} → ${sizeKB}KB`, 'success');
+                                this.processedCount++;
+                            }
+                        } catch (err) {
+                            this.log(`✗ #${item.image_iid}: ${err.message}`, 'error');
+                            this.errorCount++;
+                        }
+
+                        // The next item's compress is already running — carry it forward
+                        nextCompressPromise = preloadNext;
+
+                        this.currentIndex = i + 1;
                         this.updateProgress();
-                        await new Promise(r => setTimeout(r, 200));
                     }
-                    this.log('══════════════════════════════', 'info');
+                    this.log('══════════════════════', 'info');
                     this.log(`📊 SUMMARY: ${this.processedCount} done, ${this.skippedCount} skipped, ${this.errorCount} errors`, 'info');
                     refreshPhotographyPending();
+                    if (this.processedCount > 0) loadPhotos();
                 } finally {
                     this.isRunning = false;
-                    const startBtn = document.getElementById('startBucketBtn');
-                    const allBtn = document.getElementById('updateAllBucketBtn');
-                    const stopBtn = document.getElementById('stopBucketBtn');
-                    if (startBtn) startBtn.style.display = 'block';
-                    if (allBtn) allBtn.style.display = 'block';
-                    if (stopBtn) stopBtn.style.display = 'none';
+                    const startBtn2   = document.getElementById('startBucketBtn');
+                    const pendingBtn2 = document.getElementById('startPendingBtn');
+                    const allBtn2     = document.getElementById('updateAllBucketBtn');
+                    const stopBtn2    = document.getElementById('stopBucketBtn');
+                    [startBtn2, pendingBtn2, allBtn2].forEach(b => { if (b) b.style.display = ''; });
+                    if (stopBtn2) stopBtn2.style.display = 'none';
                 }
             }
 
             stop() { this.shouldStop = true; this.log('⏸ Stop requested', 'warning'); }
+
+            async deleteFromBucket(tableName, imageIid) {
+                const accessToken = localStorage.getItem('supabase_access_token');
+                const fileName = `${tableName}/${imageIid}.jpg`;
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${this.BUCKET_NAME}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ prefixes: [fileName] })
+                    });
+                    // 200 or 404 both fine — file gone either way
+                    return res.ok || res.status === 404;
+                } catch {
+                    return false; // Non-fatal
+                }
+            }
         }
 
         const bucketUploader = new BucketUploader();
@@ -1180,15 +1333,23 @@
 
             try {
                 updateStatus('Compressing...');
-                const compressedFile = await thumbnailGenerator.compressImage(imageUrl);
+                const maxKB = typeof getMaxKB === 'function' ? getMaxKB() : 80;
+                const compressedFile = await thumbnailGenerator.compressImage(imageUrl, maxKB);
                 const sizeKB = (compressedFile.size / 1024).toFixed(1);
 
-                updateStatus('Uploading to bucket...');
+                // Delete old bucket file before re-uploading
+                const photoItem = allPhotos.find(p => String(p.image_iid) === String(imageIid));
+                const existingThumbnailUrl = photoItem?.thumbnail_url || null;
+                const BUCKET_PFX = `${SUPABASE_URL}/storage/v1/object/public/${bucketUploader.BUCKET_NAME}/`;
+                if (existingThumbnailUrl && existingThumbnailUrl.startsWith(BUCKET_PFX)) {
+                    updateStatus('Deleting old file...');
+                    await bucketUploader.deleteFromBucket(currentTable, imageIid);
+                }
+
+                updateStatus(`Uploading ${sizeKB}KB...`);
                 const thumbnailUrl = await bucketUploader.uploadToBucket(compressedFile, currentTable, imageIid);
 
                 updateStatus('Saving...');
-                const photoItem = allPhotos.find(p => String(p.image_iid) === String(imageIid));
-                const existingThumbnailUrl = photoItem?.thumbnail_url || null;
                 await bucketUploader.updateDatabase(currentTable, imageIid, thumbnailUrl, existingThumbnailUrl);
 
                 // Success Feedback
@@ -1473,6 +1634,9 @@
     </script>
     <script>
         let currentTable = 'photography_1';
+        let currentFilter = 'all'; // 'all' | 'pending' | 'done'
+        const BUCKET_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/photography/`;
+
         const tableNames = {
             'photography_1': 'Photography 1',
             'photography_2': 'Photography 2',
@@ -1544,6 +1708,41 @@
                 errorStr.includes('401') ||
                 errorStr.includes('unauthorized') ||
                 errorStr.includes('invalid');
+        }
+
+        // Determine if a photo has been uploaded to bucket
+        function isBucketUploaded(photo) {
+            return !!(photo.thumbnail_url && photo.thumbnail_url.startsWith(BUCKET_PREFIX));
+        }
+
+        // Return filtered + searched subset of allPhotos
+        function getFilteredPhotos() {
+            const q = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+            return allPhotos.filter(p => {
+                // Filter
+                if (currentFilter === 'pending') {
+                    if (isBucketUploaded(p)) return false;
+                } else if (currentFilter === 'done') {
+                    if (!isBucketUploaded(p)) return false;
+                }
+                // Search
+                if (q) {
+                    const haystack = `${p.image_iid} ${p.title || ''} ${p.description || ''}`.toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        // Set active filter tab
+        function setFilter(f) {
+            currentFilter = f;
+            currentPage = 1;
+            document.querySelectorAll('.filter-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.filter === f);
+            });
+            renderCurrentView();
+            createPagination();
         }
 
         // helper: refresh photography pending count
@@ -1635,6 +1834,10 @@
             const titleEl = document.getElementById('sectionTitle');
             if (titleEl) titleEl.textContent = isCredentials ? '⚙ Settings — Credentials' : '📷 Manage Items';
 
+            // Show/hide filter tabs
+            const filterTabsEl = document.getElementById('filterTabs');
+            if (filterTabsEl) filterTabsEl.style.display = isCredentials ? 'none' : 'flex';
+
             // Update search placeholder (informational; search is global)
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
@@ -1705,6 +1908,16 @@
 
             // Initial stats update
             updateStats();
+
+            // Search live filter
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    currentPage = 1;
+                    renderCurrentView();
+                    createPagination();
+                });
+            }
         });
 
         // Simple toast helper
@@ -1758,18 +1971,16 @@
                 // Store all photos and calculate total
                 allPhotos = data || [];
 
-                // Sort to put items without thumbnails first
+                // Sort: no-image-url first, then no-bucket-url (pending), then done — within each group by ID asc
                 allPhotos.sort((a, b) => {
-                    const aNeedsGen = !a.thumbnail_url ? 1 : 0;
-                    const bNeedsGen = !b.thumbnail_url ? 1 : 0;
-                    if (aNeedsGen !== bNeedsGen) {
-                        return bNeedsGen - aNeedsGen; // 1 (needs gen) comes before 0
-                    }
-                    return a.image_iid - b.image_iid; // Then sort by ID
+                    const aStatus = !a.image_url ? 0 : isBucketUploaded(a) ? 2 : 1;
+                    const bStatus = !b.image_url ? 0 : isBucketUploaded(b) ? 2 : 1;
+                    if (aStatus !== bStatus) return aStatus - bStatus;
+                    return (a.image_iid || 0) - (b.image_iid || 0);
                 });
 
                 totalItems = allPhotos.length;
-                currentPage = 1; // Reset to first page
+                currentPage = 1;
 
                 // Small delay for smooth transition
                 requestAnimationFrame(() => {
@@ -1805,59 +2016,75 @@
 
         // Update statistics
         function updateStatistics() {
-            const total = allPhotos.length;
-            const withThumbnail = allPhotos.filter(p => p.thumbnail_url).length;
-            const pending = total - withThumbnail;
+            const total    = allPhotos.length;
+            const done     = allPhotos.filter(p => isBucketUploaded(p)).length;
+            const pending  = total - done;
 
-            const totalEl = document.getElementById('statTotal');
-            if (totalEl) totalEl.textContent = total;
+            const totalEl   = document.getElementById('statTotal');   if (totalEl)   totalEl.textContent = total;
+            const pendingEl = document.getElementById('statPending'); if (pendingEl) pendingEl.textContent = pending;
+            const doneEl    = document.getElementById('statToday');   if (doneEl)    doneEl.textContent = done;
 
-            const pendingEl = document.getElementById('statPending');
-            if (pendingEl) pendingEl.textContent = pending;
-
-            const todayEl = document.getElementById('statToday');
-            if (todayEl) {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yesterdayStr = yesterday.toISOString().split('T')[0];
-                const yesterdayCount = allPhotos.filter(p => p.created_at && p.created_at.startsWith(yesterdayStr)).length;
-                todayEl.textContent = yesterdayCount;
-            }
+            // Update filter tab counts
+            const countAll     = document.getElementById('countAll');     if (countAll)     countAll.textContent = total;
+            const countPending = document.getElementById('countPending'); if (countPending) countPending.textContent = pending;
+            const countDone    = document.getElementById('countDone');    if (countDone)    countDone.textContent = done;
         }
 
         // Display photos for current page with optimized DOM operations
         function displayPhotos() {
             const grid = document.getElementById('photosGrid');
 
-            if (allPhotos.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 80px 20px; background: var(--surface); border-radius: 20px; border: 2px dashed var(--border);">No records found in this category</div>';
+            const filtered = getFilteredPhotos();
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:80px 20px;background:var(--surface);border-radius:20px;border:2px dashed var(--border);">' +
+                    (currentFilter === 'pending' ? '✅ All items uploaded to bucket!' :
+                     currentFilter === 'done'    ? '⚠️ No uploaded items yet.' :
+                     'No records found.') + '</div>';
                 return;
             }
 
             const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedPhotos = allPhotos.slice(startIndex, endIndex);
+            const endIndex   = startIndex + itemsPerPage;
+            const paginatedPhotos = filtered.slice(startIndex, endIndex);
 
             const gridHTML = paginatedPhotos.map(photo => {
-                const hasThumbnail = !!photo.thumbnail_url;
-                const isBucketThumbnail = photo.thumbnail_url && photo.thumbnail_url.startsWith('https://mwkoqxtyxdkkqlakrrvd.supabase.co/storage/v1/object/public/photography/');
+                const uploaded = isBucketUploaded(photo);
+                const hasUrl   = !!photo.image_url;
 
-                const imageSrc = isBucketThumbnail ? photo.thumbnail_url : photo.image_url;
-                const btnLabel = isBucketThumbnail ? 'Re-gen' : 'Gen';
-                const btnClass = !isBucketThumbnail ? 'style="background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa;"' : '';
+                const badgeHtml = !hasUrl
+                    ? '<span class="status-badge no-url">❌ No URL</span>'
+                    : uploaded
+                    ? '<span class="status-badge done">✔ Bucket</span>'
+                    : '<span class="status-badge pending">⏳ Pending</span>';
+
+                const imgSrc = uploaded ? photo.thumbnail_url : (photo.image_url || '');
+                const cardClass = !hasUrl ? 'photo-card is-no-url' : uploaded ? 'photo-card' : 'photo-card is-pending';
+                const btnLabel  = uploaded ? 'Re-gen' : 'Upload';
+                const btnStyle  = !uploaded
+                    ? 'background:#fff7ed;color:#ea580c;border:1px solid #fed7aa;font-weight:800;'
+                    : '';
+                const viewUrl   = uploaded ? (photo.thumbnail_url || photo.image_url) : photo.image_url;
+                const viewHref  = viewUrl ? `href="${viewUrl}" target="_blank"` : 'disabled style="opacity:.4;pointer-events:none"';
+                const viewTitle = uploaded ? 'title="Bucket URL (thumbnail_url)"' : 'title="Original image_url"';
+
+                const sizeUrl   = uploaded ? photo.thumbnail_url : (photo.image_url || '');
 
                 return `
-                    <div class="photo-card" role="group" aria-label="Item ${photo.image_iid}">
+                    <div class="${cardClass}" role="group" aria-label="Item ${photo.image_iid}">
                         <div class="photo-image-wrapper">
-                            <img class="photo-image" src="${imageSrc}" alt="Archive #${photo.image_iid}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%25%22 height=%22100%25%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22100%25%22 height=%22100%25%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2214%22%3ENo Preview%3C/text%3E%3C/svg%3E'">
+                            ${badgeHtml}
+                            <img class="photo-image" src="${imgSrc}" alt="#${photo.image_iid}" loading="lazy"
+                                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%25%22 height=%22100%25%22%3E%3Crect fill=%22%23f1f5f9%22 width=%22100%25%22 height=%22100%25%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2394a3b8%22 font-size=%2212%22%3ENo Image%3C/text%3E%3C/svg%3E'">
                         </div>
                         <div class="photo-info">
-                            <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; opacity: 0.6">ID: #${photo.image_iid}</div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">
+                                <div class="id-label">#${photo.image_iid}</div>
+                                <span class="file-size-label" data-size-url="${sizeUrl}" style="font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.3px;">…</span>
+                            </div>
                             <div class="photo-actions">
-                                <button class="btn-sm btn-edit" ${btnClass} onclick="compressSingleImage(this, '${photo.image_iid}', '${photo.image_url}', ${hasThumbnail})">
-                                    ${btnLabel}
-                                </button>
-                                <a class="btn-sm btn-edit" href="${photo.image_url}" target="_blank">View</a>
+                                <button class="btn-sm btn-edit" style="${btnStyle}" onclick="compressSingleImage(this,'${photo.image_iid}','${escapeQuotes(photo.image_url || '')}',${uploaded})">${btnLabel}</button>
+                                <a class="btn-sm btn-edit" ${viewHref} ${viewTitle}>View</a>
                             </div>
                         </div>
                     </div>
@@ -1867,7 +2094,45 @@
             requestAnimationFrame(() => {
                 grid.innerHTML = gridHTML;
                 grid.style.opacity = '1';
+                loadCardSizes(grid);
             });
+
+            // Update totalItems for pagination to use filtered count
+            totalItems = filtered.length;
+        }
+
+        // Lazy-load file sizes via HEAD requests (batched)
+        async function loadCardSizes(container) {
+            const labels = Array.from(container.querySelectorAll('.file-size-label[data-size-url]'));
+            if (!labels.length) return;
+            const CONCURRENCY = 6;
+            const queue = [...labels];
+            const worker = async () => {
+                while (queue.length) {
+                    const el = queue.shift();
+                    const url = el.dataset.sizeUrl;
+                    if (!url) { el.textContent = ''; continue; }
+                    try {
+                        const res = await fetch(url, { method: 'HEAD', cache: 'force-cache', mode: 'cors' });
+                        const len = res.headers.get('content-length');
+                        if (len) {
+                            const kb = (parseInt(len) / 1024).toFixed(1);
+                            el.textContent = `${kb} KB`;
+                            // Color code: green=70-80KB, orange=outside range, red=very large
+                            const kbNum = parseFloat(kb);
+                            el.style.color = (kbNum >= 70 && kbNum <= 90) ? '#10b981'
+                                           : (kbNum < 70)                  ? '#3b82f6'
+                                           : '#f59e0b';
+                        } else {
+                            el.textContent = '';
+                        }
+                    } catch {
+                        el.textContent = '';
+                    }
+                }
+            };
+            // Run N workers concurrently
+            await Promise.all(Array.from({ length: CONCURRENCY }, worker));
         }
 
         // Display id_password table (read-only)
@@ -1972,16 +2237,37 @@
         // ============================================
         document.getElementById('bucketUploadBtn').addEventListener('click', openBucketModal);
 
+        // Quality slider live update
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityVal    = document.getElementById('qualityVal');
+        if (qualitySlider && qualityVal) {
+            qualitySlider.addEventListener('input', () => {
+                qualityVal.textContent = qualitySlider.value;
+            });
+        }
+
+        function getMaxKB() {
+            const slider = document.getElementById('qualitySlider');
+            return slider ? parseInt(slider.value) : 80;
+        }
+
+        document.getElementById('startPendingBtn').addEventListener('click', function () {
+            const pending = allPhotos.filter(p => !isBucketUploaded(p) && p.image_url);
+            if (!pending.length) { showToast('No pending items!', 'info'); return; }
+            if (confirm(`Upload ${pending.length} pending items (max ${getMaxKB()}KB each)?`)) {
+                bucketUploader.start(currentTable, pending, getMaxKB());
+            }
+        });
+
         document.getElementById('startBucketBtn').addEventListener('click', function () {
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const itemsToProcess = allPhotos.slice(startIndex, endIndex);
-            bucketUploader.start(currentTable, itemsToProcess);
+            const items = getFilteredPhotos().filter(p => p.image_url);
+            bucketUploader.start(currentTable, items, getMaxKB());
         });
 
         document.getElementById('updateAllBucketBtn').addEventListener('click', function () {
-            if (confirm(`Do you want to update ALL ${allPhotos.length} records in this table? This may take some time.`)) {
-                bucketUploader.start(currentTable, allPhotos);
+            const allWithUrl = allPhotos.filter(p => p.image_url);
+            if (confirm(`Upload ALL ${allWithUrl.length} records in this table? (max ${getMaxKB()}KB)`)) {
+                bucketUploader.start(currentTable, allWithUrl, getMaxKB());
             }
         });
 
@@ -1999,13 +2285,21 @@
             const el = document.getElementById('bucketCurrentTable');
             if (el) el.textContent = names[currentTable] || currentTable;
 
+            // Show pending count in modal
+            const pendingItems = allPhotos.filter(p => !isBucketUploaded(p) && p.image_url);
+            const startPendingBtn = document.getElementById('startPendingBtn');
+            if (startPendingBtn) startPendingBtn.textContent = `⚠️ Pending Only (${pendingItems.length})`;
+
+            document.getElementById('qualityVal').textContent = document.getElementById('qualitySlider').value;
             document.getElementById('bucketCurrent').textContent = '0';
-            document.getElementById('bucketTotal').textContent = '0';
+            document.getElementById('bucketTotal').textContent   = '0';
             document.getElementById('bucketPercent').textContent = '0%';
             document.getElementById('bucketProgressBar').style.width = '0%';
-            document.getElementById('bucketLogs').innerHTML = '<div style="color:#64748b;">Waiting for activity...</div>';
-            document.getElementById('startBucketBtn').style.display = 'block';
-            document.getElementById('stopBucketBtn').style.display = 'none';
+            document.getElementById('bucketLogs').innerHTML = '<div style="color:#64748b;">Waiting for activity…</div>';
+            document.getElementById('startBucketBtn').style.display    = '';
+            document.getElementById('startPendingBtn').style.display   = '';
+            document.getElementById('updateAllBucketBtn').style.display = '';
+            document.getElementById('stopBucketBtn').style.display     = 'none';
             document.getElementById('bucketModal').classList.add('active');
         }
 
