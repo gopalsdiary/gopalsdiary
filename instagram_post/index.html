@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Private Instagram Dashboard</title>
+	<link rel="stylesheet" href="styles.css">
+	<!-- Manual Cropper Support -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+	<style>
+		/* Premium Cropper Modal */
+		.modal-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.85);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 9999;
+			backdrop-filter: blur(8px);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.3s ease;
+		}
+
+		.modal-overlay.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.cropper-container {
+			background: white;
+			border-radius: 16px;
+			padding: 24px;
+			width: 90%;
+			max-width: 600px;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+		}
+
+		.cropper-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+
+		.cropper-header h3 {
+			margin: 0;
+			color: #1f2937;
+		}
+
+		.crop-area-wrapper {
+			width: 100%;
+			height: 400px;
+			background: #f3f4f6;
+			border-radius: 12px;
+			overflow: hidden;
+			margin-bottom: 20px;
+		}
+
+		#cropImage {
+			max-width: 100%;
+			display: block;
+		}
+
+		.cropper-actions {
+			display: flex;
+			gap: 12px;
+			justify-content: flex-end;
+		}
+
+		.ratio-btn {
+			background: #f3f4f6;
+			color: #374151;
+			border: 1px solid #d1d5db;
+			padding: 8px 16px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+
+		.ratio-btn.active {
+			background: #8b5cf6;
+			color: white;
+			border-color: #7c3aed;
+		}
+
+		.btn-primary {
+			background: #8b5cf6;
+			color: white;
+			padding: 10px 24px;
+			border-radius: 8px;
+			border: none;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		.btn-ghost {
+			background: transparent;
+			color: #6b7280;
+			padding: 10px 20px;
+			border: none;
+			cursor: pointer;
+		}
+
+		.published-badge {
+			display: inline-block;
+			background: #ecfdf5;
+			color: #059669;
+			font-size: 10px;
+			font-weight: 700;
+			padding: 2px 8px;
+			border-radius: 99px;
+			margin-bottom: 8px;
+			text-transform: uppercase;
+		}
+
+		.repost-btn {
+			background: #3b82f6 !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<section class="card">
+			<h1>Private Instagram Dashboard</h1>
+			<p class="subtext">Post only from Supabase table</p>
+			<p id="setupStatus" style="font-size: 12px; color: #6b7280; margin-top: 6px;"></p>
+		</section>
+
+		<section id="loginCard" class="card">
+			<h2>Login</h2>
+			<div class="row">
+				<input id="email" type="email" placeholder="Admin email">
+				<input id="password" type="password" placeholder="Password">
+			</div>
+			<div class="actions">
+				<button id="loginBtn">Login</button>
+			</div>
+			<div id="loginStatus" class="status-box"></div>
+		</section>
+
+		<section id="dashboardCard" class="card hidden">
+			<div class="actions" style="justify-content: space-between; align-items: center;">
+				<strong id="userInfo">Logged in</strong>
+				<button id="logoutBtn" class="secondary">Logout</button>
+			</div>
+
+			<div class="tabs" style="margin-top: 15px; display: flex; gap: 4px;">
+				<button id="tabPending" class="tab-btn active">Pending Posts</button>
+				<button id="tabPublished" class="tab-btn">Published</button>
+				<button id="tabManual" class="tab-btn">Add New Post</button>
+				<button id="tabSettings" class="tab-btn">Settings</button>
+			</div>
+
+			<div id="pendingView" class="tab-content" style="margin-top: 15px;">
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+					<h2>Pending Posts</h2>
+					<button id="refreshBtn" class="ghost" style="width: auto;">Refresh</button>
+				</div>
+				<div id="pendingGrid" class="grid"></div>
+			</div>
+
+			<div id="publishedView" class="tab-content hidden" style="margin-top: 15px;">
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+					<h2>Published History</h2>
+				</div>
+				<div id="publishedGrid" class="grid"></div>
+			</div>
+
+			<div id="manualView" class="tab-content hidden" style="margin-top: 15px;">
+				<h2>Add to Database</h2>
+				<div class="row">
+					<input id="manualImageUrl" placeholder="Image URL (imgBB, Imgur, etc.)">
+					<div style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+						<span style="color: #6b7280; font-size: 14px;">OR</span>
+						<label class="btn-primary" style="cursor: pointer; padding: 8px 16px; font-size: 13px; background: #3b82f6;">
+							Upload File
+							<input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+						</label>
+						<span id="fileNameDisplay" style="font-size: 12px; color: #6b7280;">No file chosen</span>
+					</div>
+				</div>
+				<textarea id="manualCaption" placeholder="Caption for your post" style="margin-top: 10px;"></textarea>
+				<p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+					<strong>📌 Recommended: Use imgBB (always public):</strong><br>
+					1. Go to <a href="https://imgbb.com" target="_blank"
+						style="color: #3b82f6; font-weight: bold;">imgbb.com</a><br>
+					2. Upload your image<br>
+					3. Copy the "Direct Link" (right-click image → Copy link address)<br>
+					4. Paste here and click "Validate Image"<br>
+					<br>
+					<strong>Other options:</strong><br>
+					<a href="https://imgur.com" target="_blank" style="color: #3b82f6;">Imgur</a> (Copy Link after
+					upload)<br>
+					<a href="https://cloudinary.com" target="_blank" style="color: #3b82f6;">Cloudinary</a> (Copy URL
+					from Media Library)<br>
+					<br>
+					<strong>Image Requirements:</strong><br>
+					✓ JPEG or PNG only<br>
+					✓ Less than 8MB<br>
+					✓ Publicly accessible (no login needed to view)
+				</p>
+				<div class="actions">
+					<button id="validateImageBtn" style="width: auto; background: #8b5cf6;">Validate Image</button>
+					<button id="saveManualBtn">Save to Database</button>
+				</div>
+				<div id="manualStatus" class="status-box"></div>
+			</div>
+
+			<div id="settingsView" class="tab-content hidden" style="margin-top: 15px;">
+				<h2>Configuration</h2>
+
+				<h3 style="font-size: 14px; margin-top: 15px; margin-bottom: 8px;">1. Graph API Token</h3>
+				<p style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">
+					Your Meta Graph API access token with permissions: instagram_basic, instagram_content_publish,
+					pages_show_list, pages_read_engagement
+				</p>
+				<textarea id="graphApiTokenInput" placeholder="Paste your Graph API token here..."
+					style="width: 100%; min-height: 60px; font-family: monospace; font-size: 12px;"></textarea>
+				<div class="row" style="margin-top: 8px;">
+					<button id="graphApiTokenSaveBtn" style="width: auto;">Save Token</button>
+					<button id="testTokenBtn" style="width: auto; background: #3b82f6;">Test Connection</button>
+					<a href="https://developers.facebook.com/tools/accesstoken/" target="_blank"
+						style="padding: 8px 12px; background: #6b7280; color: white; border-radius: 4px; text-decoration: none; font-size: 13px;">Get
+						New Token</a>
+				</div>
+				<div id="graphApiTokenStatus" class="status-box" style="margin-top: 8px;"></div>
+
+				<hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+				<h3 style="font-size: 14px; margin-bottom: 8px;">2. Facebook Page ID (Optional)</h3>
+				<p style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">
+					Auto-detected when you test token. Or enter manually (e.g. 3832553900208376). Optional, only needed
+					if auto-detection fails.
+				</p>
+				<div class="row">
+					<input id="facebookPageIdInput" placeholder="Facebook Page ID (auto-filled)" type="text">
+					<button id="facebookPageIdSaveBtn" style="width: auto;">Save</button>
+				</div>
+				<div id="facebookPageIdStatus" class="status-box" style="margin-top: 8px;"></div>
+
+				<hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+				<h3 style="font-size: 14px; margin-bottom: 8px;">3. Instagram Business Account ID</h3>
+				<p style="font-size: 13px; color: #6b7280; margin-bottom: 10px;">
+					Auto-detected by clicking "Test Connection" above. Or enter manually if you know it.
+				</p>
+				<div class="row">
+					<input id="igUserIdInput" placeholder="Instagram Business Account ID (auto-filled)" type="text">
+					<button id="igUserIdSaveBtn" style="width: auto;">Save</button>
+				</div>
+				<div id="igUserIdStatus" class="status-box" style="margin-top: 8px;"></div>
+
+				<hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+				<p style="font-size: 12px; color: #6b7280;">
+					<strong>📸 Image Hosting Guide:</strong><br>
+					<strong style="color: #059669;">✓ Recommended: imgBB</strong> - Always public, no login needed<br>
+					1. Go to <a href="https://imgbb.com" target="_blank" style="color: #3b82f6;">imgbb.com</a><br>
+					2. Upload your image<br>
+					3. Right-click → Copy link address<br>
+					4. Paste in "Add New Post" tab<br>
+					5. Click "Validate Image" to verify<br>
+					<br>
+					<strong>Troubleshooting 400 (Bad Request) error:</strong><br>
+					1. Make sure token includes all required permissions (see top field)<br>
+					2. Test token to auto-fill IG Account ID<br>
+					3. Ensure Instagram account is linked to Facebook Page (Instagram Settings → Linked Accounts →
+					Confirm Connection)<br>
+					4. Use imgBB for image hosting (always works)<br>
+					5. Regenerate token if error persists: https://developers.facebook.com/tools/accesstoken/
+				</p>
+			</div>
+		</section>
+	</div>
+
+	<!-- Cropper Modal -->
+	<div id="cropperModal" class="modal-overlay">
+		<div class="cropper-container">
+			<div class="cropper-header">
+				<h3>Adjust Your Image</h3>
+				<button class="btn-ghost" onclick="closeCropper()">✕</button>
+			</div>
+
+			<div style="margin-bottom: 15px; display: flex; gap: 8px;">
+				<button class="ratio-btn active" onclick="setRatio(0.8)">4:5 (Portrait)</button>
+				<button class="ratio-btn" onclick="setRatio(1)">1:1 (Square)</button>
+				<button class="ratio-btn" onclick="setRatio(1.91)">1.91:1 (Landscape)</button>
+			</div>
+
+			<div class="crop-area-wrapper">
+				<img id="cropImage" src="">
+			</div>
+
+			<div class="cropper-actions">
+				<button class="btn-ghost" onclick="closeCropper()">Cancel</button>
+				<button id="saveCropBtn" class="btn-primary">Save & Publish</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="../admin/auth.js" defer></script>
+	<script src="fb-api.js" defer></script>
+	<script defer>
+		// Ensure window.FBApi is available before running this code
+		document.addEventListener('DOMContentLoaded', initializeApp);
+
+		// Utility functions
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+
+		// Load and render pending posts from Supabase
+		let pendingGrid, publishedGrid;
+		async function loadPendingPosts() {
+			if (!pendingGrid) return;
+			pendingGrid.innerHTML = '<p style="color: #6b7280;">Loading posts...</p>';
+			try {
+				const posts = await window.FBApi.loadFromDatabase({ status: 'pending' });
+				renderPending(posts);
+			} catch (error) {
+				pendingGrid.innerHTML = `<p style="color: #dc2626;">Error: ${escapeHtml(error.message)}</p>`;
+			}
+		}
+
+		async function loadPublishedPosts() {
+			if (!publishedGrid) return;
+			publishedGrid.innerHTML = '<p style="color: #6b7280;">Loading history...</p>';
+			try {
+				const posts = await window.FBApi.loadFromDatabase({ status: 'published' });
+				renderPublished(posts);
+			} catch (error) {
+				publishedGrid.innerHTML = `<p style="color: #dc2626;">Error: ${escapeHtml(error.message)}</p>`;
+			}
+		}
+
+		function formatDate(isoString) {
+			if (!isoString) return 'Unknown date';
+			const date = new Date(isoString);
+			return date.toLocaleString('en-US', { 
+				month: 'short', 
+				day: 'numeric', 
+				hour: '2-digit', 
+				minute: '2-digit' 
+			});
+		}
+
+		// Render pending posts grid
+		function renderPending(posts) {
+			if (!pendingGrid) return;
+			if (!posts || posts.length === 0) {
+				pendingGrid.innerHTML = '<p style="color: #6b7280;">No pending posts.</p>';
+				return;
+			}
+			pendingGrid.innerHTML = posts.map(post => `
+				<div class="post-card">
+					<img src="${escapeHtml(post.image_url)}" alt="Post" class="post-image">
+					<p class="post-caption">${escapeHtml(post.caption || '(No caption)')}</p>
+					<button class="post-action-btn" onclick="publishFromDB('${post.id}')">Publish Now</button>
+				</div>
+			`).join('');
+		}
+
+		function renderPublished(posts) {
+			if (!publishedGrid) return;
+			if (!posts || posts.length === 0) {
+				publishedGrid.innerHTML = '<p style="color: #6b7280;">No published posts yet.</p>';
+				return;
+			}
+			publishedGrid.innerHTML = posts.map(post => `
+				<div class="post-card">
+					<div class="published-badge">Published</div>
+					<img src="${escapeHtml(post.image_url)}" alt="Post" class="post-image">
+					<p class="post-caption">${escapeHtml(post.caption || '(No caption)')}</p>
+					<p style="font-size: 11px; color: #9ca3af; margin: 4px 0;">Posted: ${formatDate(post.published_at)}</p>
+					<button class="post-action-btn repost-btn" onclick="repostPost('${post.id}')">Repost</button>
+				</div>
+			`).join('');
+		}
+
+		async function repostPost(postId) {
+			if (!confirm('Add this post back to pending list?')) return;
+			try {
+				const posts = await window.FBApi.loadFromDatabase({ id: postId });
+				if (!posts || posts.length === 0) throw new Error('Post not found');
+				const post = posts[0];
+				
+				await window.FBApi.saveToDatabase({
+					imageUrl: post.image_url,
+					caption: post.caption,
+					platform: post.platform || 'instagram'
+				});
+				
+				alert('✓ Added to pending!');
+				switchTab('pendingView');
+			} catch (error) {
+				alert('Error: ' + error.message);
+			}
+		}
+
+		// Global function for onclick handlers
+		async function publishFromDB(postId, btnElement = null) {
+			const btn = btnElement || (typeof event !== 'undefined' ? (event.target || event.srcElement) : null);
+			if (!btn) {
+				console.error('CRITICAL: Cannot find button reference.');
+				return;
+			}
+			btn.disabled = true;
+			btn.textContent = 'Publishing...';
+			try {
+				const posts = await window.FBApi.loadFromDatabase({ id: postId });
+				if (!posts || posts.length === 0) throw new Error('Post not found');
+				const post = posts[0];
+
+				// 🛠️ Check aspect ratio first
+				try {
+					await window.FBApi.validateImageUrl(post.image_url);
+				} catch (valError) {
+					if (valError.message.includes('Aspect Ratio')) {
+						throw valError; // Caught by catch block below
+					}
+				}
+
+				const result = await window.FBApi.publishPost({
+					imageUrl: post.image_url,
+					caption: post.caption || '',
+				});
+
+				await window.FBApi.updatePostStatus(postId, { 
+					status: 'published',
+					published_at: new Date().toISOString()
+				});
+				btn.textContent = '✓ Published';
+				btn.style.color = '#059669';
+				btn.disabled = true; 
+				loadPendingPosts();
+			} catch (error) {
+				const is9004 = error.message.includes('9004');
+				const isRatio = error.message.includes('Aspect Ratio');
+
+				// 🛠️ SMART FIX: If 9004 occurs but ratio is OK, it might be crawler lag
+				if (is9004 && !isRatio) {
+					console.warn('⚠️ Meta Crawler reported 9004. Retrying once in 5s before asking to crop...');
+					btn.textContent = 'Retrying...';
+					await new Promise(r => setTimeout(r, 5000));
+					try {
+						// Recursive call only once (manually bypass this check if needed)
+						await publishFromDB(postId, btn);
+						return;
+					} catch (retryErr) {
+						// If retry fails, continue to cropper logic
+						error = retryErr;
+					}
+				}
+
+				if (is9004 || isRatio) {
+					btn.textContent = 'Adjust Image';
+					btn.style.color = '#8b5cf6';
+					try {
+						const posts = await window.FBApi.loadFromDatabase({ id: postId });
+						const post = posts[0];
+						openCropper(post.id, post.image_url);
+					} catch (fixError) {
+						alert(`Failed to load cropper: ${fixError.message}`);
+					}
+				} else {
+					btn.textContent = '❌ Failed';
+					btn.style.color = '#dc2626';
+					alert(`Publish error: ${error.message}`);
+				}
+			} finally {
+				if (btn.textContent !== 'Adjust Image' && btn.textContent !== '✓ Published' && btn.textContent !== 'Retrying...') {
+					btn.disabled = false;
+				}
+			}
+		}
+
+		// Cropper Global Variables
+		let cropper = null;
+		let currentPostIdForCrop = null;
+
+		function openCropper(postId, imageUrl) {
+			currentPostIdForCrop = postId;
+			const modal = document.getElementById('cropperModal');
+			const img = document.getElementById('cropImage');
+
+			modal.classList.add('active');
+			img.src = imageUrl;
+
+			if (cropper) cropper.destroy();
+
+			cropper = new Cropper(img, {
+				aspectRatio: 0.8, // 4:5
+				viewMode: 1,
+				background: false,
+				responsive: true,
+				guides: true,
+				center: true,
+				autoCropArea: 1,
+				ready() {
+					console.log('Cropper ready');
+				}
+			});
+		}
+
+		function setRatio(ratio) {
+			if (cropper) cropper.setAspectRatio(ratio);
+			const btns = document.querySelectorAll('.ratio-btn');
+			btns.forEach(b => b.classList.remove('active'));
+			if (window.event && window.event.target) {
+				window.event.target.classList.add('active');
+			}
+		}
+
+		function closeCropper() {
+			document.getElementById('cropperModal').classList.remove('active');
+			if (cropper) cropper.destroy();
+			cropper = null;
+		}
+
+		// Handle Save Manual Crop
+		document.getElementById('saveCropBtn').addEventListener('click', async () => {
+			if (!cropper || !currentPostIdForCrop) return;
+
+			const btn = document.getElementById('saveCropBtn');
+			const originalText = btn.textContent;
+			btn.disabled = true;
+			btn.textContent = 'Uploading...';
+
+			try {
+				const canvas = cropper.getCroppedCanvas({
+					width: 1080,
+					imageSmoothingQuality: 'high',
+				});
+
+				const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+				console.log('🚀 Saving manual crop...');
+				await window.FBApi.uploadBase64AndStore(currentPostIdForCrop, dataUrl);
+
+				closeCropper();
+				await loadPendingPosts();
+
+				alert('Image saved! Continuing publication...');
+
+				// Re-publish - wait for DOM to update and find the new button
+				const gridBtn = document.querySelector(`button[onclick*="'${currentPostIdForCrop}'"]`);
+				if (gridBtn) {
+					await publishFromDB(currentPostIdForCrop, gridBtn);
+				} else {
+					console.warn('Publish button not found after crop. Please click it manually.');
+				}
+
+			} catch (error) {
+				alert('Failed: ' + error.message);
+			} finally {
+				btn.disabled = false;
+				btn.textContent = originalText;
+			}
+		});
+
+		function initializeApp() {
+			const loginCard = document.getElementById('loginCard');
+			const dashboardCard = document.getElementById('dashboardCard');
+			const tabPending = document.getElementById('tabPending');
+			const tabPublished = document.getElementById('tabPublished');
+			const tabManual = document.getElementById('tabManual');
+			const tabSettings = document.getElementById('tabSettings');
+			const pendingView = document.getElementById('pendingView');
+			const publishedView = document.getElementById('publishedView');
+			const manualView = document.getElementById('manualView');
+			const settingsView = document.getElementById('settingsView');
+			const loginBtn = document.getElementById('loginBtn');
+			const logoutBtn = document.getElementById('logoutBtn');
+			const refreshBtn = document.getElementById('refreshBtn');
+			const saveManualBtn = document.getElementById('saveManualBtn');
+			const validateImageBtn = document.getElementById('validateImageBtn');
+			const igUserIdSaveBtn = document.getElementById('igUserIdSaveBtn');
+			const facebookPageIdSaveBtn = document.getElementById('facebookPageIdSaveBtn');
+			const graphApiTokenSaveBtn = document.getElementById('graphApiTokenSaveBtn');
+			const testTokenBtn = document.getElementById('testTokenBtn');
+			const loginStatus = document.getElementById('loginStatus');
+			const manualStatus = document.getElementById('manualStatus');
+			const igUserIdStatus = document.getElementById('igUserIdStatus');
+			const facebookPageIdStatus = document.getElementById('facebookPageIdStatus');
+			const graphApiTokenStatus = document.getElementById('graphApiTokenStatus');
+			const emailInput = document.getElementById('email');
+			const passwordInput = document.getElementById('password');
+			const userInfo = document.getElementById('userInfo');
+			const manualImageUrl = document.getElementById('manualImageUrl');
+			const manualCaption = document.getElementById('manualCaption');
+			const igUserIdInput = document.getElementById('igUserIdInput');
+			const facebookPageIdInput = document.getElementById('facebookPageIdInput');
+			const graphApiTokenInput = document.getElementById('graphApiTokenInput');
+
+			pendingGrid = document.getElementById('pendingGrid');
+			publishedGrid = document.getElementById('publishedGrid');
+
+			function loadIgUserIdUI() {
+				const saved = window.FBApi.getIgUserId();
+				if (saved) {
+					igUserIdInput.value = saved;
+					igUserIdStatus.textContent = '✓ Instagram ID saved: ' + saved;
+					igUserIdStatus.style.color = '#059669';
+				}
+				const savedPageId = localStorage.getItem('facebookPageId');
+				if (savedPageId) {
+					facebookPageIdInput.value = savedPageId;
+					facebookPageIdStatus.textContent = '✓ Facebook Page ID saved: ' + savedPageId;
+					facebookPageIdStatus.style.color = '#059669';
+				}
+				const savedToken = window.FBApi.getGraphApiToken();
+				if (savedToken) {
+					graphApiTokenInput.value = savedToken;
+					graphApiTokenStatus.textContent = '✓ Token loaded';
+					graphApiTokenStatus.style.color = '#059669';
+				}
+			}
+
+			igUserIdSaveBtn.addEventListener('click', () => {
+				const id = igUserIdInput.value.trim();
+				if (!id) return;
+				window.FBApi.setIgUserId(id);
+				igUserIdStatus.textContent = '✓ Saved';
+				igUserIdStatus.style.color = '#059669';
+			});
+
+			facebookPageIdSaveBtn.addEventListener('click', () => {
+				const pageId = facebookPageIdInput.value.trim();
+				if (!pageId) return;
+				localStorage.setItem('facebookPageId', pageId);
+				facebookPageIdStatus.textContent = '✓ Saved';
+				facebookPageIdStatus.style.color = '#059669';
+			});
+
+			graphApiTokenSaveBtn.addEventListener('click', () => {
+				const token = graphApiTokenInput.value.trim();
+				if (!token) return;
+				window.FBApi.setGraphApiToken(token);
+				graphApiTokenStatus.textContent = '✓ Saved';
+				graphApiTokenStatus.style.color = '#059669';
+			});
+
+			testTokenBtn.addEventListener('click', async () => {
+				testTokenBtn.disabled = true;
+				try {
+					const result = await window.FBApi.testTokenAndResolveIgId();
+					if (result.igUserId) igUserIdInput.value = result.igUserId;
+					graphApiTokenStatus.textContent = '✓ Connected';
+					graphApiTokenStatus.style.color = '#059669';
+				} catch (error) {
+					graphApiTokenStatus.textContent = '❌ ' + error.message;
+				} finally {
+					testTokenBtn.disabled = false;
+				}
+			});
+
+			function switchTab(viewId) {
+				[pendingView, publishedView, manualView, settingsView].forEach((view) => view.classList.add('hidden'));
+				[tabPending, tabPublished, tabManual, tabSettings].forEach((tab) => tab.classList.remove('active'));
+				if (viewId === 'pendingView') {
+					pendingView.classList.remove('hidden'); tabPending.classList.add('active'); loadPendingPosts();
+				} else if (viewId === 'publishedView') {
+					publishedView.classList.remove('hidden'); tabPublished.classList.add('active'); loadPublishedPosts();
+				} else if (viewId === 'manualView') {
+					manualView.classList.remove('hidden'); tabManual.classList.add('active');
+				} else {
+					settingsView.classList.remove('hidden'); tabSettings.classList.add('active'); loadIgUserIdUI();
+				}
+			}
+
+			tabPending.addEventListener('click', () => switchTab('pendingView'));
+			tabPublished.addEventListener('click', () => switchTab('publishedView'));
+			tabManual.addEventListener('click', () => switchTab('manualView'));
+			tabSettings.addEventListener('click', () => switchTab('settingsView'));
+
+			async function bootstrapAuth() {
+				const session = supabase.getSession();
+				if (session?.user) showDashboard(session.user);
+				else showLogin();
+			}
+
+			function showDashboard(user) {
+				loginCard.classList.add('hidden'); dashboardCard.classList.remove('hidden');
+				userInfo.textContent = `Admin: ${user.email}`;
+				loadPendingPosts();
+			}
+
+			function showLogin() {
+				loginCard.classList.remove('hidden'); dashboardCard.classList.add('hidden');
+			}
+
+			loginBtn.addEventListener('click', async () => {
+				const email = emailInput.value.trim();
+				const password = passwordInput.value;
+				try {
+					const session = await supabase.signIn(email, password);
+					showDashboard(session.user);
+				} catch (error) {
+					loginStatus.textContent = error.message;
+				}
+			});
+
+			logoutBtn.addEventListener('click', async () => {
+				await supabase.signOut(); showLogin();
+			});
+
+			validateImageBtn.addEventListener('click', async () => {
+				const imageUrl = manualImageUrl.value.trim();
+				if (!imageUrl) return;
+				try {
+					await window.FBApi.validateImageUrl(imageUrl);
+					manualStatus.textContent = '✓ Valid';
+					manualStatus.style.color = '#059669';
+				} catch (error) {
+					manualStatus.textContent = error.message;
+					manualStatus.style.color = '#dc2626';
+				}
+			});
+
+			saveManualBtn.addEventListener('click', async () => {
+				const imageUrl = manualImageUrl.value.trim();
+				const caption = manualCaption.value.trim();
+				const fileInput = document.getElementById('imageFileInput');
+				const file = fileInput.files[0];
+
+				if (!imageUrl && !file) {
+					alert('Please enter a URL or choose a file.');
+					return;
+				}
+
+				saveManualBtn.disabled = true;
+				saveManualBtn.textContent = 'Saving...';
+				manualStatus.textContent = 'Processing...';
+
+				try {
+					let finalUrl = imageUrl;
+
+					if (file) {
+						// Process file upload
+						const reader = new FileReader();
+						const base64Data = await new Promise((resolve) => {
+							reader.onload = (e) => resolve(e.target.result);
+							reader.readAsDataURL(file);
+						});
+
+						// 1. Initial save with dummy status to get an ID if needed? 
+						// Actually, we can just upload directly to storage first or use a temporary name.
+						// Let's create a temporary unique name.
+						const tempId = 'new_' + Date.now();
+						
+						// 2. Compress
+						const compressed = await window.FBApi.compressBase64Image(base64Data, 190, 5);
+						
+						// 3. Upload to Storage
+						const fileName = `direct_upload_${tempId}.jpg`;
+						finalUrl = await window.FBApi.uploadToSupabaseStorage(compressed, fileName);
+						console.log('File uploaded to Supabase:', finalUrl);
+					}
+
+					await window.FBApi.saveToDatabase({ imageUrl: finalUrl, caption, platform: 'instagram' });
+					manualStatus.textContent = '✓ Saved to database';
+					manualStatus.style.color = '#059669';
+					
+					// Reset form
+					manualImageUrl.value = ''; 
+					manualCaption.value = '';
+					fileInput.value = '';
+					document.getElementById('fileNameDisplay').textContent = 'No file chosen';
+					
+					setTimeout(() => {
+						switchTab('pendingView');
+					}, 1500);
+
+				} catch (error) {
+					manualStatus.textContent = '❌ Error: ' + error.message;
+					manualStatus.style.color = '#dc2626';
+				} finally {
+					saveManualBtn.disabled = false;
+					saveManualBtn.textContent = 'Save to Database';
+				}
+			});
+
+			document.getElementById('imageFileInput').addEventListener('change', (e) => {
+				const file = e.target.files[0];
+				if (file) {
+					document.getElementById('fileNameDisplay').textContent = file.name;
+					manualImageUrl.value = ''; // Clear URL if file is chosen
+				}
+			});
+
+			refreshBtn.addEventListener('click', loadPendingPosts);
+			bootstrapAuth();
+		}
+	</script>
+</body>
+
+</html>
