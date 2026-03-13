@@ -5,8 +5,7 @@ const FB_API_CONFIG = {
 	graphApiToken: localStorage.getItem('graphApiToken') || 'EAAzvU5dynbMBQ5X1ZCC8CRtrZASthGA7QbFsdOgad3Sdn6dgO5sM99WV3DbkCzVYB7SM7Lk0TuxCzzKLYVx6BRiMutZAdHURDkw73ce9ZC0rHvWKGg7IdUsUoEzwhikYSNYuutjJS22DXJ3UdALaN9AQvww0Qqib0kGB6JQ9ZC905jUAkwolPjQ2FHyvFLetF',
 	igUserId: localStorage.getItem('igUserId') || '3832773753519724',
 	facebookPageId: localStorage.getItem('facebookPageId') || '',
-	useEdgeFunction: false, // Force direct API for stability
-	imgBBApiKey: "#"
+	useEdgeFunction: false // Force direct API for stability
 };
 
 /**
@@ -556,12 +555,13 @@ async function publishPost({ platform, imageUrl, caption }) {
 /**
  * Saves a post to Supabase for later publishing
  */
-async function saveToDatabase({ imageUrl, caption, platform }) {
+async function saveToDatabase({ imageUrl, caption, platform, post_section }) {
 	return await supabase.request('scheduled_posts', 'POST', {
 		image_url: imageUrl,
 		caption: caption,
 		platform: platform || 'instagram',
-		status: 'pending'
+		status: 'pending',
+		post_section: post_section || 'other'
 	});
 }
 
@@ -596,14 +596,20 @@ async function loadFromDatabase(filters = {}) {
 	if (filters.status) conditions.push(`status=eq.${filters.status}`);
 	if (filters.id) conditions.push(`id=eq.${filters.id}`);
 	if (filters.platform) conditions.push(`platform=eq.${filters.platform}`);
-
-	if (conditions.length > 0) {
-		query += '?' + conditions.join('&') + '&order=created_at.desc';
-	} else {
-		query += '?order=created_at.desc';
+	if (filters.post_section && filters.post_section !== 'all') {
+		conditions.push(`post_section=eq.${filters.post_section}`);
 	}
 
-	return await supabase.request(query, 'GET');
+	// Always sort by post_sl descending (newest first)
+	let queryString = conditions.length > 0 ? '?' + conditions.join('&') : '';
+	
+	if (queryString) {
+		queryString += '&order=post_sl.desc';
+	} else {
+		queryString = '?order=post_sl.desc';
+	}
+
+	return await supabase.request(query + queryString, 'GET');
 }
 
 /**
@@ -732,6 +738,8 @@ window.FBApi = {
 	loadFromDatabase,
 	updatePostStatus,
 	deletePost,
-	uploadBase64AndStore
+	uploadBase64AndStore,
+	compressBase64Image,
+	uploadToSupabaseStorage
 };
 

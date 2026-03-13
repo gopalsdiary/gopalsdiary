@@ -124,6 +124,53 @@
 		.repost-btn {
 			background: #3b82f6 !important;
 		}
+
+		.edit-btn {
+			background: #6b7280 !important;
+		}
+
+		.post-badge-container {
+			display: flex;
+			gap: 4px;
+			margin-bottom: 8px;
+			flex-wrap: wrap;
+		}
+
+		.section-badge {
+			display: inline-block;
+			background: #f3f4f6;
+			color: #4b5563;
+			font-size: 10px;
+			font-weight: 600;
+			padding: 2px 8px;
+			border-radius: 4px;
+			text-transform: capitalize;
+		}
+
+		.sl-badge {
+			display: inline-block;
+			background: #eff6ff;
+			color: #3b82f6;
+			font-size: 10px;
+			font-weight: 700;
+			padding: 2px 6px;
+			border-radius: 4px;
+		}
+
+		.filter-bar {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 15px;
+			align-items: center;
+		}
+
+		.filter-select {
+			padding: 6px 12px;
+			border-radius: 6px;
+			border: 1px solid #d1d5db;
+			font-size: 13px;
+			background: white;
+		}
 	</style>
 </head>
 
@@ -165,12 +212,32 @@
 					<h2>Pending Posts</h2>
 					<button id="refreshBtn" class="ghost" style="width: auto;">Refresh</button>
 				</div>
+				<div class="filter-bar">
+					<span style="font-size: 13px; color: #6b7280;">Filter Section:</span>
+					<select id="filterSectionPending" class="filter-select" onchange="loadPendingPosts()">
+						<option value="all">All Sections</option>
+						<option value="gopalsdiary">Gopal's Diary</option>
+						<option value="mehedi">Mehedi</option>
+						<option value="kobir">Kobir</option>
+						<option value="other">Other</option>
+					</select>
+				</div>
 				<div id="pendingGrid" class="grid"></div>
 			</div>
 
 			<div id="publishedView" class="tab-content hidden" style="margin-top: 15px;">
 				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
 					<h2>Published History</h2>
+				</div>
+				<div class="filter-bar">
+					<span style="font-size: 13px; color: #6b7280;">Filter Section:</span>
+					<select id="filterSectionPublished" class="filter-select" onchange="loadPublishedPosts()">
+						<option value="all">All Sections</option>
+						<option value="gopalsdiary">Gopal's Diary</option>
+						<option value="mehedi">Mehedi</option>
+						<option value="kobir">Kobir</option>
+						<option value="other">Other</option>
+					</select>
 				</div>
 				<div id="publishedGrid" class="grid"></div>
 			</div>
@@ -188,25 +255,22 @@
 						<span id="fileNameDisplay" style="font-size: 12px; color: #6b7280;">No file chosen</span>
 					</div>
 				</div>
+				<div class="row" style="margin-top: 10px; gap: 10px; display: flex;">
+					<select id="manualSection" class="filter-select" style="flex: 1; padding: 10px;">
+						<option value="gopalsdiary">Section: Gopal's Diary</option>
+						<option value="mehedi">Section: Mehedi</option>
+						<option value="kobir">Section: Kobir</option>
+						<option value="other">Section: Other</option>
+					</select>
+				</div>
 				<textarea id="manualCaption" placeholder="Caption for your post" style="margin-top: 10px;"></textarea>
 				<p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
-					<strong>📌 Recommended: Use imgBB (always public):</strong><br>
-					1. Go to <a href="https://imgbb.com" target="_blank"
-						style="color: #3b82f6; font-weight: bold;">imgbb.com</a><br>
-					2. Upload your image<br>
-					3. Copy the "Direct Link" (right-click image → Copy link address)<br>
-					4. Paste here and click "Validate Image"<br>
-					<br>
-					<strong>Other options:</strong><br>
-					<a href="https://imgur.com" target="_blank" style="color: #3b82f6;">Imgur</a> (Copy Link after
-					upload)<br>
-					<a href="https://cloudinary.com" target="_blank" style="color: #3b82f6;">Cloudinary</a> (Copy URL
-					from Media Library)<br>
+					<strong>📌 Preferred: Direct Upload</strong> (Compressed automatically for safety)<br>
 					<br>
 					<strong>Image Requirements:</strong><br>
 					✓ JPEG or PNG only<br>
 					✓ Less than 8MB<br>
-					✓ Publicly accessible (no login needed to view)
+					✓ Direct links must be publicly accessible
 				</p>
 				<div class="actions">
 					<button id="validateImageBtn" style="width: auto; background: #8b5cf6;">Validate Image</button>
@@ -282,6 +346,36 @@
 		</section>
 	</div>
 
+	<!-- Edit Modal -->
+	<div id="editModal" class="modal-overlay">
+		<div class="cropper-container">
+			<div class="cropper-header">
+				<h3>Edit Post Details</h3>
+				<button class="btn-ghost" onclick="closeEditModal()">✕</button>
+			</div>
+			
+			<div style="margin-bottom: 15px;">
+				<label style="display: block; font-size: 13px; color: #6b7280; margin-bottom: 4px;">Section</label>
+				<select id="editSection" class="filter-select" style="width: 100%;">
+					<option value="gopalsdiary">Gopal's Diary</option>
+					<option value="mehedi">Mehedi</option>
+					<option value="kobir">Kobir</option>
+					<option value="other">Other</option>
+				</select>
+			</div>
+			
+			<div style="margin-bottom: 20px;">
+				<label style="display: block; font-size: 13px; color: #6b7280; margin-bottom: 4px;">Caption</label>
+				<textarea id="editCaption" style="width: 100%; height: 120px; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; font-size: 14px;"></textarea>
+			</div>
+
+			<div class="cropper-actions">
+				<button class="btn-ghost" onclick="closeEditModal()">Cancel</button>
+				<button id="saveEditBtn" class="btn-primary">Update Changes</button>
+			</div>
+		</div>
+	</div>
+
 	<!-- Cropper Modal -->
 	<div id="cropperModal" class="modal-overlay">
 		<div class="cropper-container">
@@ -324,9 +418,10 @@
 		let pendingGrid, publishedGrid;
 		async function loadPendingPosts() {
 			if (!pendingGrid) return;
+			const section = document.getElementById('filterSectionPending').value;
 			pendingGrid.innerHTML = '<p style="color: #6b7280;">Loading posts...</p>';
 			try {
-				const posts = await window.FBApi.loadFromDatabase({ status: 'pending' });
+				const posts = await window.FBApi.loadFromDatabase({ status: 'pending', post_section: section });
 				renderPending(posts);
 			} catch (error) {
 				pendingGrid.innerHTML = `<p style="color: #dc2626;">Error: ${escapeHtml(error.message)}</p>`;
@@ -335,9 +430,10 @@
 
 		async function loadPublishedPosts() {
 			if (!publishedGrid) return;
+			const section = document.getElementById('filterSectionPublished').value;
 			publishedGrid.innerHTML = '<p style="color: #6b7280;">Loading history...</p>';
 			try {
-				const posts = await window.FBApi.loadFromDatabase({ status: 'published' });
+				const posts = await window.FBApi.loadFromDatabase({ status: 'published', post_section: section });
 				renderPublished(posts);
 			} catch (error) {
 				publishedGrid.innerHTML = `<p style="color: #dc2626;">Error: ${escapeHtml(error.message)}</p>`;
@@ -364,9 +460,16 @@
 			}
 			pendingGrid.innerHTML = posts.map(post => `
 				<div class="post-card">
+					<div class="post-badge-container">
+						<span class="sl-badge">#${post.post_sl}</span>
+						<span class="section-badge">${post.post_section || 'other'}</span>
+					</div>
 					<img src="${escapeHtml(post.image_url)}" alt="Post" class="post-image">
 					<p class="post-caption">${escapeHtml(post.caption || '(No caption)')}</p>
-					<button class="post-action-btn" onclick="publishFromDB('${post.id}')">Publish Now</button>
+					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+						<button class="post-action-btn edit-btn" onclick="openEditModal('${post.id}')">Edit</button>
+						<button class="post-action-btn" onclick="publishFromDB('${post.id}')">Publish</button>
+					</div>
 				</div>
 			`).join('');
 		}
@@ -379,11 +482,18 @@
 			}
 			publishedGrid.innerHTML = posts.map(post => `
 				<div class="post-card">
-					<div class="published-badge">Published</div>
+					<div class="post-badge-container">
+						<span class="sl-badge">#${post.post_sl}</span>
+						<span class="published-badge">Published</span>
+						<span class="section-badge">${post.post_section || 'other'}</span>
+					</div>
 					<img src="${escapeHtml(post.image_url)}" alt="Post" class="post-image">
 					<p class="post-caption">${escapeHtml(post.caption || '(No caption)')}</p>
 					<p style="font-size: 11px; color: #9ca3af; margin: 4px 0;">Posted: ${formatDate(post.published_at)}</p>
-					<button class="post-action-btn repost-btn" onclick="repostPost('${post.id}')">Repost</button>
+					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+						<button class="post-action-btn edit-btn" onclick="openEditModal('${post.id}')">Edit</button>
+						<button class="post-action-btn repost-btn" onclick="repostPost('${post.id}')">Repost</button>
+					</div>
 				</div>
 			`).join('');
 		}
@@ -527,6 +637,57 @@
 			if (cropper) cropper.destroy();
 			cropper = null;
 		}
+
+		// Edit Modal Logic
+		let currentPostIdForEdit = null;
+		async function openEditModal(postId) {
+			currentPostIdForEdit = postId;
+			const modal = document.getElementById('editModal');
+			const sectionSelect = document.getElementById('editSection');
+			const captionArea = document.getElementById('editCaption');
+
+			try {
+				const posts = await window.FBApi.loadFromDatabase({ id: postId });
+				if (!posts || posts.length === 0) throw new Error('Post not found');
+				const post = posts[0];
+
+				sectionSelect.value = post.post_section || 'other';
+				captionArea.value = post.caption || '';
+				modal.classList.add('active');
+			} catch (error) {
+				alert('Error loading post: ' + error.message);
+			}
+		}
+
+		function closeEditModal() {
+			document.getElementById('editModal').classList.remove('active');
+			currentPostIdForEdit = null;
+		}
+
+		document.getElementById('saveEditBtn').addEventListener('click', async () => {
+			if (!currentPostIdForEdit) return;
+			const btn = document.getElementById('saveEditBtn');
+			const section = document.getElementById('editSection').value;
+			const caption = document.getElementById('editCaption').value;
+
+			btn.disabled = true;
+			btn.textContent = 'Updating...';
+
+			try {
+				await window.FBApi.updatePostStatus(currentPostIdForEdit, { 
+					post_section: section,
+					caption: caption 
+				});
+				closeEditModal();
+				loadPendingPosts();
+				loadPublishedPosts();
+			} catch (error) {
+				alert('Failed to update: ' + error.message);
+			} finally {
+				btn.disabled = false;
+				btn.textContent = 'Update Changes';
+			}
+		});
 
 		// Handle Save Manual Crop
 		document.getElementById('saveCropBtn').addEventListener('click', async () => {
@@ -731,6 +892,7 @@
 			saveManualBtn.addEventListener('click', async () => {
 				const imageUrl = manualImageUrl.value.trim();
 				const caption = manualCaption.value.trim();
+				const post_section = document.getElementById('manualSection').value;
 				const fileInput = document.getElementById('imageFileInput');
 				const file = fileInput.files[0];
 
@@ -754,25 +916,16 @@
 							reader.readAsDataURL(file);
 						});
 
-						// 1. Initial save with dummy status to get an ID if needed? 
-						// Actually, we can just upload directly to storage first or use a temporary name.
-						// Let's create a temporary unique name.
 						const tempId = 'new_' + Date.now();
-						
-						// 2. Compress
 						const compressed = await window.FBApi.compressBase64Image(base64Data, 190, 5);
-						
-						// 3. Upload to Storage
 						const fileName = `direct_upload_${tempId}.jpg`;
 						finalUrl = await window.FBApi.uploadToSupabaseStorage(compressed, fileName);
-						console.log('File uploaded to Supabase:', finalUrl);
 					}
 
-					await window.FBApi.saveToDatabase({ imageUrl: finalUrl, caption, platform: 'instagram' });
+					await window.FBApi.saveToDatabase({ imageUrl: finalUrl, caption, platform: 'instagram', post_section });
 					manualStatus.textContent = '✓ Saved to database';
 					manualStatus.style.color = '#059669';
 					
-					// Reset form
 					manualImageUrl.value = ''; 
 					manualCaption.value = '';
 					fileInput.value = '';
