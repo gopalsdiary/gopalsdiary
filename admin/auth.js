@@ -211,7 +211,7 @@ class TableQuery {
                 prefer: method !== 'GET' ? 'return=representation' : null
             };
 
-            const responseData = await this.client.request(method, `/${this.tableName}${params.toString() ? '?' + params.toString() : ''}`, options);
+            const responseData = await this.client.request(`${this.tableName}${params.toString() ? '?' + params.toString() : ''}`, method, data, options);
             return { data: responseData, error: null };
         } catch (error) {
             console.error('Query exception:', error);
