@@ -147,6 +147,36 @@
 			text-transform: capitalize;
 		}
 
+		.post-caption {
+			margin: 8px 0;
+			color: #4b5563;
+			font-size: 13px;
+			line-height: 1.5;
+			display: -webkit-box;
+			line-clamp: 2;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			position: relative;
+			white-space: pre-wrap;
+			word-break: break-word;
+		}
+
+		.post-caption.expanded {
+			line-clamp: unset;
+			-webkit-line-clamp: unset;
+			display: block;
+		}
+
+		.see-more-btn {
+			color: #3b82f6;
+			cursor: pointer;
+			font-weight: 600;
+			font-size: 12px;
+			display: inline-block;
+			margin-bottom: 8px;
+		}
+
 		.sl-badge {
 			display: inline-block;
 			background: #eff6ff;
@@ -414,6 +444,17 @@
 			return div.innerHTML;
 		}
 
+		function toggleCaption(btn, postId) {
+			const captionEl = btn.previousElementSibling;
+			if (captionEl.classList.contains('expanded')) {
+				captionEl.classList.remove('expanded');
+				btn.textContent = 'See more';
+			} else {
+				captionEl.classList.add('expanded');
+				btn.textContent = 'See less';
+			}
+		}
+
 		// Load and render pending posts from Supabase
 		let pendingGrid, publishedGrid;
 		async function loadPendingPosts() {
@@ -458,20 +499,26 @@
 				pendingGrid.innerHTML = '<p style="color: #6b7280;">No pending posts.</p>';
 				return;
 			}
-			pendingGrid.innerHTML = posts.map(post => `
+			pendingGrid.innerHTML = posts.map(post => {
+				const caption = post.caption || '(No caption)';
+				const needsMore = caption.length > 60 || caption.includes('\n');
+				return `
 				<div class="post-card">
 					<div class="post-badge-container">
 						<span class="sl-badge">#${post.post_sl}</span>
 						<span class="section-badge">${post.post_section || 'other'}</span>
 					</div>
 					<img src="${escapeHtml(post.image_url)}" alt="Post" class="post-image">
-					<p class="post-caption">${escapeHtml(post.caption || '(No caption)')}</p>
+					<div class="caption-wrapper">
+						<p class="post-caption">${escapeHtml(caption)}</p>
+						${needsMore ? `<span class="see-more-btn" onclick="toggleCaption(this, '${post.id}')">See more</span>` : ''}
+					</div>
 					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
 						<button class="post-action-btn edit-btn" onclick="openEditModal('${post.id}')">Edit</button>
 						<button class="post-action-btn" onclick="publishFromDB('${post.id}')">Publish</button>
 					</div>
 				</div>
-			`).join('');
+			`;}).join('');
 		}
 
 		function renderPublished(posts) {
@@ -480,7 +527,10 @@
 				publishedGrid.innerHTML = '<p style="color: #6b7280;">No published posts yet.</p>';
 				return;
 			}
-			publishedGrid.innerHTML = posts.map(post => `
+			publishedGrid.innerHTML = posts.map(post => {
+				const caption = post.caption || '(No caption)';
+				const needsMore = caption.length > 60 || caption.includes('\n');
+				return `
 				<div class="post-card">
 					<div class="post-badge-container">
 						<span class="sl-badge">#${post.post_sl}</span>
@@ -488,14 +538,17 @@
 						<span class="section-badge">${post.post_section || 'other'}</span>
 					</div>
 					<img src="${escapeHtml(post.image_url)}" alt="Post" class="post-image">
-					<p class="post-caption">${escapeHtml(post.caption || '(No caption)')}</p>
+					<div class="caption-wrapper">
+						<p class="post-caption">${escapeHtml(caption)}</p>
+						${needsMore ? `<span class="see-more-btn" onclick="toggleCaption(this, '${post.id}')">See more</span>` : ''}
+					</div>
 					<p style="font-size: 11px; color: #9ca3af; margin: 4px 0;">Posted: ${formatDate(post.published_at)}</p>
 					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
 						<button class="post-action-btn edit-btn" onclick="openEditModal('${post.id}')">Edit</button>
 						<button class="post-action-btn repost-btn" onclick="repostPost('${post.id}')">Repost</button>
 					</div>
 				</div>
-			`).join('');
+			`;}).join('');
 		}
 
 		async function repostPost(postId) {
