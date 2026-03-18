@@ -409,35 +409,27 @@
             line-height: 1.6;
             flex: 1;
         }
-        .lightbox-details .lb-meta {
-            font-size: 12px;
-            color: rgba(255,255,255,0.5);
+        .lightbox-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .lightbox-controls, .lightbox-details .lb-meta {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 14px;
+            border-radius: 20px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255,255,255,0.08);
-            padding: 6px 12px;
-            border-radius: 20px;
-            width: fit-content;
-        }
-        .lightbox-controls {
-            margin: 16px 0;
-            font-size: 13px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.5);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .lightbox-controls::before {
-            content: '';
-            display: inline-block;
-            width: 24px;
-            height: 1px;
-            background: rgba(255,255,255,0.2);
+            margin: 0;
+            backdrop-filter: blur(8px);
         }
         .btn-download {
             background: var(--primary);
@@ -570,7 +562,7 @@
                 display: flex;
                 flex-direction: column;
                 z-index: 10;
-                transform: translateY(calc(100% - 64px));
+                transform: translateY(calc(100% - 115px));
                 transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
                 touch-action: pan-y;
                 cursor: pointer;
@@ -593,8 +585,8 @@
             .lightbox-details h2 { margin-bottom: 4px; margin-top: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 18px; }
             .lightbox-details .lb-desc { margin: 0; white-space: normal; overflow: visible; font-size: 14px; opacity: 0; transition: opacity 0.3s; }
             .lightbox-details.expanded .lb-desc { opacity: 1; margin-bottom: 16px; }
-            .lightbox-details .lb-meta { display: inline-flex; border-top: none; padding-top: 0; margin-top: 0; }
-            .lightbox-controls { margin: 8px 0; }
+            .lightbox-meta-row { margin-top: 8px; margin-bottom: 4px; gap: 8px; }
+            .lightbox-controls, .lightbox-details .lb-meta { font-size: 11px; padding: 5px 12px; }
             
             .nav-btn {
                 top: auto; 
@@ -721,10 +713,13 @@
             <div class="lightbox-details">
                 <h2 id="lightboxTitle">Title</h2>
                 <p class="lb-desc" id="lightboxDescription">Description</p>
-                <div class="lightbox-controls">
-                    Image <span id="imageCounter">1</span> of <span id="totalCounter">1</span>
+                <div class="lightbox-meta-row">
+                    <div class="lightbox-controls">
+                        <span class="material-icons" style="font-size:14px;">photo_library</span>
+                        <span id="imageCounter">1</span> / <span id="totalCounter">1</span>
+                    </div>
+                    <p class="lb-meta" id="lightboxMeta"></p>
                 </div>
-                <p class="lb-meta" id="lightboxMeta"></p>
                 <button class="btn-download" onclick="downloadImage()">
                     <span class="material-icons">download</span> Download
                 </button>
@@ -1453,9 +1448,9 @@
                 if (deltaY > 0) this.style.transform = `translateY(${deltaY}px)`;
             } else {
                 if (deltaY < 0) {
-                    const maxUp = this.offsetHeight - 64;
+                    const maxUp = this.offsetHeight - 115;
                     const move = Math.min(-deltaY, maxUp);
-                    this.style.transform = `translateY(calc(100% - 64px - ${move}px))`;
+                    this.style.transform = `translateY(calc(100% - 115px - ${move}px))`;
                 }
             }
             e.stopPropagation();
