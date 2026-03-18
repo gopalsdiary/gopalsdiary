@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -68,16 +68,17 @@
             
             <div class="lightbox-details">
                 <h2 id="lightboxTitle">Title</h2>
-                <div class="lightbox-controls">
-                     Image <span id="imageCounter">1</span> of <span id="totalCounter">100</span>
-                </div>
                 <p id="lightboxDescription">Description goes here...</p>
-                
-                <div style="margin-top: auto;">
-                    <button class="btn-download" onclick="downloadImage()">
-                        <span class="material-icons">download</span> Download
-                    </button>
+                <div class="lightbox-meta-row">
+                    <div class="lightbox-controls">
+                        <span class="material-icons" style="font-size:14px;">photo_library</span>
+                        <span id="imageCounter">1</span> / <span id="totalCounter">1</span>
+                    </div>
+                    <p class="lb-meta" id="lightboxMeta"></p>
                 </div>
+                <button class="btn-download" onclick="downloadImage()">
+                    <span class="material-icons">download</span> Download
+                </button>
             </div>
         </div>
     </div>

@@ -426,13 +426,39 @@ function createPhotoCard(photo, index, total) {
 // Store scroll position before opening lightbox
 let savedScrollPosition = 0;
 
+function updateLightboxText(data, idx, totalStr) {
+    const t = data.title && data.title !== '-' ? data.title.trim() : '';
+    const d = data.description && data.description !== '-' ? data.description.trim() : '';
+    const titleEl = document.getElementById('lightboxTitle');
+    const descEl = document.getElementById('lightboxDescription');
+
+    if (t) { titleEl.textContent = t; titleEl.style.display = 'block'; }
+    else { titleEl.textContent = ''; titleEl.style.display = 'none'; }
+
+    if (d) { descEl.textContent = d; descEl.style.display = 'block'; }
+    else { descEl.textContent = ''; descEl.style.display = 'none'; }
+
+    const details = document.querySelector('.lightbox-details');
+    if (details) details.style.setProperty('--reveal-height', t ? '115px' : '85px');
+
+    document.getElementById('imageCounter').textContent = idx + 1;
+    if (totalStr) document.getElementById('totalCounter').textContent = totalStr;
+
+    // Handle optional meta if needed (like Category)
+    const metaEl = document.getElementById('lightboxMeta');
+    if (metaEl) {
+        if (data.category) {
+            metaEl.textContent = data.category;
+            metaEl.style.display = 'inline-flex';
+        } else {
+            metaEl.style.display = 'none';
+        }
+    }
+}
+
 function openLightbox(lightboxImageSrc, index, total, photoData, originalUrl) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImage = document.getElementById('lightboxImage');
-    const lightboxTitle = document.getElementById('lightboxTitle');
-    const lightboxDescription = document.getElementById('lightboxDescription');
-    const imageCounter = document.getElementById('imageCounter');
-    const totalCounter = document.getElementById('totalCounter');
 
     // Save current scroll position
     savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
@@ -444,16 +470,11 @@ function openLightbox(lightboxImageSrc, index, total, photoData, originalUrl) {
     lightboxImage.src = lightboxImageSrc;
     lightboxImage.setAttribute('data-original-url', originalUrl); // Store for download
 
-    lightboxTitle.textContent = photoData.title || 'gopals_diary';
-    lightboxDescription.textContent = photoData.description || '-';
-    currentImageIndex = index;
+    updateLightboxText(photoData, index, total);
 
     // Get all photo cards from current gallery
     currentPhotos = Array.from(document.querySelectorAll('.photo-card'));
     currentLightboxImages = Array.from(document.querySelectorAll('.photo-image-img'));
-
-    imageCounter.textContent = index + 1;
-    totalCounter.textContent = total;
 
     lightbox.classList.remove('ui-hidden'); // Reset immersive mode
     const details = document.querySelector('.lightbox-details');
@@ -495,15 +516,10 @@ function nextImage() {
     const nextOriginalUrl = nextCard.getAttribute('data-original-url');
 
     const lightboxImage = document.getElementById('lightboxImage');
-    const lightboxTitle = document.getElementById('lightboxTitle');
-    const lightboxDescription = document.getElementById('lightboxDescription');
-    const imageCounter = document.getElementById('imageCounter');
 
     lightboxImage.src = nextLightboxUrl;
     lightboxImage.setAttribute('data-original-url', nextOriginalUrl);
-    lightboxTitle.textContent = photoData.title || 'gopals_diary';
-    lightboxDescription.textContent = photoData.description || '-';
-    imageCounter.textContent = currentImageIndex + 1;
+    updateLightboxText(photoData, currentImageIndex, null);
 }
 
 function prevImage() {
@@ -517,15 +533,10 @@ function prevImage() {
     const prevOriginalUrl = prevCard.getAttribute('data-original-url');
 
     const lightboxImage = document.getElementById('lightboxImage');
-    const lightboxTitle = document.getElementById('lightboxTitle');
-    const lightboxDescription = document.getElementById('lightboxDescription');
-    const imageCounter = document.getElementById('imageCounter');
 
     lightboxImage.src = prevLightboxUrl;
     lightboxImage.setAttribute('data-original-url', prevOriginalUrl);
-    lightboxTitle.textContent = photoData.title || 'gopals_diary';
-    lightboxDescription.textContent = photoData.description || '-';
-    imageCounter.textContent = currentImageIndex + 1;
+    updateLightboxText(photoData, currentImageIndex, null);
 }
 
 // Download image function (uses original high-quality image)
@@ -654,9 +665,10 @@ if (lightboxDetails) {
             }
         } else {
             if (deltaY < 0) {
-                const maxUp = this.offsetHeight - 32;
+                const reveal = parseInt(getComputedStyle(this).getPropertyValue('--reveal-height')) || 115;
+                const maxUp = this.offsetHeight - reveal;
                 const move = Math.min(-deltaY, maxUp);
-                this.style.transform = `translateY(calc(100% - 32px - ${move}px))`;
+                this.style.transform = `translateY(calc(100% - var(--reveal-height, 115px) - ${move}px))`;
             }
         }
         e.stopPropagation();
