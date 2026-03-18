@@ -19,9 +19,9 @@ const CONFIG = {
 
 // Table configuration
 const TABLE_CONFIG = {
-    'story_1': { name: 'Photography 1', category: 'story', weight: 1.5 },
-    'story_2': { name: 'Photography 2', category: 'story', weight: 1.5 },
-    'story_3': { name: 'Photography 3', category: 'story', weight: 1.5 },
+    'story_1': { name: 'story 1', category: 'story', weight: 1.5 },
+    'story_2': { name: 'story 2', category: 'story', weight: 1.5 },
+    'story_3': { name: 'story 3', category: 'story', weight: 1.5 },
 };
 
 // ===========================================

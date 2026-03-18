@@ -435,11 +435,11 @@
             background: var(--primary);
             color: #1a1a1a;
             border: none;
-            padding: 14px 24px;
+            padding: 12px 20px;
             border-radius: 30px;
             font-family: inherit;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 0.5px;
             cursor: pointer;
             display: flex;
@@ -448,7 +448,7 @@
             gap: 8px;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             width: 100%;
-            margin-top: 24px;
+            margin-top: 20px;
         }
         .btn-download:hover { 
             background: #ffc400;
@@ -562,7 +562,7 @@
                 display: flex;
                 flex-direction: column;
                 z-index: 10;
-                transform: translateY(calc(100% - 115px));
+                transform: translateY(calc(100% - var(--reveal-height, 115px)));
                 transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
                 touch-action: pan-y;
                 cursor: pointer;
@@ -613,19 +613,19 @@
 
             .btn-download {
                 position: absolute;
-                bottom: 24px; left: 50%;
+                bottom: 20px; left: 50%;
                 transform: translateX(-50%);
-                width: 56px; height: 56px;
+                width: 44px; height: 44px;
                 border-radius: 50%;
                 padding: 0; font-size: 0;
                 z-index: 2006;
-                box-shadow: 0 8px 24px rgba(238, 182, 0, 0.4);
+                box-shadow: 0 4px 16px rgba(238, 182, 0, 0.4);
                 background: var(--primary);
                 color: #000;
                 margin: 0;
                 border: none;
             }
-            .btn-download .material-icons { margin: 0; font-size: 24px; }
+            .btn-download .material-icons { margin: 0; font-size: 20px; }
             .btn-download:hover { transform: translateX(-50%) translateY(-2px); }
 
             /* UI Hidden states */
@@ -1328,6 +1328,28 @@
     let currentImageIndex = 0;
     let savedScrollY = 0;
 
+    function updateLightboxText(data, idx, totalStr) {
+        const t = data.title && data.title !== '-' ? data.title.trim() : '';
+        const d = data.description && data.description !== '-' ? data.description.trim() : '';
+        const titleEl = document.getElementById('lightboxTitle');
+        const descEl = document.getElementById('lightboxDescription');
+
+        if (t) { titleEl.textContent = t; titleEl.style.display = 'block'; }
+        else { titleEl.textContent = ''; titleEl.style.display = 'none'; }
+
+        if (d) { descEl.textContent = d; descEl.style.display = 'block'; }
+        else { descEl.textContent = ''; descEl.style.display = 'none'; }
+
+        const details = document.querySelector('.lightbox-details');
+        if (details) details.style.setProperty('--reveal-height', t ? '115px' : '85px');
+
+        document.getElementById('imageCounter').textContent = idx + 1;
+        if (totalStr) document.getElementById('totalCounter').textContent = totalStr;
+
+        const cfg = TABLE_CONFIG[data.tableName];
+        document.getElementById('lightboxMeta').textContent = cfg ? `${cfg.emoji} ${cfg.name}` : data.tableName;
+    }
+
     function openLightbox(imgSrc, index, total, photoData, originalUrl) {
         savedScrollY = window.scrollY;
         currentPhotos = Array.from(document.querySelectorAll('.photo-card'));
@@ -1338,15 +1360,7 @@
         lbImg.src = imgSrc;
         lbImg.setAttribute('data-original-url', originalUrl);
 
-        document.getElementById('lightboxTitle').textContent = photoData.title || 'Gopal\'s Diary';
-        document.getElementById('lightboxDescription').textContent = photoData.description || '';
-        document.getElementById('imageCounter').textContent = index + 1;
-        document.getElementById('totalCounter').textContent = total;
-
-        const cfg = TABLE_CONFIG[photoData.tableName];
-        document.getElementById('lightboxMeta').textContent = cfg
-            ? `${cfg.emoji} ${cfg.name}`
-            : photoData.tableName;
+        updateLightboxText(photoData, index, total);
 
         // Track user preference (for smarter mixing on next load)
         if (photoData.tableName && photoData.category) {
@@ -1379,12 +1393,7 @@
 
         document.getElementById('lightboxImage').src = card.getAttribute('data-lightbox-url');
         document.getElementById('lightboxImage').setAttribute('data-original-url', card.getAttribute('data-original-url'));
-        document.getElementById('lightboxTitle').textContent = data.title || 'Gopal\'s Diary';
-        document.getElementById('lightboxDescription').textContent = data.description || '';
-        document.getElementById('imageCounter').textContent = currentImageIndex + 1;
-
-        const cfg = TABLE_CONFIG[data.tableName];
-        document.getElementById('lightboxMeta').textContent = cfg ? `${cfg.emoji} ${cfg.name}` : data.tableName;
+        updateLightboxText(data, currentImageIndex, null);
     }
 
     function nextImage() { navigateLightbox(1); }
@@ -1448,9 +1457,10 @@
                 if (deltaY > 0) this.style.transform = `translateY(${deltaY}px)`;
             } else {
                 if (deltaY < 0) {
-                    const maxUp = this.offsetHeight - 115;
+                    const reveal = parseInt(getComputedStyle(this).getPropertyValue('--reveal-height')) || 115;
+                    const maxUp = this.offsetHeight - reveal;
                     const move = Math.min(-deltaY, maxUp);
-                    this.style.transform = `translateY(calc(100% - 115px - ${move}px))`;
+                    this.style.transform = `translateY(calc(100% - var(--reveal-height, 115px) - ${move}px))`;
                 }
             }
             e.stopPropagation();
