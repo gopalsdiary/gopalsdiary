@@ -699,8 +699,8 @@ async function uploadBase64AndStore(postId, base64Data) {
 	try {
 		console.log('🔄 Starting image compression and upload process...');
 		
-		// 1. Compress image to target size (~190KB)
-		const compressedBase64 = await compressBase64Image(base64Data, 190, 5);
+		// 1. Compress image to target size (~320KB)
+		const compressedBase64 = await compressBase64Image(base64Data, 320, 10);
 		
 		// 2. Upload to Supabase Storage
 		const fileName = `manual_crop_${postId}_${Date.now()}.jpg`;

@@ -970,7 +970,7 @@
 						});
 
 						const tempId = 'new_' + Date.now();
-						const compressed = await window.FBApi.compressBase64Image(base64Data, 190, 5);
+						const compressed = await window.FBApi.compressBase64Image(base64Data, 320, 10);
 						const fileName = `direct_upload_${tempId}.jpg`;
 						finalUrl = await window.FBApi.uploadToSupabaseStorage(compressed, fileName);
 					}
