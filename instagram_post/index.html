@@ -274,39 +274,53 @@
 
 			<div id="manualView" class="tab-content hidden" style="margin-top: 15px;">
 				<h2>Add to Database</h2>
-				<div class="row">
-					<input id="manualImageUrl" placeholder="Image URL (imgBB, Imgur, etc.)">
-					<div style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
-						<span style="color: #6b7280; font-size: 14px;">OR</span>
-						<label class="btn-primary" style="cursor: pointer; padding: 8px 16px; font-size: 13px; background: #3b82f6;">
-							Upload File
-							<input type="file" id="imageFileInput" accept="image/*" style="display: none;">
-						</label>
-						<span id="fileNameDisplay" style="font-size: 12px; color: #6b7280;">No file chosen</span>
+				<div style="display: flex; gap: 20px; align-items: flex-start;">
+					<!-- Left Column: Form -->
+					<div style="flex: 1;">
+						<div class="row">
+							<input id="manualImageUrl" placeholder="Image URL (imgBB, Imgur, etc.)">
+							<div style="margin: 10px 0; display: flex; align-items: center; gap: 10px;">
+								<span style="color: #6b7280; font-size: 14px;">OR</span>
+								<label class="btn-primary" style="cursor: pointer; padding: 8px 16px; font-size: 13px; background: #3b82f6;">
+									Upload File
+									<input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+								</label>
+								<span id="fileNameDisplay" style="font-size: 12px; color: #6b7280;">No file chosen</span>
+							</div>
+						</div>
+						<div class="row" style="margin-top: 10px; gap: 10px; display: flex;">
+							<select id="manualSection" class="filter-select" style="flex: 1; padding: 10px;">
+								<option value="gopalsdiary">Section: Gopal's Diary</option>
+								<option value="mehedi">Section: Mehedi</option>
+								<option value="kobir">Section: Kobir</option>
+								<option value="other">Section: Other</option>
+							</select>
+						</div>
+						<textarea id="manualCaption" placeholder="Caption for your post" style="margin-top: 10px;"></textarea>
+						<p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
+							<strong>📌 Preferred: Direct Upload</strong> (Compressed automatically for safety)<br>
+							<br>
+							<strong>Image Requirements:</strong><br>
+							✓ JPEG or PNG only<br>
+							✓ Less than 8MB<br>
+							✓ Direct links must be publicly accessible
+						</p>
+						<div class="actions">
+							<button id="validateImageBtn" style="width: auto; background: #8b5cf6;">Validate Image</button>
+							<button id="saveManualBtn">Save to Database</button>
+						</div>
+						<div id="manualStatus" class="status-box"></div>
+					</div>
+
+					<!-- Right Column: Image Preview -->
+					<div style="width: 250px; display: flex; flex-direction: column; gap: 10px;">
+						<div style="font-size: 14px; font-weight: 600; color: #374151;">Preview</div>
+						<div id="manualImagePreviewContainer" style="width: 100%; aspect-ratio: 4/5; background: #f3f4f6; border: 1px dashed #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+							<span id="manualImagePreviewPlaceholder" style="color: #9ca3af; font-size: 13px;">No image selected</span>
+							<img id="manualImagePreview" style="width: 100%; height: 100%; object-fit: contain; display: none;" src="">
+						</div>
 					</div>
 				</div>
-				<div class="row" style="margin-top: 10px; gap: 10px; display: flex;">
-					<select id="manualSection" class="filter-select" style="flex: 1; padding: 10px;">
-						<option value="gopalsdiary">Section: Gopal's Diary</option>
-						<option value="mehedi">Section: Mehedi</option>
-						<option value="kobir">Section: Kobir</option>
-						<option value="other">Section: Other</option>
-					</select>
-				</div>
-				<textarea id="manualCaption" placeholder="Caption for your post" style="margin-top: 10px;"></textarea>
-				<p style="font-size: 12px; color: #6b7280; margin-top: 8px;">
-					<strong>📌 Preferred: Direct Upload</strong> (Compressed automatically for safety)<br>
-					<br>
-					<strong>Image Requirements:</strong><br>
-					✓ JPEG or PNG only<br>
-					✓ Less than 8MB<br>
-					✓ Direct links must be publicly accessible
-				</p>
-				<div class="actions">
-					<button id="validateImageBtn" style="width: auto; background: #8b5cf6;">Validate Image</button>
-					<button id="saveManualBtn">Save to Database</button>
-				</div>
-				<div id="manualStatus" class="status-box"></div>
 			</div>
 
 			<div id="settingsView" class="tab-content hidden" style="margin-top: 15px;">
@@ -418,6 +432,7 @@
 				<button class="ratio-btn active" onclick="setRatio(0.8)">4:5 (Portrait)</button>
 				<button class="ratio-btn" onclick="setRatio(1)">1:1 (Square)</button>
 				<button class="ratio-btn" onclick="setRatio(1.91)">1.91:1 (Landscape)</button>
+				<button class="btn-ghost" onclick="fitImage()" style="margin-left: auto; font-size: 13px; display: flex; align-items: center; gap: 4px;">🔲 Fit (Add Borders)</button>
 			</div>
 
 			<div class="crop-area-wrapper">
@@ -665,7 +680,7 @@
 
 			cropper = new Cropper(img, {
 				aspectRatio: 0.8, // 4:5
-				viewMode: 1,
+				viewMode: 0, // 0 allows zooming out the image smaller than the crop box (adds borders)
 				background: false,
 				responsive: true,
 				guides: true,
@@ -684,6 +699,30 @@
 			if (window.event && window.event.target) {
 				window.event.target.classList.add('active');
 			}
+		}
+
+		function fitImage() {
+			if (!cropper) return;
+			const cropBoxData = cropper.getCropBoxData();
+			const imageData = cropper.getImageData();
+			
+			// Calculate the perfect zoom scale to fit the image entirely inside the crop box
+			const scale = Math.min(
+				cropBoxData.width / imageData.naturalWidth,
+				cropBoxData.height / imageData.naturalHeight
+			);
+			
+			// Apply zoom and center
+			cropper.zoomTo(scale);
+			
+			// Small timeout to ensure zoom is applied before moving
+			setTimeout(() => {
+				const newImageData = cropper.getImageData();
+				cropper.moveTo(
+					cropBoxData.left + (cropBoxData.width - newImageData.width) / 2,
+					cropBoxData.top + (cropBoxData.height - newImageData.height) / 2
+				);
+			}, 50);
 		}
 
 		function closeCropper() {
@@ -759,6 +798,7 @@
 				const canvas = cropper.getCroppedCanvas({
 					width: 1080,
 					imageSmoothingQuality: 'high',
+					fillColor: '#FFFFFF', // Clean white background for empty padding
 				});
 
 				const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
@@ -773,6 +813,7 @@
 					document.getElementById('manualImageUrl').value = finalUrl;
 					document.getElementById('manualStatus').textContent = '✓ Image ready for new post';
 					document.getElementById('manualStatus').style.color = '#059669';
+					if (typeof updateAddPostPreview === 'function') updateAddPostPreview(finalUrl);
 					
 					// 🛠️ Clear file input to avoid double upload in saveManualBtn
 					const fileInput = document.getElementById('imageFileInput');
@@ -1006,6 +1047,7 @@
 					manualCaption.value = '';
 					fileInput.value = '';
 					document.getElementById('fileNameDisplay').textContent = 'No file chosen';
+					if (typeof updateAddPostPreview === 'function') updateAddPostPreview('');
 					
 					setTimeout(() => {
 						switchTab('pendingView');
@@ -1030,6 +1072,24 @@
 					reader.readAsDataURL(file);
 					document.getElementById('fileNameDisplay').textContent = file.name;
 				}
+			});
+
+			// Setup Add Post Preview
+			window.updateAddPostPreview = function(url) {
+				const previewImg = document.getElementById('manualImagePreview');
+				const placeholder = document.getElementById('manualImagePreviewPlaceholder');
+				if (url) {
+					previewImg.src = url;
+					previewImg.style.display = 'block';
+					placeholder.style.display = 'none';
+				} else {
+					previewImg.src = '';
+					previewImg.style.display = 'none';
+					placeholder.style.display = 'block';
+				}
+			};
+			document.getElementById('manualImageUrl').addEventListener('input', function() {
+				updateAddPostPreview(this.value.trim());
 			});
 
 			refreshBtn.addEventListener('click', loadPendingPosts);

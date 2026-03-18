@@ -408,8 +408,8 @@ async function validateImageUrl(imageUrl) {
 			const ratio = img.width / img.height;
 			console.log(`Image dimensions: ${img.width}x${img.height}, Ratio: ${ratio.toFixed(2)}`);
 
-			// Instagram strict: 4:5 (0.8) to 1.91:1. Using 0.79 tolerance for safety
-			if (ratio < 0.79 || ratio > 1.92) {
+			// Instagram strict: 4:5 (0.8) to 1.91:1. Using 0.75 tolerance for safety
+			if (ratio < 0.75 || ratio > 2.0) {
 				reject(new Error(
 					`❌ Aspect Ratio Error: ${img.width}x${img.height} (Ratio: ${ratio.toFixed(2)}).\n` +
 					`Instagram requires between 0.8 (4:5) and 1.91 (1.91:1).`
@@ -442,10 +442,10 @@ async function publishDirectToInstagram({ imageUrl, caption }) {
 		// We rely on unique filenames from autoFixPostImage instead of URL params.
 		const cleanUrl = validatedUrl.split('?')[0];
 
-		// 🧼 Sanitize Caption
+		// 🧼 Sanitize Caption (Preserving newlines for paragraphs)
 		const cleanCaption = (caption || 'Posted via Gopal\'s Diary').trim()
 			.replace(/[\{\}\[\]]/g, '')
-			.replace(/\s+/g, ' ');
+			.replace(/[ \t]+/g, ' '); // Reduces excessive spaces but preserves \n and \r
 
 		console.log('Publishing to IG (Direct API):', { igUserId, imageUrl: cleanUrl });
 
@@ -636,8 +636,10 @@ async function compressBase64Image(base64Data, targetSizeKB = 320, toleranceKB =
 			console.log(`Initial size: ${currentSizeKB.toFixed(2)}KB @ ${width}x${height}`);
 
 			if (currentSizeKB <= targetSizeKB + toleranceKB) {
-				console.log('Image already within target size.');
-				resolve(base64Data);
+				console.log('Image already within target size. Performing redraw for cleanup.');
+				// Still perform a redraw to ensure clean headers and format
+				resultData = canvas.toDataURL('image/jpeg', 0.9); 
+				resolve(resultData);
 				return;
 			}
 
