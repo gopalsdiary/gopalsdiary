@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -6,14 +6,17 @@
 	
 	<!-- SEO Meta Tags -->
 	<title>Gopals Diary</title>
-	<meta name="description" content="Gopals Diary - আপনার পছন্দের বাংলা কোটস, ফটোগ্রাফি, ডটেড ইলাস্ট্রেশন, ইলাস্ট্রেশন এবং ইংলিশ কোটস। Free to use and download beautiful aesthetic content, bangla quotes, photography collections and creative illustrations.">
+	<meta name="description" content="Gopals Diary">
 
 
 	<!-- Performance: DNS Prefetch for external domains -->
 	<link rel="dns-prefetch" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co">
 	<link rel="dns-prefetch" href="https://i.ibb.co.com">
-	<link rel="preconnect" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co">
-	<link rel="preconnect" href="https://i.ibb.co.com">
+	<link rel="preconnect" href="https://mwkoqxtyxdkkqlakrrvd.supabase.co" crossorigin>
+	<link rel="preconnect" href="https://i.ibb.co.com" crossorigin>
+	
+	<!-- Preload Profile Avatar for faster LCP -->
+	<link rel="preload" as="image" href="https://i.ibb.co.com/HDFLdgBM/gopals-diary.jpg">
 
 	<!-- Google Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -266,6 +269,11 @@
 			text-decoration: none;
 			display: inline-block;
 			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		.btn:active {
+			transform: scale(0.97);
 		}
 
 		.btn:hover {
@@ -507,7 +515,10 @@
 			gap: 10px;
 			overflow-x: auto;
 			padding-bottom: 5px;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: none;
 		}
+		.highlights::-webkit-scrollbar { display: none; }
 
 		.highlight-item {
 			display: flex;
@@ -516,6 +527,7 @@
 			gap: 5px;
 			cursor: pointer;
 			transition: transform 0.3s ease;
+			-webkit-tap-highlight-color: transparent;
 		}
 
 		.highlight-item:hover {
@@ -567,6 +579,7 @@
 			cursor: pointer;
 			transition: transform 0.2s ease, opacity 0.2s;
 			animation: galleryFadeIn 0.4s ease backwards;
+			-webkit-tap-highlight-color: transparent;
 		}
 
 		.gallery-item:hover {
@@ -779,6 +792,7 @@
 			-ms-overflow-style: none;
 			scrollbar-width: none;
 			justify-content: space-around;
+			-webkit-overflow-scrolling: touch;
 		}
 
 		.tabs::-webkit-scrollbar { display: none; }
@@ -967,6 +981,14 @@
 		}
 
 		@media (max-width: 480px) {
+			.modal-content-highlight {
+				width: 95%;
+				margin: 10% auto;
+				padding: 15px;
+			}
+			.modal-gallery img {
+				border-radius: 6px;
+			}
 			.profile-container {
 				padding: 6px;
 			}
@@ -1138,7 +1160,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('tea')">&times;</span>
 				<h3>Tea 💗</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/JjPzY2dw/20200504-162309000-i-OS.png" alt="Tea 1">
+					<img src="https://i.ibb.co.com/JjPzY2dw/20200504-162309000-i-OS.png" alt="Tea 1" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1148,7 +1170,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('book')">&times;</span>
 				<h3>বই 📖</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/v6YQ6S0f/Screenshot-20230515-024051-Parallel-App.jpg" alt="Book 1">
+					<img src="https://i.ibb.co.com/v6YQ6S0f/Screenshot-20230515-024051-Parallel-App.jpg" alt="Book 1" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1158,7 +1180,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('photography')">&times;</span>
 				<h3>Photography</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/v6FzWvmZ/DSC3240.jpg" alt="Photo 1">
+					<img src="https://i.ibb.co.com/v6FzWvmZ/DSC3240.jpg" alt="Photo 1" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1168,7 +1190,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('mydiary')">&times;</span>
 				<h3>My Diary</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/h3dSFg3/20210120-141139987-i-OS.jpg" alt="Diary 1">
+					<img src="https://i.ibb.co.com/h3dSFg3/20210120-141139987-i-OS.jpg" alt="Diary 1" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1178,7 +1200,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('story11')">&times;</span>
 				<h3>Story 11</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/TBVwYmmR/1755328562-1684699982584.jpg" alt="Story 11">
+					<img src="https://i.ibb.co.com/TBVwYmmR/1755328562-1684699982584.jpg" alt="Story 11" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1188,7 +1210,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('story10')">&times;</span>
 				<h3>Story 10</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/RprzwVhJ/lost-memoris-1729700907404.jpg" alt="Story 10">
+					<img src="https://i.ibb.co.com/RprzwVhJ/lost-memoris-1729700907404.jpg" alt="Story 10" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1198,7 +1220,7 @@
 				<span class="modal-close" onclick="closeHighlightModal('photo2')">&times;</span>
 				<h3>2: Photography</h3>
 				<div class="modal-gallery">
-					<img src="https://i.ibb.co.com/TM9y26SW/DSC0312.jpg" alt="Photo 2">
+					<img src="https://i.ibb.co.com/TM9y26SW/DSC0312.jpg" alt="Photo 2" loading="lazy" decoding="async">
 				</div>
 			</div>
 		</div>
@@ -1629,7 +1651,7 @@
 				
 				return `
 					<div class="gallery-item" title="${escapedTitle}">
-						<img src="${thumbnailUrl}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" loading="lazy" onerror="this.style.backgroundColor='#e0e0e0'; this.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)';">
+						<img src="${thumbnailUrl}" alt="${escapedTitle}" data-post-index="${index}" data-total="${posts.length}" data-post='${postDataJson}' class="gallery-image" loading="lazy" decoding="async" onload="this.style.opacity=1" style="opacity:0; transition: opacity 0.3s;" onerror="this.style.opacity=1; this.style.backgroundColor='#e0e0e0'; this.style.background='linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)';">
 					</div>
 				`;
 			}).join('');
