@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
@@ -481,46 +481,88 @@
 
             .lightbox-content {
                 flex-direction: column;
-                width: 100%; height: 100%;
-                max-width: 100%; max-height: 100%;
+                height: 100%;
+                width: 100%;
                 border-radius: 0;
-            }
-            .lightbox-image-wrapper {
-                flex: 1;
-                position: static;
-            }
-            .lightbox-details {
-                flex: 0 0 auto;
-                padding: 14px 16px 70px;
-                border-top-left-radius: 16px;
-                border-top-right-radius: 16px;
-                margin-top: -12px;
                 position: relative;
             }
-            .nav-btn {
-                top: auto; bottom: 18px;
-                background: transparent;
-                color: var(--primary);
-                border: 1.5px solid var(--primary);
-                width: 34px; height: 34px;
-                transform: none;
-                z-index: 2005;
+            .lightbox-image-wrapper {
+                position: absolute;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: #000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1;
+                transition: all 0.3s ease;
             }
-            .nav-btn.prev { left: 16px; }
-            .nav-btn.next { right: 16px; }
+            .lightbox-image-wrapper img {
+                height: 100%;
+                max-height: 100%;
+                width: 100%;
+                object-fit: contain;
+            }
+            .lightbox-details {
+                position: absolute;
+                bottom: 0; left: 0;
+                width: 100%; height: auto;
+                padding: 0 16px 56px 16px;
+                background: var(--surface);
+                border-top-left-radius: 20px;
+                border-top-right-radius: 20px;
+                display: flex;
+                flex-direction: column;
+                z-index: 10;
+                transform: translateY(calc(100% - 32px));
+                transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+                touch-action: pan-y;
+                cursor: pointer;
+            }
+            .lightbox-details::before {
+                content: '';
+                display: block;
+                width: 40px; height: 4px;
+                background: #ccc;
+                border-radius: 2px;
+                margin: 14px auto;
+                flex-shrink: 0;
+            }
+            .lightbox-details.expanded {
+                transform: translateY(0);
+                cursor: default;
+            }
+            .lightbox-details h2 { margin-bottom: 2px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 16px; }
+            .lightbox-details .lb-desc { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-top: 4px; font-size: 13px;}
+            .lightbox-details .lb-meta { display: flex; justify-content: center; border-top: none; padding-top: 0; margin-top: 0;}
+            .lightbox-controls { margin: 4px 0; text-align: center; }
+
+            .nav-btn {
+                top: 50%; bottom: auto;
+                transform: translateY(-50%);
+                background: rgba(0,0,0,0.4);
+                border: none; color: #fff;
+                width: 40px; height: 40px;
+                z-index: 5;
+            }
+            .nav-btn.prev { left: 8px; }
+            .nav-btn.next { right: 8px; }
             .btn-download {
                 position: absolute;
-                bottom: 18px; left: 50%;
+                bottom: 8px; left: 50%;
                 transform: translateX(-50%);
-                width: 34px; height: 34px;
+                width: 44px; height: 44px;
                 border-radius: 50%;
-                padding: 0;
-                font-size: 0;
-                min-width: unset;
+                padding: 0; font-size: 0;
                 z-index: 2006;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             }
-            .btn-download .material-icons { font-size: 18px; margin: 0; }
-            .lightbox-controls { text-align: center; font-size: 11px; }
+            .btn-download .material-icons { margin: 0; font-size: 20px; }
+
+            /* UI Hidden states */
+            .lightbox-overlay.ui-hidden .lightbox-details { transform: translateY(100%) !important; }
+            .lightbox-overlay.ui-hidden .close-btn,
+            .lightbox-overlay.ui-hidden .nav-btn { opacity: 0; pointer-events: none; }
         }
         @media (max-width: 480px) {
             .gallery-grid { column-count: 3; column-gap: 4px; }
@@ -1233,6 +1275,10 @@
             Prefs.record(photoData.tableName, photoData.category);
         }
 
+        lb.classList.remove('ui-hidden');
+        const details = document.querySelector('.lightbox-details');
+        if (details) details.classList.remove('expanded');
+
         lb.classList.add('active');
         document.body.style.overflow = 'hidden';
         history.pushState({ lightbox: true }, '', '#view');
@@ -1278,16 +1324,85 @@
         if (e.target === e.currentTarget) closeLightbox();
     });
 
-    // Touch swipe
+    // Touch swipe for images
     let touchX = 0;
-    document.getElementById('lightbox').addEventListener('touchstart', e => {
+    document.getElementById('lightboxImage').addEventListener('touchstart', e => {
         touchX = e.changedTouches[0].screenX;
     }, { passive: true });
-    document.getElementById('lightbox').addEventListener('touchend', e => {
+    document.getElementById('lightboxImage').addEventListener('touchend', e => {
         const dx = e.changedTouches[0].screenX - touchX;
         if (dx > 50) prevImage();
         else if (dx < -50) nextImage();
     }, { passive: true });
+
+    // Mobile Bottom Sheet & UI Immersive Toggle Logic
+    document.getElementById('lightboxImage').addEventListener('click', function(e) {
+        if (Img.isMobile()) {
+            const overlay = document.getElementById('lightbox');
+            const details = document.querySelector('.lightbox-details');
+            overlay.classList.toggle('ui-hidden');
+            if (details && details.classList.contains('expanded')) {
+                details.classList.remove('expanded');
+            }
+        }
+    });
+
+    const lightboxDetails = document.querySelector('.lightbox-details');
+    if (lightboxDetails) {
+        let sheetStartY = 0;
+        let sheetCurrentY = 0;
+        let isDraggingSheet = false;
+
+        lightboxDetails.addEventListener('touchstart', function(e) {
+            if (!Img.isMobile()) return;
+            sheetStartY = e.touches[0].clientY;
+            isDraggingSheet = true;
+            this.style.transition = 'none';
+            e.stopPropagation();
+        }, { passive: true });
+
+        lightboxDetails.addEventListener('touchmove', function(e) {
+            if (!isDraggingSheet) return;
+            sheetCurrentY = e.touches[0].clientY;
+            const deltaY = sheetCurrentY - sheetStartY;
+            
+            if (this.classList.contains('expanded')) {
+                if (deltaY > 0) this.style.transform = `translateY(${deltaY}px)`;
+            } else {
+                if (deltaY < 0) {
+                    const maxUp = this.offsetHeight - 32;
+                    const move = Math.min(-deltaY, maxUp);
+                    this.style.transform = `translateY(calc(100% - 32px - ${move}px))`;
+                }
+            }
+            e.stopPropagation();
+        }, { passive: true });
+
+        lightboxDetails.addEventListener('touchend', function(e) {
+            if (!isDraggingSheet) return;
+            isDraggingSheet = false;
+            this.style.transition = '';
+            
+            if (sheetCurrentY === 0) return;
+            const deltaY = sheetCurrentY - sheetStartY;
+            if (Math.abs(deltaY) > 30) {
+                if (this.classList.contains('expanded') && deltaY > 0) {
+                    this.classList.remove('expanded');
+                } else if (!this.classList.contains('expanded') && deltaY < 0) {
+                    this.classList.add('expanded');
+                }
+            }
+            this.style.transform = ''; 
+            sheetCurrentY = 0;
+            e.stopPropagation();
+        }, { passive: true });
+
+        lightboxDetails.addEventListener('click', function(e) {
+            if (Img.isMobile() && !this.classList.contains('expanded')) {
+                this.classList.add('expanded');
+            }
+        });
+    }
 
     // Mouse wheel navigation
     let lastWheel = 0;
