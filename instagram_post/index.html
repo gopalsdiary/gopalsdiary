@@ -652,8 +652,9 @@
 		let cropper = null;
 		let currentPostIdForCrop = null;
 
-		function openCropper(postId, imageUrl) {
+		function openCropper(postId, imageUrl, isNew = false) {
 			currentPostIdForCrop = postId;
+			isNewPostCrop = isNew;
 			const modal = document.getElementById('cropperModal');
 			const img = document.getElementById('cropImage');
 
@@ -742,9 +743,12 @@
 			}
 		});
 
+		// 🖼️ Variable to track if we're cropping for a NEW post or an EXISTING one
+		let isNewPostCrop = false;
+
 		// Handle Save Manual Crop
 		document.getElementById('saveCropBtn').addEventListener('click', async () => {
-			if (!cropper || !currentPostIdForCrop) return;
+			if (!cropper) return;
 
 			const btn = document.getElementById('saveCropBtn');
 			const originalText = btn.textContent;
@@ -759,22 +763,40 @@
 
 				const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
-				console.log('🚀 Saving manual crop...');
-				await window.FBApi.uploadBase64AndStore(currentPostIdForCrop, dataUrl);
+				// 🛠️ Check if we are updating or creating new
+				if (isNewPostCrop) {
+					console.log('🚀 Saving crop for NEW post...');
+					const compressed = await window.FBApi.compressBase64Image(dataUrl, 320, 10);
+					const fileName = `direct_upload_${Date.now()}.jpg`;
+					const finalUrl = await window.FBApi.uploadToSupabaseStorage(compressed, fileName);
+					
+					document.getElementById('manualImageUrl').value = finalUrl;
+					document.getElementById('manualStatus').textContent = '✓ Image ready for new post';
+					document.getElementById('manualStatus').style.color = '#059669';
+					
+					// 🛠️ Clear file input to avoid double upload in saveManualBtn
+					const fileInput = document.getElementById('imageFileInput');
+					if (fileInput) {
+						fileInput.value = '';
+						document.getElementById('fileNameDisplay').textContent = 'No file chosen';
+					}
 
-				closeCropper();
-				await loadPendingPosts();
-
-				alert('Image saved! Continuing publication...');
-
-				// Re-publish - wait for DOM to update and find the new button
-				const gridBtn = document.querySelector(`button[onclick*="'${currentPostIdForCrop}'"]`);
-				if (gridBtn) {
-					await publishFromDB(currentPostIdForCrop, gridBtn);
+					closeCropper();
 				} else {
-					console.warn('Publish button not found after crop. Please click it manually.');
-				}
+					console.log('🚀 Saving manual crop for existing post:', currentPostIdForCrop);
+					await window.FBApi.uploadBase64AndStore(currentPostIdForCrop, dataUrl);
 
+					closeCropper();
+					await loadPendingPosts();
+
+					alert('Image saved! Continuing publication...');
+
+					// Re-publish - wait for DOM to update and find the new button
+					const gridBtn = document.querySelector(`button[onclick*="'${currentPostIdForCrop}'"]`);
+					if (gridBtn) {
+						await publishFromDB(currentPostIdForCrop, gridBtn);
+					}
+				}
 			} catch (error) {
 				alert('Failed: ' + error.message);
 			} finally {
@@ -961,7 +983,8 @@
 				try {
 					let finalUrl = imageUrl;
 
-					if (file) {
+					// 🛠️ Only upload if there's a file AND no URL yet (avoids double upload after crop)
+					if (file && !imageUrl) {
 						// Process file upload
 						const reader = new FileReader();
 						const base64Data = await new Promise((resolve) => {
@@ -1000,8 +1023,12 @@
 			document.getElementById('imageFileInput').addEventListener('change', (e) => {
 				const file = e.target.files[0];
 				if (file) {
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						openCropper('new', e.target.result, true);
+					};
+					reader.readAsDataURL(file);
 					document.getElementById('fileNameDisplay').textContent = file.name;
-					manualImageUrl.value = ''; // Clear URL if file is chosen
 				}
 			});
 

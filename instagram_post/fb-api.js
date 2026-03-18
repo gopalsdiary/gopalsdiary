@@ -615,22 +615,25 @@ async function loadFromDatabase(filters = {}) {
 /**
  * Compresses a base64 image to meet size requirements (target ~190KB)
  */
-async function compressBase64Image(base64Data, targetSizeKB = 190, toleranceKB = 10) {
+async function compressBase64Image(base64Data, targetSizeKB = 320, toleranceKB = 10) {
 	return new Promise((resolve) => {
 		const img = new Image();
 		img.src = base64Data;
 		img.onload = () => {
 			const canvas = document.createElement('canvas');
-			canvas.width = img.width;
-			canvas.height = img.height;
+			let width = img.width;
+			let height = img.height;
+			
+			canvas.width = width;
+			canvas.height = height;
 			const ctx = canvas.getContext('2d');
-			ctx.drawImage(img, 0, 0);
+			ctx.drawImage(img, 0, 0, width, height);
 
 			let quality = 0.95;
 			let resultData = base64Data;
 			let currentSizeKB = (resultData.length * 3 / 4) / 1024;
 
-			console.log(`Initial size: ${currentSizeKB.toFixed(2)}KB`);
+			console.log(`Initial size: ${currentSizeKB.toFixed(2)}KB @ ${width}x${height}`);
 
 			if (currentSizeKB <= targetSizeKB + toleranceKB) {
 				console.log('Image already within target size.');
@@ -638,14 +641,31 @@ async function compressBase64Image(base64Data, targetSizeKB = 190, toleranceKB =
 				return;
 			}
 
-			// Iterative compression
+			// Stage 1: Iterative quality compression
 			while (currentSizeKB > targetSizeKB + toleranceKB && quality > 0.1) {
 				resultData = canvas.toDataURL('image/jpeg', quality);
 				currentSizeKB = (resultData.length * 3 / 4) / 1024;
 				quality -= 0.05;
 			}
+			
+			// Stage 2: Dimension reduction if still too large
+			if (currentSizeKB > targetSizeKB + toleranceKB) {
+				console.log('Quality reduction reached limit. Starting dimension reduction...');
+				let scale = 0.9;
+				while (currentSizeKB > targetSizeKB + toleranceKB && scale > 0.3) {
+					width = Math.floor(img.width * scale);
+					height = Math.floor(img.height * scale);
+					canvas.width = width;
+					canvas.height = height;
+					ctx.drawImage(img, 0, 0, width, height);
+					
+					resultData = canvas.toDataURL('image/jpeg', 0.5); // Use mid-quality while resizing
+					currentSizeKB = (resultData.length * 3 / 4) / 1024;
+					scale -= 0.1;
+				}
+			}
 
-			console.log(`Compressed size: ${currentSizeKB.toFixed(2)}KB (Quality: ${quality.toFixed(2)})`);
+			console.log(`Final size: ${currentSizeKB.toFixed(2)}KB (Quality: ${quality.toFixed(2)}, Res: ${width}x${height})`);
 			resolve(resultData);
 		};
 		img.onerror = () => resolve(base64Data); // Fallback to original
