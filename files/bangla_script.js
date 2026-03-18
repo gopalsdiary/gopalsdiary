@@ -1,4 +1,4 @@
-﻿// ============================================
+// ============================================
 // SUPABASE CONFIGURATION
 // ============================================
 const SUPABASE_URL = 'https://mwkoqxtyxdkkqlakrrvd.supabase.co';
@@ -455,6 +455,10 @@ function openLightbox(lightboxImageSrc, index, total, photoData, originalUrl) {
     imageCounter.textContent = index + 1;
     totalCounter.textContent = total;
 
+    lightbox.classList.remove('ui-hidden'); // Reset immersive mode
+    const details = document.querySelector('.lightbox-details');
+    if (details) details.classList.remove('expanded'); // Reset bottom sheet state
+
     lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -608,6 +612,82 @@ document.getElementById('lightbox').addEventListener('click', function (event) {
         closeLightbox();
     }
 });
+
+// Mobile Bottom Sheet & UI Immersive Toggle Logic
+document.getElementById('lightboxImage').addEventListener('click', function(e) {
+    if (ImageOptimizer.isMobile()) {
+        const overlay = document.getElementById('lightbox');
+        const details = document.querySelector('.lightbox-details');
+        
+        // Toggle immersive mode (hides bottom sheet and buttons)
+        overlay.classList.toggle('ui-hidden');
+
+        // Always collapse the bottom sheet when escaping immersive mode
+        if (details && details.classList.contains('expanded')) {
+            details.classList.remove('expanded');
+        }
+    }
+});
+
+const lightboxDetails = document.querySelector('.lightbox-details');
+if (lightboxDetails) {
+    let sheetStartY = 0;
+    let sheetCurrentY = 0;
+    let isDraggingSheet = false;
+
+    lightboxDetails.addEventListener('touchstart', function(e) {
+        if (!ImageOptimizer.isMobile()) return;
+        sheetStartY = e.touches[0].clientY;
+        isDraggingSheet = true;
+        this.style.transition = 'none';
+        e.stopPropagation();
+    }, { passive: true });
+
+    lightboxDetails.addEventListener('touchmove', function(e) {
+        if (!isDraggingSheet) return;
+        sheetCurrentY = e.touches[0].clientY;
+        const deltaY = sheetCurrentY - sheetStartY;
+        
+        if (this.classList.contains('expanded')) {
+            if (deltaY > 0) {
+                this.style.transform = `translateY(${deltaY}px)`;
+            }
+        } else {
+            if (deltaY < 0) {
+                const maxUp = this.offsetHeight - 32;
+                const move = Math.min(-deltaY, maxUp);
+                this.style.transform = `translateY(calc(100% - 32px - ${move}px))`;
+            }
+        }
+        e.stopPropagation();
+    }, { passive: true });
+
+    lightboxDetails.addEventListener('touchend', function(e) {
+        if (!isDraggingSheet) return;
+        isDraggingSheet = false;
+        this.style.transition = '';
+        
+        if (sheetCurrentY === 0) return; // no move
+        
+        const deltaY = sheetCurrentY - sheetStartY;
+        if (Math.abs(deltaY) > 30) {
+            if (this.classList.contains('expanded') && deltaY > 0) {
+                this.classList.remove('expanded');
+            } else if (!this.classList.contains('expanded') && deltaY < 0) {
+                this.classList.add('expanded');
+            }
+        }
+        this.style.transform = ''; 
+        sheetCurrentY = 0;
+        e.stopPropagation();
+    }, { passive: true });
+
+    lightboxDetails.addEventListener('click', function(e) {
+        if (ImageOptimizer.isMobile() && !this.classList.contains('expanded')) {
+            this.classList.add('expanded');
+        }
+    });
+}
 
 // Mouse Wheel Navigation
 let lastScrollTime = 0;

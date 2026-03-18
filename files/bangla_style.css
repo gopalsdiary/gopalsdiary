@@ -429,74 +429,122 @@ body {
         max-height: 100%;
         max-width: 100%;
         border-radius: 0;
+        position: relative;
     }
 
     .lightbox-image-wrapper {
-        flex: 1;
-        background: black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-bottom: 0;
+        z-index: 1;
+        transition: all 0.3s ease;
+    }
+
+    .lightbox-image-wrapper img {
+        height: 100%;
+        max-height: 100%;
+        width: 100%;
+        object-fit: contain;
     }
 
     .lightbox-details {
-        flex: 0 0 auto;
-        padding: 16px;
-        padding-bottom: 70px;
-        /* Space for bottom buttons */
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        padding: 0 16px 56px 16px;
         background: white;
-        border-top-left-radius: 16px;
-        border-top-right-radius: 16px;
-        margin-top: -16px;
-        /* Overlap effect */
-        position: relative;
-        /* Context for buttons */
+        border-radius: 20px 20px 0 0;
         display: flex;
         flex-direction: column;
+        z-index: 10;
+        transform: translateY(calc(100% - 32px));
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        touch-action: pan-y;
+        cursor: pointer;
     }
 
-    /* Move Nav Buttons to Bottom Details Panel on Mobile */
-    .lightbox-image-wrapper {
-        position: static;
-        /* Release buttons from top section */
+    .lightbox-details::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: #ccc;
+        border-radius: 2px;
+        margin: 14px auto;
+        flex-shrink: 0;
+    }
+
+    .lightbox-details.expanded {
+        transform: translateY(0);
+        cursor: default;
+    }
+
+    .lightbox-details h2 {
+        font-size: 16px;
+        text-align: center;
+        margin-bottom: 2px;
+        margin-top: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lightbox-details p {
+        font-size: 13px;
+        text-align: center;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lightbox-controls {
+        margin: 4px 0;
+        text-align: center;
+        font-size: 12px;
     }
 
     .nav-btn {
-        top: auto;
-        bottom: 20px;
-        /* Position in the white details area */
-        background: transparent;
-        color: var(--primary-color);
-        border: 1px solid var(--primary-color);
-        width: 36px;
-        height: 36px;
-        transform: none;
-        z-index: 2005;
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
+        background: rgba(0,0,0,0.4);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        z-index: 5;
     }
 
-    .nav-btn.prev {
-        left: 20px;
-    }
+    .nav-btn.prev { left: 8px; }
+    .nav-btn.next { right: 8px; }
 
-    .nav-btn.next {
-        right: 20px;
-    }
-
-    /* Make download button extremely small and centered at bottom */
     .btn-download {
         position: absolute;
-        bottom: 20px;
+        bottom: 8px;
         left: 50%;
         transform: translateX(-50%);
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         padding: 0;
         font-size: 0;
-        /* Hides text */
         display: flex;
         align-items: center;
         justify-content: center;
         min-width: unset;
         margin: 0;
         z-index: 2006;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
     .btn-download .material-icons {
@@ -504,8 +552,13 @@ body {
         margin: 0;
     }
 
-    .lightbox-controls {
-        text-align: center;
-        font-size: 12px;
+    /* UI Hidden states */
+    .lightbox-overlay.ui-hidden .lightbox-details {
+        transform: translateY(100%) !important;
+    }
+    .lightbox-overlay.ui-hidden .close-btn,
+    .lightbox-overlay.ui-hidden .nav-btn {
+        opacity: 0;
+        pointer-events: none;
     }
 }
