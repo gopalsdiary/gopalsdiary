@@ -122,7 +122,7 @@
         /* ===== Masonry Gallery ===== */
         .gallery-grid {
             column-count: 5;
-            column-gap: 10px;
+            column-gap: 15px;
         }
 
         /* ===== Skeleton Loading ===== */
@@ -132,14 +132,14 @@
         }
         .skeleton-card {
             break-inside: avoid;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-radius: var(--radius);
             overflow: hidden;
             background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
             background-size: 800px 100%;
             animation: shimmer 1.4s ease infinite;
         }
-        .skeleton-card .sk-img { width: 100%; background: #e8e8e8; }
+        .skeleton-card .sk-img { width: 100%; height: 200px; background: #e8e8e8; }
         .skeleton-card .sk-info { padding: 10px; }
         .skeleton-card .sk-title { height: 12px; background: #e0e0e0; border-radius: 4px; width: 70%; margin-bottom: 6px; }
         .skeleton-card .sk-desc { height: 10px; background: #e8e8e8; border-radius: 4px; width: 50%; }
@@ -152,7 +152,7 @@
         .photo-card {
             background: var(--surface);
             border-radius: var(--radius);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             break-inside: avoid;
             box-shadow: var(--elevation-1);
             transition: box-shadow 0.3s cubic-bezier(0.4,0,0.2,1), transform 0.25s;
@@ -172,12 +172,13 @@
             width: 100%;
             position: relative;
             background: #eee;
-            min-height: 120px;
             overflow: hidden;
+            display: flex;
         }
         .photo-image img {
             width: 100%;
             height: auto;
+            object-fit: cover;
             display: block;
             opacity: 0;
             transition: opacity 0.5s ease, filter 0.5s ease;
@@ -205,7 +206,10 @@
         }
 
         .photo-info {
-            padding: 8px 10px;
+            padding: 10px 12px;
+            background: var(--surface);
+            border-top: 1px solid rgba(0,0,0,0.03);
+            flex-shrink: 0;
         }
         .photo-info h3 {
             font-size: 12px;
@@ -505,12 +509,12 @@
             .gallery-grid { column-count: 7; }
         }
         @media (max-width: 1200px) {
-            .gallery-grid { column-count: 4; column-gap: 8px; }
+            .gallery-grid { column-count: 4; column-gap: 12px; }
         }
         @media (max-width: 768px) {
             .app-bar { height: 48px; }
             .app-title { font-size: 15px; }
-            .gallery-grid { column-count: 3; column-gap: 6px; }
+            .gallery-grid { column-count: 3; column-gap: 10px; }
             .photo-card { margin-bottom: 6px; border-radius: var(--radius-sm); }
             .photo-info { padding: 6px 8px; }
             .photo-info h3 { font-size: 11px; }
@@ -640,8 +644,10 @@
             .lightbox-overlay.ui-hidden .lightbox-image-wrapper { transform: scale(1.02); }
         }
         @media (max-width: 480px) {
-            .gallery-grid { column-count: 3; column-gap: 4px; }
-            .photo-card { margin-bottom: 4px; border-radius: 6px; }
+            .gallery-grid { column-count: 3; column-gap: 6px; }
+            .photo-card { border-radius: 6px; margin-bottom: 6px; }
+            /* Mobile portrait/landscape support */
+            .photo-image { aspect-ratio: auto; }
             .photo-info { padding: 4px 6px; }
             .photo-info h3 { font-size: 10px; }
             .photo-info p { font-size: 8px; }
@@ -1281,6 +1287,15 @@
             const cfg = TABLE_CONFIG[photo.tableName];
             const badgeText = cfg ? cfg.emoji + ' ' + cfg.name : photo.tableName;
 
+            const hasTitle = photo.title && photo.title !== '-';
+            const hasDesc = photo.description && photo.description !== '-';
+            const infoHtml = (hasTitle || hasDesc) ? `
+                <div class="photo-info">
+                    ${hasTitle ? `<h3>${escapeHtml(photo.title)}</h3>` : ''}
+                    ${hasDesc ? `<p>${escapeHtml(photo.description)}</p>` : ''}
+                </div>
+            ` : '';
+
             card.innerHTML = `
                 <div class="photo-image">
                     <span class="photo-badge">${escapeHtml(badgeText)}</span>
@@ -1292,10 +1307,7 @@
                          style="cursor:pointer;opacity:0;transition:opacity 0.5s ease,filter 0.5s ease;"
                          src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
                 </div>
-                <div class="photo-info">
-                    <h3>${escapeHtml(photo.title)}</h3>
-                    <p>${escapeHtml(photo.description)}</p>
-                </div>
+                ${infoHtml}
             `;
 
             // Lazy load observer
@@ -1411,15 +1423,20 @@
         if (e.target === e.currentTarget) closeLightbox();
     });
 
-    // Touch swipe for images
-    let touchX = 0;
+    // Touch swipe for images (Lightbox)
+    let touchX = 0, touchY = 0;
     document.getElementById('lightboxImage').addEventListener('touchstart', e => {
         touchX = e.changedTouches[0].screenX;
+        touchY = e.changedTouches[0].screenY;
     }, { passive: true });
     document.getElementById('lightboxImage').addEventListener('touchend', e => {
         const dx = e.changedTouches[0].screenX - touchX;
-        if (dx > 50) prevImage();
-        else if (dx < -50) nextImage();
+        const dy = e.changedTouches[0].screenY - touchY;
+        if (Math.abs(dx) > 50) {
+            dx > 0 ? prevImage() : nextImage();
+        } else if (Math.abs(dy) > 50) {
+            dy > 0 ? prevImage() : nextImage();
+        }
     }, { passive: true });
 
     // Mobile Bottom Sheet & UI Immersive Toggle Logic
@@ -1495,8 +1512,8 @@
     // Mouse wheel navigation
     let lastWheel = 0;
     document.getElementById('lightbox').addEventListener('wheel', e => {
-        if (Date.now() - lastWheel < 300) return;
-        if (Math.abs(e.deltaX) > 20 || Math.abs(e.deltaY) > 20) {
+        if (Date.now() - lastWheel < 400) return;
+        if (Math.abs(e.deltaX) > 10 || Math.abs(e.deltaY) > 10) {
             lastWheel = Date.now();
             (e.deltaX > 0 || e.deltaY > 0) ? nextImage() : prevImage();
         }

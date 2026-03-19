@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমাদের সম্পর্কে - Gopal's Diary</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #eeb600;
+            --primary-dark: #c99a00;
+            --bg: #f5f5f5;
+            --surface: #ffffff;
+            --on-surface: #1a1a1a;
+            --on-surface-dim: rgba(0,0,0,0.6);
+            --elevation-2: 0 3px 6px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            --elevation-4: 0 6px 12px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08);
+            --radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg);
+            color: var(--on-surface);
+            line-height: 1.6;
+        }
+
+        /* Use Tiro Bangla for Bangla text specifically */
+        .lang-bn {
+            font-family: 'Tiro Bangla', serif;
+        }
+
+        /* App Bar */
+        .app-bar {
+            background: var(--primary);
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--elevation-4);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+        .app-bar-content {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .app-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        .spacer { flex: 1; }
+        .icon-btn {
+            color: inherit;
+            text-decoration: none;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.15); }
+
+        /* Segmented Pill Language Switcher */
+        .lang-switcher {
+            display: flex;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2px;
+            border-radius: 25px;
+            gap: 2px;
+            margin: 0 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .lang-btn {
+            padding: 5px 14px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .lang-btn.active {
+            background: white;
+            color: var(--on-surface);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 800px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        .hero-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--elevation-2);
+            overflow: hidden;
+            margin-bottom: 32px;
+            cursor: zoom-in;
+            transition: transform 0.3s;
+        }
+        .hero-card:hover {
+            transform: scale(1.01);
+        }
+
+        .hero-img {
+            width: 100%;
+            height: auto; /* Show full image */
+            display: block;
+            background: #eee;
+        }
+
+        .content-section {
+            padding: 24px;
+        }
+
+        h2 {
+            font-size: 26px;
+            color: var(--on-surface);
+            margin-bottom: 12px;
+            position: relative;
+            padding-bottom: 8px;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 60px; height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .about-text {
+            font-size: 18px;
+            color: var(--on-surface-dim);
+            margin-bottom: 24px;
+            text-align: justify;
+        }
+
+        .about-text p {
+            margin-bottom: 16px;
+        }
+
+        /* Lightbox for Hero */
+        .hero-lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .hero-lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+        .hero-lightbox img {
+            max-width: 95vw;
+            max-height: 95vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        /* Language content management */
+        .lang-version {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .lang-version.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Social Links */
+        .social-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--on-surface);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(238, 182, 0, 0.3);
+            border-color: transparent;
+        }
+
+        .social-link i {
+            font-size: 18px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 14px;
+            color: var(--on-surface-dim);
+        }
+
+        @media (max-width: 600px) {
+            .content-section { padding: 20px 16px; }
+            h2 { font-size: 22px; }
+            .about-text { font-size: 16px; }
+            .social-grid { grid-template-columns: repeat(2, 1fr); }
+            .lang-switcher { margin: 0 4px; }
+            .lang-btn { padding: 4px 10px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body id="body">
+
+    <header class="app-bar">
+        <div class="app-bar-content">
+            <a href="index.html" class="icon-btn" aria-label="Back">
+                <span class="material-icons">arrow_back</span>
+            </a>
+            <h1 class="app-title" id="pageTitle">Gopal's Diary</h1>
+            <div class="spacer"></div>
+            
+            <div class="lang-switcher">
+                <button id="btn-bn" class="lang-btn active" onclick="switchLang('bn')">BN</button>
+                <button id="btn-en" class="lang-btn" onclick="switchLang('en')">EN</button>
+            </div>
+
+            <a href="index.html" class="icon-btn" aria-label="Home">
+                <span class="material-icons">home</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="hero-card" onclick="openHeroLightbox()">
+            <img src="web_loading.jpg" alt="Gopal's Diary Hero" class="hero-img">
+            
+            <div class="content-section">
+                <h2>Gopal's Diary</h2>
+                
+                <div class="about-text">
+                    <!-- BANGLA VERSION -->
+                    <div id="lang-bn" class="lang-version lang-bn active">
+                        <p>স্বাগতম গোপাল'স ডায়েরি-তে! এটি মনের মাধুরী মিশিয়ে তৈরি করা একটি ডিজিটাল ডিকশনারি বা গ্যালারি, যেখানে আমার ফটোগ্রাফি, ইলাস্ট্রেশন এবং অনুপ্রেরণামূলক উক্তিগুলো তুলে ধরি।</p>
+                        <p>আমার মূল লক্ষ্য হলো এমন কিছু সুন্দর মুহূর্ত এবং কথা শেয়ার করা যা আপনাদের দৈনন্দিন জীবনে কিছুটা প্রশান্তি বা সৃজনশীলতার ছোঁয়া দিতে পারে। এখানে শেয়ার করা প্রতিটি ছবি বা লেখা আমার নিজের সৃজনশীলতার প্রতিফলন।</p>
+                        <p>গোপাল'স ডায়েরি শুধুমাত্র একটি ওয়েবসাইট অ্যাপ নয়, এটি একটি শৈল্পিক যাত্রা। আপনি যদি নতুন কোনো আইডিয়া, সুন্দর ফটোগ্রাফি অথবা হারানো দিনের স্মৃতিমাখা কোনো উক্তি খুঁজছেন, তবে আপনি সঠিক জায়গাই এসেছেন।</p>
+                    </div>
+
+                    <!-- ENGLISH VERSION -->
+                    <div id="lang-en" class="lang-version">
+                        <p>Welcome to Gopal's Diary! This is a digital sanctuary created with passion, where I showcase a curated collection of my photography, illustrations, and inspirational quotes.</p>
+                        <p>My goal is to share beautiful moments and profound words that can bring a sense of peace or a spark of creativity to your daily life. Every visual and text shared here is a direct reflection of my creative journey.</p>
+                        <p>Gopal's Diary is more than just a website; it's an artistic odyssey. Whether you are looking for fresh ideas, aesthetic photography, or nostalgic quotes, you've arrived at the perfect place.</p>
+                    </div>
+                </div>
+
+                <div class="social-title">
+                    <span class="material-icons" style="color: var(--primary);">connect_without_contact</span>
+                    <span id="socialText">সাথে থাকুন</span>
+                </div>
+
+                <div class="social-grid">
+                    <a href="https://www.instagram.com/gopals_diary/" class="social-link" target="_blank">
+                        <i class="fab fa-instagram"></i> Personal
+                    </a>
+                    <a href="https://www.instagram.com/gopals_diary.quote/" class="social-link" target="_blank">
+                        <i class="fab fa-instagram"></i> Quotes
+                    </a>
+                    <a href="https://www.facebook.com/Gopalsdiary/" class="social-link" target="_blank">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="https://in.pinterest.com/gopals_diary/" class="social-link" target="_blank">
+                        <i class="fab fa-pinterest-p"></i> Pinterest
+                    </a>
+                    <a href="https://x.com/gopalsdiary" class="social-link" target="_blank">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hero Lightbox -->
+    <div id="heroLightbox" class="hero-lightbox" onclick="closeHeroLightbox()">
+        <img src="web_loading.jpg" alt="Hero Full View">
+    </div>
+
+    <footer class="footer">
+        &copy; 2026 Gopal's Diary. All rights reserved.
+    </footer>
+
+    <script>
+        function switchLang(lang) {
+            const bnContent = document.getElementById('lang-bn');
+            const enContent = document.getElementById('lang-en');
+            const btnBn = document.getElementById('btn-bn');
+            const btnEn = document.getElementById('btn-en');
+            const socialText = document.getElementById('socialText');
+            const appBarTitle = document.getElementById('pageTitle');
+
+            if (lang === 'en') {
+                bnContent.classList.remove('active');
+                enContent.classList.add('active');
+                btnBn.classList.remove('active');
+                btnEn.classList.add('active');
+                socialText.textContent = 'Stay Connected';
+                appBarTitle.textContent = "About Us";
+            } else {
+                enContent.classList.remove('active');
+                bnContent.classList.add('active');
+                btnEn.classList.remove('active');
+                btnBn.classList.add('active');
+                socialText.textContent = 'সাথে থাকুন';
+                appBarTitle.textContent = "Gopal's Diary";
+            }
+        }
+
+        function openHeroLightbox() {
+            document.getElementById('heroLightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeHeroLightbox() {
+            document.getElementById('heroLightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close on ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeHeroLightbox();
+        });
+    </script>
+
+</body>
+</html>

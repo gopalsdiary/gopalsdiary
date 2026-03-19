@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কবির সাহেবের ডায়েরি</title>
+    <style>
+        :root {
+            --paper: #fdf6e3;
+            --lines: #a3c2c2;
+            --cover: #4a2e1b;
+        }
+        body {
+            background-color: #1e272e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Kalpurush', Arial, sans-serif;
+            overflow: hidden;
+        }
+        .book {
+            display: flex;
+            width: 90vw;
+            max-width: 900px;
+            height: 80vh;
+            max-height: 600px;
+            background: var(--cover);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6), inset 0 0 15px rgba(0,0,0,0.4);
+            position: relative;
+            perspective: 2000px;
+        }
+        .spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 20%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0.4) 80%, rgba(0,0,0,0) 100%);
+            z-index: 10;
+        }
+        .page {
+            flex: 1;
+            background: var(--paper);
+            position: relative;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+            transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transform-style: preserve-3d;
+        }
+        .page-left {
+            border-radius: 8px 0 0 8px;
+            border-right: 1px solid #dcd3b6;
+            transform-origin: right center;
+        }
+        .page-right {
+            border-radius: 0 8px 8px 0;
+            border-left: 1px solid #fff;
+            transform-origin: left center;
+        }
+        .content {
+            padding: 20px;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            text-align: center;
+            color: #4a2e1b;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            border-bottom: 2px solid var(--cover);
+            padding-bottom: 5px;
+        }
+        .textarea-container {
+            flex: 1;
+            position: relative;
+            background-image: repeating-linear-gradient(transparent, transparent 31px, var(--lines) 32px);
+            background-position: top;
+            margin-top: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            resize: none;
+            outline: none;
+            font-size: 1.1rem;
+            line-height: 32px;
+            color: #2f3640;
+            font-family: inherit;
+        }
+        .page-num {
+            position: absolute;
+            bottom: 15px;
+            font-size: 0.9rem;
+            color: #7f8fa6;
+        }
+        .page-left .page-num { left: 20px; }
+        .page-right .page-num { right: 20px; }
+        
+        .controls {
+            position: absolute;
+            bottom: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            background: #dcdde1;
+            color: #2f3640;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        button:hover { background: #f5f6fa; transform: translateY(-3px); }
+        button:active { transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .book { width: 95vw; height: 75vh; }
+            .header { font-size: 1rem; }
+            textarea { font-size: 1rem; line-height: 28px; }
+            .textarea-container { background-image: repeating-linear-gradient(transparent, transparent 27px, var(--lines) 28px); }
+            button { padding: 10px 20px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="book">
+    <div class="spine"></div>
+    
+    <div class="page page-left" id="pageLeft">
+        <div class="content">
+            <h3 class="header">কবির সাহেবের ডায়েরি</h3>
+            <div class="textarea-container">
+                <textarea id="textLeft" oninput="saveNotes()"></textarea>
+            </div>
+            <span class="page-num" id="numLeft">১</span>
+        </div>
+    </div>
+
+    <div class="page page-right" id="pageRight">
+        <div class="content">
+            <h3 class="header" id="dateDisplay"></h3>
+            <div class="textarea-container">
+                <textarea id="textRight" oninput="saveNotes()" placeholder="এখানে আপনার লেখা শুরু করুন... হয়তো 'কলকাতার ইতিকথা'র নতুন কোনো অধ্যায়!"></textarea>
+            </div>
+            <span class="page-num" id="numRight">২</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="prevPage()">আগের পাতা</button>
+        <button onclick="nextPage()">পরের পাতা</button>
+    </div>
+</div>
+
+<script>
+    // Local Storage থেকে আগের লেখাগুলো আনা হচ্ছে
+    let diaryData = JSON.parse(localStorage.getItem('kobirDiary')) || ["", ""];
+    let currentIndex = 0;
+
+    const textLeft = document.getElementById('textLeft');
+    const textRight = document.getElementById('textRight');
+    const numLeft = document.getElementById('numLeft');
+    const numRight = document.getElementById('numRight');
+    const pageLeft = document.getElementById('pageLeft');
+    const pageRight = document.getElementById('pageRight');
+    const dateDisplay = document.getElementById('dateDisplay');
+
+    // আজকের তারিখ দেখানো
+    const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.innerText = new Date().toLocaleDateString('bn-BD', dateOptions);
+
+    function loadPages() {
+        if (diaryData[currentIndex] === undefined) diaryData[currentIndex] = "";
+        if (diaryData[currentIndex + 1] === undefined) diaryData[currentIndex + 1] = "";
+
+        textLeft.value = diaryData[currentIndex];
+        textRight.value = diaryData[currentIndex + 1];
+
+        numLeft.innerText = "পাতা " + (currentIndex + 1);
+        numRight.innerText = "পাতা " + (currentIndex + 2);
+    }
+
+    function saveNotes() {
+        diaryData[currentIndex] = textLeft.value;
+        diaryData[currentIndex + 1] = textRight.value;
+        localStorage.setItem('kobirDiary', JSON.stringify(diaryData));
+    }
+
+    function nextPage() {
+        pageRight.style.transform = "rotateY(-90deg)";
+        pageRight.style.opacity = "0";
+        
+        setTimeout(() => {
+            currentIndex += 2;
+            loadPages();
+            
+            pageRight.style.transition = "none";
+            pageRight.style.transform = "rotateY(90deg)";
+            
+            setTimeout(() => {
+                pageRight.style.transition = "transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.6s";
+                pageRight.style.transform = "rotateY(0deg)";
+                pageRight.style.opacity = "1";
+            }, 50);
+        }, 300);
+    }
+
+    function prevPage() {
+        if (currentIndex >= 2) {
+            pageLeft.style.transform = "rotateY(90deg)";
+            pageLeft.style.opacity = "0";
+
+            setTimeout(() => {
+                currentIndex -= 2;
+                loadPages();
+
+                pageLeft.style.transition = "none";
+                pageLeft.style.transform = "rotateY(-90deg)";
+
+                setTimeout(() => {
+                    pageLeft.style.transition = "transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1), opacity 0.6s";
+                    pageLeft.style.transform = "rotateY(0deg)";
+                    pageLeft.style.opacity = "1";
+                }, 50);
+            }, 300);
+        } else {
+            alert("আপনি প্রথম পাতায় আছেন!");
+        }
+    }
+
+    // প্রথমবার পেজ লোড করা
+    loadPages();
+</script>
+</body>
+</html>
