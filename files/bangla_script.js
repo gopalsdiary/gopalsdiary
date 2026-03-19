@@ -460,6 +460,9 @@ function openLightbox(lightboxImageSrc, index, total, photoData, originalUrl) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImage = document.getElementById('lightboxImage');
 
+    // Update global index tracker
+    currentImageIndex = index;
+
     // Save current scroll position
     savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
 
@@ -704,14 +707,16 @@ if (lightboxDetails) {
 // Mouse Wheel Navigation
 let lastScrollTime = 0;
 document.getElementById('lightbox').addEventListener('wheel', function (event) {
-    if (Date.now() - lastScrollTime < 300) return; // Debounce
+    // Only navigate if we aren't scrolling inside the description text on mobile?
+    // On desktop, we want easy wheel navigation
+    if (Date.now() - lastScrollTime < 400) return; // Debounce to prevent rapid jumping
 
-    // Check if we are at the edges of the description scroll?
-    // For now, prioritize navigation as requested.
+    const deltaY = event.deltaY;
+    const deltaX = event.deltaX;
 
-    if (Math.abs(event.deltaX) > 20 || Math.abs(event.deltaY) > 20) {
+    if (Math.abs(deltaY) > 5 || Math.abs(deltaX) > 5) {
         lastScrollTime = Date.now();
-        if (event.deltaX > 0 || event.deltaY > 0) {
+        if (deltaY > 0 || deltaX > 0) {
             nextImage();
         } else {
             prevImage();
@@ -721,24 +726,39 @@ document.getElementById('lightbox').addEventListener('wheel', function (event) {
 
 // Touch Swipe Navigation
 let touchStartX = 0;
+let touchStartY = 0;
 let touchEndX = 0;
+let touchEndY = 0;
 
 document.getElementById('lightbox').addEventListener('touchstart', function (e) {
     touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
 }, { passive: true });
 
 document.getElementById('lightbox').addEventListener('touchend', function (e) {
     touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
     handleSwipe();
 }, { passive: true });
 
 function handleSwipe() {
     const swipeThreshold = 50;
-    if (touchStartX - touchEndX > swipeThreshold) {
-        nextImage(); // Swipe Left -> Next
-    }
-    if (touchEndX - touchStartX > swipeThreshold) {
-        prevImage(); // Swipe Right -> Prev
+    const diffX = touchStartX - touchEndX;
+    const diffY = touchStartY - touchEndY;
+
+    // Horizontal Swipe
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        if (Math.abs(diffX) > swipeThreshold) {
+            if (diffX > 0) nextImage(); // Swipe Left -> Next
+            else prevImage(); // Swipe Right -> Prev
+        }
+    } 
+    // Vertical Swipe (Requested as "Scroll" behavior on mobile)
+    else {
+        if (Math.abs(diffY) > swipeThreshold) {
+            if (diffY > 0) nextImage(); // Swipe Up -> Next
+            else prevImage(); // Swipe Down -> Prev
+        }
     }
 }
 

@@ -84,18 +84,17 @@ body {
     padding: 0 16px;
 }
 
-/* Gallery Grid (Masonry using CSS Columns) */
+/* Gallery Grid (Standard Grid for Horizontal Flow) */
 .gallery-grid {
-    column-count: 5;
-    column-gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
 }
 
 /* Photo Card */
 .photo-card {
     background-color: var(--surface-color);
     border-radius: 12px;
-    margin-bottom: 16px;
-    break-inside: avoid;
     box-shadow: var(--elevation-1);
     transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s;
     overflow: hidden;
@@ -112,20 +111,16 @@ body {
 
 .photo-image {
     width: 100%;
+    aspect-ratio: 16 / 10; /* Horizontal/Landscape Aspect Ratio */
     position: relative;
     background-color: #eee;
-    min-height: 150px;
-    /* Placeholder height */
+    overflow: hidden;
 }
-
-/* Image styling - "Size jemon temon" means we don't force aspect ratio via CSS padding hack if we use masonry */
-/* However, to avoid layout shift, bangla_script.js uses lazy loading. */
-/* The script MIGHT insert image with simple src. 
-   If we want "natural size", we just let img be width 100% and height auto. */
 
 .photo-image img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover; /* Fill the horizontal box */
     display: block;
     opacity: 0;
     transition: opacity 0.3s;
@@ -137,14 +132,18 @@ body {
 
 /* Info Section */
 .photo-info {
-    padding: 10px;
+    padding: 6px 8px;
+    background-color: var(--surface-color);
 }
 
 .photo-info h3 {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 2px;
-    letter-spacing: 0.1px;
+    font-size: 11px;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.2;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .photo-info p {
@@ -414,12 +413,18 @@ body {
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .gallery-grid { column-count: 4; column-gap: 6px; }
-    .container { padding: 0 8px; margin-top: 16px; }
-    .photo-card { border-radius: 8px; margin-bottom: 8px; }
-    .photo-info { padding: 8px; }
-    .photo-info h3 { font-size: 12px; }
-    .photo-info p { font-size: 10px; }
+    .gallery-grid { 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 4px; 
+    }
+    .photo-image {
+        aspect-ratio: 1 / 1; /* Square for 3-column mobile grid */
+    }
+    .container { padding: 0 4px; margin-top: 8px; }
+    .photo-card { border-radius: 4px; }
+    .photo-info { padding: 4px; }
+    .photo-info h3 { font-size: 10px; line-height: 1.2; max-height: 2.4em; overflow: hidden; }
+    .photo-info p { display: none; } /* Hide description on mobile to save space in 3-col grid */
 
     .lightbox-content {
         flex-direction: column;
