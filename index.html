@@ -423,22 +423,23 @@
             opacity: 1;
         }
 
-        .filter-scroll {
+        /* ===== Filter Chips (Shared) ===== */
+        .filter-scroll, .table-scroll {
             display: flex;
             gap: 6px;
             overflow-x: auto;
-            padding: 0 12px;
+            padding: 8px 12px;
             scrollbar-width: none;
             -ms-overflow-style: none;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        .filter-scroll::-webkit-scrollbar {
+        .filter-scroll::-webkit-scrollbar, .table-scroll::-webkit-scrollbar {
             display: none;
         }
 
-        .filter-chip {
+        .filter-chip, .table-chip {
             flex-shrink: 0;
             padding: 7px 16px;
             border: 1px solid rgba(0, 0, 0, 0.1);
@@ -453,16 +454,22 @@
             white-space: nowrap;
         }
 
-        .filter-chip:hover {
+        .filter-chip:hover, .table-chip:hover {
             border-color: var(--primary);
             color: var(--primary);
         }
 
-        .filter-chip.active {
+        .filter-chip.active, .table-chip.active {
             background: var(--primary);
             color: #fff;
             border-color: var(--primary);
             box-shadow: 0 2px 8px rgba(238, 182, 0, 0.3);
+        }
+
+        .table-scroll {
+            padding-bottom: 0px;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            display: none; /* Initially hidden */
         }
 
         /* ===== Lightbox ===== */
@@ -1031,6 +1038,11 @@
 
     <!-- ===== Bottom Filter Bar ===== -->
     <div class="bottom-bar">
+        <!-- New: Table-level filters -->
+        <div class="table-scroll" id="tableFilterScroll">
+            <!-- Dynamic table chips inserted here -->
+        </div>
+
         <div class="filter-scroll">
             <button class="filter-chip active" data-category="all">✨ All</button>
             <button class="filter-chip" data-category="bangla">🇧🇩 বাংলা কোটস</button>
@@ -1083,6 +1095,7 @@
             mixedPhotos: [],
             currentPage: 1,
             currentCategory: 'all',
+            currentTable: 'all',
             isLoading: false,
             tableStats: {},
             cache: { data: null, ts: null },
@@ -1514,18 +1527,70 @@
         // ============================================
         function filterPhotos(category) {
             State.currentCategory = category;
+            State.currentTable = 'all';
             State.currentPage = 1;
 
             if (category === 'all') {
                 State.filteredPhotos = [...State.allPhotos];
+                document.getElementById('tableFilterScroll').style.display = 'none';
             } else {
                 State.filteredPhotos = State.allPhotos.filter(p => p.category === category);
+                updateTableFilters(State.filteredPhotos);
+                document.getElementById('tableFilterScroll').style.display = 'flex';
             }
 
             State.mixedPhotos = category === 'all'
                 ? smartGlobalMix(State.filteredPhotos)
                 : smartCategoryMix(State.filteredPhotos);
 
+            renderGallery();
+            updateUI();
+        }
+
+        /** ডাইনামিকালি টেবিল ফিল্টার বাটন তৈরি করা */
+        function updateTableFilters(photos) {
+            const container = document.getElementById('tableFilterScroll');
+            const tablesMap = {};
+            
+            photos.forEach(p => {
+                if (!tablesMap[p.tableName]) {
+                    const cfg = TABLE_CONFIG[p.tableName];
+                    tablesMap[p.tableName] = cfg ? cfg.emoji + ' ' + cfg.name : p.tableName;
+                }
+            });
+
+            const uniqueTables = Object.keys(tablesMap);
+
+            container.innerHTML = `
+                <button class="table-chip active" data-table="all">All Tables</button>
+                ${uniqueTables.map(t => `
+                    <button class="table-chip" data-table="${t}">${tablesMap[t]}</button>
+                `).join('')}
+            `;
+
+            // Event Listeners for Table Chips
+            container.querySelectorAll('.table-chip').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    container.querySelectorAll('.table-chip').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    filterByTable(this.dataset.table);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
+
+        function filterByTable(tableName) {
+            State.currentTable = tableName;
+            State.currentPage = 1;
+
+            let finalPhotos = [];
+            if (tableName === 'all') {
+                finalPhotos = State.allPhotos.filter(p => p.category === State.currentCategory);
+            } else {
+                finalPhotos = State.allPhotos.filter(p => p.tableName === tableName);
+            }
+
+            State.mixedPhotos = smartCategoryMix(finalPhotos);
             renderGallery();
             updateUI();
         }
