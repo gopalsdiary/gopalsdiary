@@ -642,6 +642,57 @@
                 font-size: 12px;
             }
         }
+        /* ===== Site View Bar (Custom) ===== */
+        .site-view-bar {
+            max-width: 800px;
+            margin: 20px auto 10px auto;
+            padding: 10px 16px;
+            text-align: center;
+            display: none; /* Initially hidden */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.6);
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        .site-view-bar .material-icons {
+            font-size: 16px;
+            color: #eeb600;
+        }
+
+        .site-view-count {
+            font-weight: 700;
+            color: #c99a00;
+            font-size: 15px;
+        }
+
+        /* Material Icons Font */
+        @font-face {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.woff2) format('woff2');
+        }
+
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
     </style>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
@@ -654,6 +705,12 @@
 
     <div class="gallery" id="gallery">
         <div class="loading">Loading photos...</div>
+    </div>
+
+    <!-- Site View Counter (Bottom) -->
+    <div class="site-view-bar" id="siteViewBar">
+        <span class="material-icons">visibility</span>
+        <span>সর্বমোট <span class="site-view-count" id="siteViewCount">...</span> টি ছবি দেখেছে</span>
     </div>
 
     <div class="header">

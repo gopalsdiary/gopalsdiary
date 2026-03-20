@@ -14,7 +14,11 @@ const CONFIG = {
     ENABLE_INFINITE_SCROLL: false,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes cache
     RETRY_ATTEMPTS: 3,
-    RETRY_DELAY: 1000
+    RETRY_DELAY: 1000,
+    // Site View Counter Config (New Project / Status Tracking)
+    STATS_URL: 'https://vbfckjroisrhplrpqzkd.supabase.co',
+    STATS_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y',
+    SITE_VIEW_IID: 106637
 };
 
 // Table configuration
@@ -468,6 +472,78 @@ async function fetchWithRetry(fetchFn, attempts = CONFIG.RETRY_ATTEMPTS) {
             if (i === attempts - 1) throw error;
             await new Promise(r => setTimeout(r, CONFIG.RETRY_DELAY * (i + 1)));
         }
+    }
+}
+
+// ===========================================
+// SITE VIEW COUNTER (Supabase REST)
+// ===========================================
+
+/** ডাটাবেস থেকে বর্তমান কাউন্ট নিয়ে আসা */
+async function getSiteViewCount() {
+    try {
+        const url = `${CONFIG.STATS_URL}/rest/v1/site_view?site_iid=eq.${CONFIG.SITE_VIEW_IID}&select=site_view_count`;
+        const resp = await fetch(url, {
+            headers: {
+                'apikey': CONFIG.STATS_KEY,
+                'Authorization': `Bearer ${CONFIG.STATS_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        return data && data.length > 0 ? data[0] : null;
+    } catch (e) {
+        console.warn('⚠️ site_view GET error:', e.message);
+        return null;
+    }
+}
+
+/** ডাটাবেসে নতুন কাউন্ট সেভ করা (UPSERT পদ্ধতি) */
+async function updateSiteViewCount(newTotal) {
+    try {
+        const url = `${CONFIG.STATS_URL}/rest/v1/site_view`;
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'apikey': CONFIG.STATS_KEY,
+                'Authorization': `Bearer ${CONFIG.STATS_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
+                site_iid: CONFIG.SITE_VIEW_IID,
+                site_name: 'Gopal\'s Diary (Pinterest)',
+                site_view_count: newTotal,
+                last_updated_at: new Date().toISOString()
+            })
+        });
+        if (resp.ok) console.log(`✅ Progress Updated: ${newTotal}`);
+    } catch (e) {
+        console.warn('⚠️ Error during update:', e.message);
+    }
+}
+
+/** মেইন কাউন্টার প্রসেস */
+async function processSiteStats(incrementValue) {
+    const bar = document.getElementById('siteViewBar');
+    const countEl = document.getElementById('siteViewCount');
+    if (!bar || !countEl) return;
+
+    try {
+        const dbData = await getSiteViewCount();
+        let previousTotal = 0;
+        if (dbData && dbData.site_view_count !== undefined) {
+            previousTotal = parseInt(dbData.site_view_count) || 0;
+        }
+
+        let newTotal = previousTotal + incrementValue;
+        countEl.textContent = newTotal.toLocaleString('bn-BD');
+        bar.style.display = 'flex';
+
+        updateSiteViewCount(newTotal);
+    } catch (err) {
+        console.error('❌ Counter Error:', err);
     }
 }
 
@@ -926,6 +1002,11 @@ function renderGallery(append = false) {
 
     AppState.renderedPhotos = append ? [...AppState.renderedPhotos, ...photos] : photos;
     AppState.loadedCount = AppState.renderedPhotos.length;
+
+    // Update Site View Counter based on images SHOWN on this page
+    if (photos.length > 0) {
+        processSiteStats(photos.length);
+    }
 
     // Robust Image Loading Handler
     const images = gallery.querySelectorAll('.gallery-image:not(.loaded)');

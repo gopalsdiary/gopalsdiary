@@ -134,6 +134,35 @@
             color: var(--on-surface-dim);
         }
 
+        /* ===== Site View Bar (Custom) ===== */
+        .site-view-bar {
+            max-width: 1400px;
+            margin: 20px auto 10px auto;
+            padding: 10px 16px;
+            text-align: center;
+            display: none; /* Initially hidden */
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.6);
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+
+        .site-view-bar .material-icons {
+            font-size: 16px;
+            color: #eeb600;
+        }
+
+        .site-view-count {
+            font-weight: 700;
+            color: #c99a00;
+            font-size: 15px;
+        }
+
         /* ===== Gallery Container ===== */
         .container {
             max-width: 1400px;
@@ -934,8 +963,15 @@
 
     <!-- ===== Gallery ===== -->
     <div class="container">
+
         <div class="gallery-grid" id="gallery">
             <!-- Skeleton placeholders injected by JS -->
+        </div>
+
+        <!-- Site View Counter (Bottom) -->
+        <div class="site-view-bar" id="siteViewBar">
+            <span class="material-icons">visibility</span>
+            <span>সর্বমোট <span class="site-view-count" id="siteViewCount">...</span> টি ছবি দেখেছে</span>
         </div>
 
         <!-- Loading Indicator -->
@@ -1012,6 +1048,11 @@
         // ============================================
         const SUPABASE_URL = 'https://mwkoqxtyxdkkqlakrrvd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
+        
+        // Site View Counter Config (New Project)
+        const STATS_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
+        const STATS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
+        const SITE_VIEW_IID = 106637;
 
         const TABLE_CONFIG = {
             'bangla_quotes_1': { name: 'Bangla Quotes 1', category: 'bangla', emoji: '' },
@@ -1100,6 +1141,78 @@
             } catch (err) {
                 console.warn(`⚠️ Table "${tableName}" network error:`, err.message);
                 return [];
+            }
+        }
+
+        // ============================================
+        // SITE VIEW COUNTER (Supabase)
+        // ============================================
+
+        /** ডাটাবেস থেকে বর্তমান কাউন্ট নিয়ে আসা */
+        async function getSiteViewCount() {
+            try {
+                const url = `${STATS_URL}/rest/v1/site_view?site_iid=eq.${SITE_VIEW_IID}&select=site_view_count`;
+                const resp = await fetch(url, {
+                    headers: {
+                        'apikey': STATS_KEY,
+                        'Authorization': `Bearer ${STATS_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!resp.ok) return null;
+                const data = await resp.json();
+                return data && data.length > 0 ? data[0] : null;
+            } catch (e) {
+                console.warn('⚠️ site_view GET error:', e.message);
+                return null;
+            }
+        }
+
+        /** ডাটাবেসে নতুন কাউন্ট সেভ করা (UPSERT পদ্ধতি) */
+        async function updateSiteViewCount(newTotal) {
+            try {
+                const url = `${STATS_URL}/rest/v1/site_view`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': STATS_KEY,
+                        'Authorization': `Bearer ${STATS_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'resolution=merge-duplicates'
+                    },
+                    body: JSON.stringify({
+                        site_iid: SITE_VIEW_IID,
+                        site_name: 'Gopal\'s Diary',
+                        site_view_count: newTotal,
+                        last_updated_at: new Date().toISOString()
+                    })
+                });
+                if (resp.ok) console.log(`✅ Progress Updated: ${newTotal}`);
+            } catch (e) {
+                console.warn('⚠️ Error during update:', e.message);
+            }
+        }
+
+        /** মেইন কাউন্টার প্রসেস */
+        async function processSiteStats(incrementValue) {
+            const bar = document.getElementById('siteViewBar');
+            const countEl = document.getElementById('siteViewCount');
+            if (!bar || !countEl) return;
+
+            try {
+                const dbData = await getSiteViewCount();
+                let previousTotal = 0;
+                if (dbData && dbData.site_view_count !== undefined) {
+                    previousTotal = parseInt(dbData.site_view_count) || 0;
+                }
+
+                let newTotal = previousTotal + incrementValue;
+                countEl.textContent = newTotal.toLocaleString('bn-BD');
+                bar.style.display = 'flex';
+
+                updateSiteViewCount(newTotal);
+            } catch (err) {
+                console.error('❌ Counter Error:', err);
             }
         }
 
@@ -1591,6 +1704,11 @@
 
             gallery.innerHTML = '';
             gallery.appendChild(fragment);
+
+            // Update Site View Counter based on images SHOWN on this page
+            if (photos.length > 0) {
+                processSiteStats(photos.length);
+            }
         }
 
         // ============================================
