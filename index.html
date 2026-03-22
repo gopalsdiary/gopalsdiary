@@ -63,7 +63,7 @@
             color: var(--on-surface);
             line-height: 1.5;
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 140px; /* Increased to accommodate bottom bars */
         }
 
         /* ===== App Bar ===== */
@@ -140,7 +140,7 @@
             margin: 20px auto 10px auto;
             padding: 10px 16px;
             text-align: center;
-            display: none; /* Initially hidden */
+            display: flex; /* Always show the bar and message */
             align-items: center;
             justify-content: center;
             gap: 8px;
@@ -978,7 +978,7 @@
         <!-- Site View Counter (Bottom) -->
         <div class="site-view-bar" id="siteViewBar">
             <span class="material-icons">visibility</span>
-            <span>সর্বমোট <span class="site-view-count" id="siteViewCount">...</span> টি ছবি দেখা হয়েছে। সবোচ্চ কোয়ালিটির জন্য ডাউনলোড করে দেখতে হবে</span>
+            <span>সর্বমোট <span class="site-view-count" id="siteViewCount">...</span> টি ছবি দেখা হয়েছে। সর্বোচ্চ কোয়ালিটির জন্য ডাউনলোড করে দেখতে হবে</span>
         </div>
 
         <!-- Loading Indicator -->
@@ -1061,7 +1061,7 @@
         const SUPABASE_URL = 'https://mwkoqxtyxdkkqlakrrvd.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13a29xeHR5eGRra3FsYWtycnZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NzYzODcsImV4cCI6MjA4MjI1MjM4N30.2SvderBmI6Ick5Z91M4hrmJwKuXQZmvwWxQOpZod1kg';
         
-        // Site View Counter Config (New Project)
+        // Site View Counter Config (New Project / Dedicated)
         const STATS_URL = 'https://vbfckjroisrhplrpqzkd.supabase.co';
         const STATS_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZiZmNranJvaXNyaHBscnBxemtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDQzODYsImV4cCI6MjA3NzQyMDM4Nn0.nIbdwysoW2dp59eqPh3M9axjxR74rGDkn8OdZciue4Y';
         const SITE_VIEW_IID = 106637;
@@ -1158,74 +1158,51 @@
         }
 
         // ============================================
-        // SITE VIEW COUNTER (Supabase)
+        // SITE VIEW COUNTER (Supabase Atomic RPC)
         // ============================================
 
-        /** ডাটাবেস থেকে বর্তমান কাউন্ট নিয়ে আসা */
-        async function getSiteViewCount() {
-            try {
-                const url = `${STATS_URL}/rest/v1/site_view?site_iid=eq.${SITE_VIEW_IID}&select=site_view_count`;
-                const resp = await fetch(url, {
-                    headers: {
-                        'apikey': STATS_KEY,
-                        'Authorization': `Bearer ${STATS_KEY}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!resp.ok) return null;
-                const data = await resp.json();
-                return data && data.length > 0 ? data[0] : null;
-            } catch (e) {
-                console.warn('⚠️ site_view GET error:', e.message);
-                return null;
-            }
-        }
-
-        /** ডাটাবেসে নতুন কাউন্ট সেভ করা (UPSERT পদ্ধতি) */
-        async function updateSiteViewCount(newTotal) {
-            try {
-                const url = `${STATS_URL}/rest/v1/site_view`;
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': STATS_KEY,
-                        'Authorization': `Bearer ${STATS_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'resolution=merge-duplicates'
-                    },
-                    body: JSON.stringify({
-                        site_iid: SITE_VIEW_IID,
-                        site_name: 'Gopal\'s Diary',
-                        site_view_count: newTotal,
-                        last_updated_at: new Date().toISOString()
-                    })
-                });
-                if (resp.ok) console.log(`✅ Progress Updated: ${newTotal}`);
-            } catch (e) {
-                console.warn('⚠️ Error during update:', e.message);
-            }
-        }
-
-        /** মেইন কাউন্টার প্রসেস */
+        /** 
+         * ডাইনামিকালি কাউন্ট আপডেট করা (Atomic RPC)
+         * ১০ জন ইউজার এক সাথে থাকলে ডেটাবেস সাইড থেকে কিউ (queue) মেইনটেইন করে সঠিক কাউন্ট সেভ করে।
+         */
         async function processSiteStats(incrementValue) {
             const bar = document.getElementById('siteViewBar');
             const countEl = document.getElementById('siteViewCount');
             if (!bar || !countEl) return;
 
+            const inc = parseInt(incrementValue) || 0;
+
             try {
-                const dbData = await getSiteViewCount();
-                let previousTotal = 0;
-                if (dbData && dbData.site_view_count !== undefined) {
-                    previousTotal = parseInt(dbData.site_view_count) || 0;
+                // ১. ইনক্রিমেন্ট - RPC কল (এটি ডাটাবেসে মান বাড়াবে)
+                const rpcUrl = `${STATS_URL}/rest/v1/rpc/increment_site_view`;
+                await fetch(rpcUrl, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': STATS_KEY,
+                        'Authorization': `Bearer ${STATS_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ row_id: SITE_VIEW_IID, inc_val: inc })
+                });
+
+                // ২. লেটেস্ট কাউন্ট ফেচ করা
+                const getUrl = `${STATS_URL}/rest/v1/site_view?select=site_view_count&site_iid=eq.${SITE_VIEW_IID}`;
+                const getResp = await fetch(getUrl, {
+                    headers: {
+                        'apikey': STATS_KEY,
+                        'Authorization': `Bearer ${STATS_KEY}`
+                    }
+                });
+
+                if (getResp.ok) {
+                    const data = await getResp.json();
+                    if (data && data.length > 0) {
+                        const total = data[0].site_view_count;
+                        countEl.textContent = parseInt(total).toLocaleString('bn-BD');
+                    }
                 }
-
-                let newTotal = previousTotal + incrementValue;
-                countEl.textContent = newTotal.toLocaleString('bn-BD');
-                bar.style.display = 'flex';
-
-                updateSiteViewCount(newTotal);
             } catch (err) {
-                console.error('❌ Counter Error:', err);
+                console.warn('❌ View counter issue:', err.message);
             }
         }
 
@@ -2113,6 +2090,9 @@
         async function init() {
             console.log('🎨 Gopal\'s Diary Gallery initializing...');
             showSkeletons();
+
+            // ভিউ কাউন্টার লোড শুরু করা (ছবি আসার আগেই)
+            processSiteStats(0);
 
             State.allPhotos = await loadAllPhotos();
             State.filteredPhotos = [...State.allPhotos];
