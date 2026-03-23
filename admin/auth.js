@@ -274,7 +274,7 @@ function handleAuthError(error) {
     localStorage.removeItem('supabase_user');
     localStorage.removeItem('supabase_session');
     alert('Your session has expired. Please login again.');
-    window.location.href = 'login.html';
+    window.location.href = '../admin/login.html';
 }
 
 // Check if error is authentication related
