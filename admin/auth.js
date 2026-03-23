@@ -153,6 +153,7 @@ class TableQuery {
         this.insertData = null;
         this.updateData = null;
         this._isSelectMode = false;
+        this.limitValue = null;
     }
 
     select(columns = '*') {
@@ -184,6 +185,11 @@ class TableQuery {
         return this;
     }
 
+    limit(value) {
+        this.limitValue = value;
+        return this;
+    }
+
     async _execute(method = 'GET', data = null) {
         try {
             let url = `${this.client.url}/rest/v1/${this.tableName}`;
@@ -200,6 +206,10 @@ class TableQuery {
             if (this.orderByColumn) {
                 const orderDir = this.orderAsc ? 'asc' : 'desc';
                 params.append('order', `${this.orderByColumn}.${orderDir}`);
+            }
+
+            if (this.limitValue) {
+                params.append('limit', this.limitValue);
             }
 
             if (params.toString()) {
