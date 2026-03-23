@@ -455,9 +455,16 @@ button:disabled {
 <body>
 	<div class="container">
 		<section class="card">
-			<h1>Private Instagram Dashboard</h1>
-			<p class="subtext">Post only from Supabase table</p>
-			<p id="setupStatus" style="font-size: 12px; color: #6b7280; margin-top: 6px;"></p>
+			<div style="display: flex; justify-content: space-between; align-items: center;">
+				<div>
+					<h1>Private Instagram Dashboard</h1>
+					<p class="subtext">Post only from Supabase table</p>
+				</div>
+				<a href="schiduler.html" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+					📅 Auto Scheduler
+				</a>
+			</div>
+			<p id="setupStatus" style="font-size: 12px; color: #6b7280; margin-top: 10px;"></p>
 		</section>
 
 		<section id="loginCard" class="card">

@@ -6,233 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instagram Auto Scheduler</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f5f6f8;
-            color: #1f2937;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 24px;
-        }
-
-        .card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            margin: 0 0 8px 0;
-            font-size: 24px;
-            color: #111827;
-        }
-
-        .subtext {
-            color: #6b7280;
-            margin-bottom: 24px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
-        }
-
-        select,
-        input[type="number"],
-        input[type="date"],
-        input[type="time"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        select:focus,
-        input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .section-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .section-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            background: #f9fafb;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid #f3f4f6;
-        }
-
-        .section-name {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .section-progress {
-            font-size: 12px;
-            color: #6b7280;
-            background: #fff;
-            padding: 4px 10px;
-            border-radius: 99px;
-            border: 1px solid #e5e7eb;
-            font-weight: 700;
-            min-width: 70px;
-            text-align: center;
-        }
-
-        .section-input-wrapper {
-            width: 100px;
-        }
-
-        .btn {
-            cursor: pointer;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
-        }
-
-        .summary-box {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #0369a1;
-        }
-
-        .preview-area {
-            display: none;
-            margin-top: 24px;
-            border-top: 2px dashed #e5e7eb;
-            padding-top: 24px;
-        }
-
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-
-        .preview-table th {
-            text-align: left;
-            padding: 12px;
-            font-size: 12px;
-            color: #6b7280;
-            text-transform: uppercase;
-            border-bottom: 2px solid #f3f4f6;
-        }
-
-        .preview-table td {
-            padding: 12px;
-            border-bottom: 1px solid #f3f4f6;
-            vertical-align: middle;
-        }
-
-        .preview-thumb {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 6px;
-            background: #f3f4f6;
-        }
-
-        .preview-caption {
-            font-size: 13px;
-            color: #4b5563;
-            max-width: 250px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .preview-section {
-            font-size: 11px;
-            background: #f3f4f6;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #6b7280;
-            margin-bottom: 4px;
-            display: inline-block;
-        }
-
-        .status-box {
-            margin-top: 20px;
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: none;
-        }
-
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6f8; color: #1f2937; }
+        .container { max-width: 950px; margin: 0 auto; padding: 24px; }
+        .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        h1 { margin: 0 0 8px 0; font-size: 24px; color: #111827; }
+        .subtext { color: #6b7280; margin-bottom: 24px; font-size: 14px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #374151; }
+        input[type="number"], input[type="date"], input[type="time"] { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; }
+        input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .section-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .section-row { display: flex; gap: 12px; align-items: center; background: #f9fafb; padding: 12px 16px; border-radius: 10px; border: 1px solid #f3f4f6; }
+        .section-name { flex: 1; font-size: 14px; font-weight: 600; color: #374151; }
+        .section-progress { font-size: 11px; color: #6b7280; background: #fff; padding: 4px 8px; border-radius: 99px; border: 1px solid #e5e7eb; font-weight: 700; min-width: 80px; text-align: center; }
+        .section-input-wrapper { width: 90px; }
+        .btn { cursor: pointer; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+        .btn-primary { background: #2563eb; color: white; width: 100%; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+        .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 16px; border-radius: 12px; margin-top: 10px; font-size: 14px; color: #0369a1; }
+        .view-area { display: none; margin-top: 24px; border-top: 2px dashed #e5e7eb; padding-top: 24px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        .data-table th { text-align: left; padding: 12px; font-size: 11px; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #f3f4f6; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+        .thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
+        .caption-text { font-size: 12px; color: #4b5563; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .badge { font-size: 10px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #6b7280; font-weight: 600; }
+        .status-box { margin-top: 20px; padding: 16px; border-radius: 8px; font-size: 14px; display: none; }
         .status-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-
-        #logArea {
-            margin-top: 20px;
-            max-height: 250px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 11px;
-            background: #1f2937;
-            color: #f3f4f6;
-            padding: 12px;
-            border-radius: 8px;
-            display: none;
-        }
+        #logArea { margin-top: 20px; max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 11px; background: #1f2937; color: #f3f4f6; padding: 12px; border-radius: 8px; display: none; }
+        .remove-btn { color: #dc2626; background: #fee2e2; border-radius: 6px; border: none; padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .remove-btn:hover { background: #fecaca; transform: scale(1.1); }
     </style>
 </head>
 
@@ -242,284 +48,179 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
                     <h1>Auto Post Scheduler</h1>
-                    <p class="subtext">Automatically schedule posts from <b>scheduled_posts</b> to <b>instagram_posts</b> table.</p>
+                    <p class="subtext">Schedule posts from <b>scheduled_posts</b> to <b>instagram_posts</b>.</p>
                 </div>
-                <button class="btn btn-secondary" id="syncBtn">🔄 Sync Status</button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary" id="historyBtn">📋 View Scheduled</button>
+                    <button class="btn btn-secondary" id="syncBtn">🔄 Sync</button>
+                </div>
             </div>
 
+            <!-- View 1: Setup -->
             <div id="setupView">
-                <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" id="startDate" required>
-                    <p style="font-size: 12px; color: #6b7280; margin-top: 6px;">Schedule will start from this date at 11:00 AM.</p>
-                </div>
-
-                <label>Sections & Counts (User / Total Available)</label>
+                <div class="form-group"><label>Start Date</label><input type="date" id="startDate" required></div>
+                <label>Sections & Counts</label>
                 <div id="sectionList" class="section-list">
-                    <div class="section-row" data-section="gopalsdiary">
-                        <span class="section-name">Gopal's Diary</span>
-                        <span class="section-progress" id="prog_gopalsdiary">0/0</span>
-                        <div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div>
-                    </div>
-                    <div class="section-row" data-section="mehedi">
-                        <span class="section-name">Mehedi</span>
-                        <span class="section-progress" id="prog_mehedi">0/0</span>
-                        <div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div>
-                    </div>
-                    <div class="section-row" data-section="kobir">
-                        <span class="section-name">Kobir</span>
-                        <span class="section-progress" id="prog_kobir">0/0</span>
-                        <div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div>
-                    </div>
-                    <div class="section-row" data-section="other">
-                        <span class="section-name">Other</span>
-                        <span class="section-progress" id="prog_other">0/0</span>
-                        <div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div>
-                    </div>
+                    <div class="section-row" data-section="gopalsdiary"><span class="section-name">Gopal's Diary</span><span class="section-progress" id="prog_gopalsdiary">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="mehedi"><span class="section-name">Mehedi</span><span class="section-progress" id="prog_mehedi">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="kobir"><span class="section-name">Kobir</span><span class="section-progress" id="prog_kobir">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="other"><span class="section-name">Other</span><span class="section-progress" id="prog_other">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
                 </div>
-
                 <div class="summary-box">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>Total Posts to Schedule:</span>
-                        <strong id="selectedPosts">0</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 4px;">
-                        <span>Estimated Days:</span>
-                        <strong id="estimatedDays">0</strong>
-                    </div>
+                    <div style="display: flex; justify-content: space-between;"><span>Total Posts:</span><strong id="selectedPosts">0</strong></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 4px;"><span>Est. Days:</span><strong id="estimatedDays">0</strong></div>
                 </div>
-
-                <div class="form-group" style="margin-top: 24px;">
-                    <button class="btn btn-primary" id="previewBtn">🚀 Preview Mixed Schedule</button>
-                </div>
+                <div class="form-group" style="margin-top: 24px;"><button class="btn btn-primary" id="previewBtn">🚀 Preview Mixed Schedule</button></div>
             </div>
 
-            <div id="previewView" class="preview-area">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2>Review & Finalize</h2>
-                    <button class="btn btn-secondary" onclick="backToSetup()">← Edit Counts</button>
-                </div>
-                
-                <div style="overflow-x: auto;">
-                    <table class="preview-table">
-                        <thead>
-                            <tr>
-                                <th>Photo</th>
-                                <th>Info</th>
-                                <th>Date</th>
-                                <th>Time (Dhaka)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="previewBody"></tbody>
-                    </table>
-                </div>
+            <!-- View 2: Preview -->
+            <div id="previewView" class="view-area">
+                <div style="display: flex; justify-content: space-between; align-items: center;"><h2>Review Order</h2><button class="btn btn-secondary" onclick="hideViews()">← Back</button></div>
+                <table class="data-table"><thead><tr><th>Photo</th><th>Info</th><th>Date</th><th>Time</th><th>Action</th></tr></thead><tbody id="previewBody"></tbody></table>
+                <div class="form-group" style="margin-top: 24px;"><button class="btn btn-primary" id="confirmScheduleBtn" style="background: #10b981;">✅ Confirm & Save</button></div>
+            </div>
 
-                <div class="form-group" style="margin-top: 24px;">
-                    <button class="btn btn-primary" id="confirmScheduleBtn" style="background: #10b981;">✅ Confirm & Save</button>
-                </div>
+            <!-- View 3: Success Results -->
+            <div id="resultsView" class="view-area">
+                <div style="display: flex; justify-content: space-between; align-items: center;"><h2 style="color: #166534;">🎉 Scheduled!</h2><button class="btn btn-secondary" onclick="location.reload()">Done</button></div>
+                <div id="resultsList" style="margin-top: 16px;"></div>
+            </div>
+
+            <!-- View 4: General History -->
+            <div id="historyView" class="view-area">
+                <div style="display: flex; justify-content: space-between; align-items: center;"><h2>Upcoming Schedule</h2><button class="btn btn-secondary" onclick="hideViews()">← Back</button></div>
+                <p class="subtext">Showing all posts currently waiting for publishing.</p>
+                <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>Photo</th><th>Caption</th><th>Schedule Time</th><th>Status</th></tr></thead><tbody id="historyBody"></tbody></table></div>
             </div>
 
             <div id="statusBox" class="status-box"></div>
             <div id="logArea"></div>
         </div>
-        
-        <div style="text-align: center; margin-top: 10px;">
-            <a href="index.html" style="color: #6b7280; text-decoration: none; font-size: 14px;">← Back to Dashboard</a>
-        </div>
+        <div style="text-align: center;"><a href="index.html" style="color: #6b7280; text-decoration: none; font-size: 13px;">← Dashboard</a></div>
     </div>
 
     <script src="../admin/auth.js"></script>
     <script>
         const setupView = document.getElementById('setupView');
         const previewView = document.getElementById('previewView');
-        const startDateInput = document.getElementById('startDate');
-        const previewBtn = document.getElementById('previewBtn');
-        const confirmScheduleBtn = document.getElementById('confirmScheduleBtn');
+        const resultsView = document.getElementById('resultsView');
+        const historyView = document.getElementById('historyView');
         const previewBody = document.getElementById('previewBody');
+        const historyBody = document.getElementById('historyBody');
+        const resultsList = document.getElementById('resultsList');
         const statusBox = document.getElementById('statusBox');
         const logArea = document.getElementById('logArea');
-        const selectedPostsSpan = document.getElementById('selectedPosts');
-        const estimatedDaysSpan = document.getElementById('estimatedDays');
-
-        let scheduledPool = []; 
-
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        const startDateInput = document.getElementById('startDate');
+        
+        let tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
         startDateInput.value = tomorrow.toISOString().split('T')[0];
+
+        function hideViews() {
+            [previewView, resultsView, historyView].forEach(v => v.style.display = 'none');
+            setupView.style.display = 'block';
+            statusBox.style.display = 'none';
+        }
 
         async function fetchSectionStats() {
             const sections = ['gopalsdiary', 'mehedi', 'kobir', 'other'];
             for (const s of sections) {
                 try {
-                    const { data, error } = await supabase.from('scheduled_posts').eq('post_section', s).select('status');
-                    if (error) throw error;
-                    const total = data.length;
-                    const used = data.filter(p => p.status !== 'pending').length;
-                    const pending = total - used;
-                    const badge = document.getElementById(`prog_${s}`);
-                    badge.textContent = `${used}/${total}`;
-                    badge.dataset.pending = pending;
-                    badge.style.background = (pending === 0) ? '#fee2e2' : '#fff';
-                    badge.style.color = (pending === 0) ? '#dc2626' : '#6b7280';
+                    const { data } = await supabase.from('scheduled_posts').eq('post_section', s).select('status');
+                    const total = data.length; const used = data.filter(p => p.status !== 'pending').length;
+                    const b = document.getElementById(`prog_${s}`);
+                    b.textContent = `${used}/${total}`; b.dataset.pending = total - used;
+                    b.style.background = (total - used === 0) ? '#fee2e2' : '#fff';
                 } catch (e) { console.error(e); }
             }
         }
 
         function updateSummary() {
-            let totalSelected = 0;
-            document.querySelectorAll('.post-count-input').forEach(i => totalSelected += parseInt(i.value) || 0);
-            selectedPostsSpan.textContent = totalSelected;
-            estimatedDaysSpan.textContent = Math.ceil(totalSelected / 3) || 0;
+            let total = 0; document.querySelectorAll('.post-count-input').forEach(i => total += parseInt(i.value) || 0);
+            document.getElementById('selectedPosts').textContent = total;
+            document.getElementById('estimatedDays').textContent = Math.ceil(total / 3) || 0;
         }
-
         document.querySelectorAll('.post-count-input').forEach(i => i.addEventListener('input', updateSummary));
 
-        function backToSetup() {
-            previewView.style.display = 'none';
-            setupView.style.display = 'block';
-            statusBox.style.display = 'none';
+        function showStatus(msg, type = 'info') {
+            statusBox.textContent = msg; statusBox.style.display = 'block';
+            statusBox.className = `status-box status-${type}`;
         }
-
-        function shuffleArray(a) {
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
+        function addLog(m) {
+            logArea.style.display = 'block'; const e = document.createElement('div');
+            e.textContent = `[${new Date().toLocaleTimeString()}] ${m}`;
+            logArea.appendChild(e); logArea.scrollTop = logArea.scrollHeight;
         }
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }}
 
-        previewBtn.addEventListener('click', async () => {
-            const startDateStr = startDateInput.value;
-            let selections = [];
-            let totalToFetch = 0;
-            let validationError = false;
-
+        document.getElementById('previewBtn').addEventListener('click', async () => {
+            let selections = []; let total = 0;
             document.querySelectorAll('.section-row').forEach(row => {
-                const section = row.dataset.section;
                 const count = parseInt(row.querySelector('.post-count-input').value) || 0;
-                const available = parseInt(document.getElementById(`prog_${section}`).dataset.pending || 0);
-                if (count > available) {
-                    alert(`${section} lacks enough pending posts.`);
-                    validationError = true;
-                }
-                if (count > 0) {
-                    selections.push({ section, count });
-                    totalToFetch += count;
-                }
+                if (count > 0) { selections.push({ s: row.dataset.section, c: count }); total += count; }
             });
-
-            if (validationError || totalToFetch === 0 || !startDateStr) {
-                if (!startDateStr) alert('Select start date.');
-                else if (totalToFetch === 0) alert('Enter at least 1 post quantity.');
-                return;
-            }
-
-            previewBtn.disabled = true;
-            statusBox.style.display = 'none';
-            addLog('Generating preview...');
-
+            if (total === 0) return;
+            addLog('Fetching...');
             try {
                 let pool = [];
                 for (const sel of selections) {
-                    const { data, error } = await supabase.from('scheduled_posts')
-                        .eq('status', 'pending').eq('post_section', sel.section)
-                        .order('created_at', { ascending: true })
-                        .limit(sel.count)
-                        .select('*');
-                    if (error) throw error;
+                    const { data } = await supabase.from('scheduled_posts').eq('status', 'pending').eq('post_section', sel.s).order('created_at', { ascending: true }).limit(sel.c).select('*');
                     pool.push(...data);
                 }
-
-                shuffleArray(pool);
-                const times = ["11:00", "14:00", "18:30"];
-                scheduledPool = [];
-                previewBody.innerHTML = '';
-
-                const startDay = new Date(startDateStr);
-                let currentTotal = pool.length;
-                
-                for (let i = 0; i < currentTotal; i++) {
-                    const dayOffset = Math.floor(i / 3);
-                    const timeIdx = i % 3;
-                    const dateStr = new Date(startDay.getTime() + dayOffset * 86400000).toISOString().split('T')[0];
-                    const post = pool[i];
-                    
-                    scheduledPool.push({ ...post, date: dateStr, time: times[timeIdx] });
-
+                shuffle(pool);
+                const times = ["11:00", "14:00", "18:30"]; previewBody.innerHTML = '';
+                const start = new Date(startDateInput.value);
+                pool.forEach((post, i) => {
+                    const d = new Date(start.getTime() + Math.floor(i / 3) * 86400000).toISOString().split('T')[0];
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><img src="${post.image_url}" class="preview-thumb"></td>
-                        <td>
-                            <div class="preview-section">${post.post_section}</div>
-                            <div class="preview-caption">${post.caption || ''}</div>
-                        </td>
-                        <td><input type="date" value="${dateStr}" class="row-date"></td>
-                        <td><input type="time" value="${times[timeIdx]}" class="row-time"></td>
-                    `;
+                    tr.dataset.json = JSON.stringify(post);
+                    tr.innerHTML = `<td><img src="${post.image_url}" class="thumb"></td><td><div class="badge">${post.post_section}</div><div class="caption-text">${post.caption || ''}</div></td><td><input type="date" value="${d}" class="row-date"></td><td><input type="time" value="${times[i % 3]}" class="row-time"></td><td><button class="remove-btn" onclick="this.closest('tr').remove()">✖</button></td>`;
                     previewBody.appendChild(tr);
-                }
-
-                setupView.style.display = 'none';
-                previewView.style.display = 'block';
-            } catch (err) { alert(err.message); }
-            finally { previewBtn.disabled = false; }
-        });
-
-        confirmScheduleBtn.addEventListener('click', async () => {
-            if (!confirm(`Save these ${scheduledPool.length} posts?`)) return;
-            confirmScheduleBtn.disabled = true;
-            statusBox.style.display = 'none';
-            addLog('Saving...');
-
-            try {
-                const dates = document.querySelectorAll('.row-date');
-                const times = document.querySelectorAll('.row-time');
-                let finalData = [];
-                let originalIds = [];
-
-                scheduledPool.forEach((post, i) => {
-                    finalData.push({
-                        image_url: post.image_url,
-                        caption: post.caption,
-                        platform: 'instagram',
-                        status: 'pending',
-                        schedule_at: `${dates[i].value}T${times[i].value}:00+06:00`,
-                        post_section: post.post_section,
-                        user_id: post.user_id
-                    });
-                    originalIds.push(post.id);
                 });
-
-                await supabase.from('instagram_posts').insert(finalData);
-                for (const id of originalIds) {
-                    await supabase.from('scheduled_posts').eq('id', id).update({ status: 'scheduled' });
-                }
-
-                showStatus('Success!', 'success');
-                previewView.style.display = 'none';
-                setupView.style.display = 'block';
-                await fetchSectionStats();
-            } catch (err) { showStatus(err.message, 'error'); }
-            finally { confirmScheduleBtn.disabled = false; }
+                setupView.style.display = 'none'; previewView.style.display = 'block';
+            } catch (err) { alert(err.message); }
         });
 
-        function addLog(m) {
-            logArea.style.display = 'block';
-            const e = document.createElement('div');
-            e.textContent = `[${new Date().toLocaleTimeString()}] ${m}`;
-            logArea.appendChild(e);
-            logArea.scrollTop = logArea.scrollHeight;
-        }
+        document.getElementById('confirmScheduleBtn').addEventListener('click', async () => {
+            const rows = document.querySelectorAll('#previewBody tr'); if (rows.length === 0) return;
+            showStatus('Saving...', 'info'); addLog('Processing database...');
+            try {
+                let finalData = []; let originalIds = []; resultsList.innerHTML = '';
+                rows.forEach(tr => {
+                    const post = JSON.parse(tr.dataset.json); const d = tr.querySelector('.row-date').value; const t = tr.querySelector('.row-time').value;
+                    finalData.push({ image_url: post.image_url, caption: post.caption, platform: 'instagram', status: 'pending', schedule_at: `${d}T${t}:00+06:00`, post_section: post.post_section, user_id: post.user_id });
+                    originalIds.push(post.id);
+                    const resItem = document.createElement('div'); resItem.style.padding = '8px'; resItem.innerHTML = `📅 ${d} ${t} - <b>${post.post_section}</b>`;
+                    resultsList.appendChild(resItem);
+                });
+                await supabase.from('instagram_posts').insert(finalData);
+                for (const id of originalIds) { await supabase.from('scheduled_posts').eq('id', id).update({ status: 'scheduled' }); }
+                hideViews(); resultsView.style.display = 'block'; fetchSectionStats();
+                addLog('Done.');
+            } catch (err) { showStatus(err.message, 'error'); }
+        });
+
+        document.getElementById('historyBtn').addEventListener('click', async () => {
+            addLog('Fetching upcoming schedule...');
+            try {
+                const { data, error } = await supabase.from('instagram_posts').eq('status', 'pending').order('schedule_at', { ascending: true }).select('*');
+                if (error) throw error;
+                historyBody.innerHTML = '';
+                data.forEach(p => {
+                    const tr = document.createElement('tr');
+                    const localTime = new Date(p.schedule_at).toLocaleString();
+                    tr.innerHTML = `<td><img src="${p.image_url}" class="thumb"></td><td><div class="caption-text">${p.caption || ''}</div></td><td>${localTime}</td><td><span class="badge" style="background:#dcfce7;color:#166534">Pending</span></td>`;
+                    historyBody.appendChild(tr);
+                });
+                setupView.style.display = 'none'; historyView.style.display = 'block';
+            } catch (err) { alert(err.message); }
+        });
 
         document.getElementById('syncBtn').addEventListener('click', async () => {
              if (!confirm('Sync status?')) return;
              try {
-                const { data, error } = await supabase.from('instagram_posts').eq('status', 'published').select('image_url');
-                if (error) throw error;
-                for (const item of data) {
-                    await supabase.from('scheduled_posts').eq('image_url', item.image_url).eq('status', 'scheduled').update({ status: 'published' });
-                }
-                showStatus('Sync complete', 'success');
-                fetchSectionStats();
+                const { data } = await supabase.from('instagram_posts').eq('status', 'published').select('image_url');
+                for (const item of data) { await supabase.from('scheduled_posts').eq('image_url', item.image_url).eq('status', 'scheduled').update({ status: 'published' }); }
+                showStatus('Sync complete', 'success'); fetchSectionStats();
              } catch(e) { showStatus(e.message, 'error'); }
         });
 
