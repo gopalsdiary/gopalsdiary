@@ -8,37 +8,43 @@
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f6f8; color: #1f2937; }
-        .container { max-width: 950px; margin: 0 auto; padding: 24px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 24px; }
         .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         h1 { margin: 0 0 8px 0; font-size: 24px; color: #111827; }
         .subtext { color: #6b7280; margin-bottom: 24px; font-size: 14px; }
         .form-group { margin-bottom: 20px; }
         label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #374151; }
-        input[type="number"], input[type="date"], input[type="time"] { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; }
-        input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; font-family: inherit; }
+        input:focus, textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        
         .section-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .section-row { display: flex; gap: 12px; align-items: center; background: #f9fafb; padding: 12px 16px; border-radius: 10px; border: 1px solid #f3f4f6; }
+        .section-row { display: flex; gap: 12px; align-items: center; background: #f9fafb; padding: 10px 16px; border-radius: 10px; border: 1px solid #f3f4f6; }
         .section-name { flex: 1; font-size: 14px; font-weight: 600; color: #374151; }
-        .section-progress { font-size: 11px; color: #6b7280; background: #fff; padding: 4px 8px; border-radius: 99px; border: 1px solid #e5e7eb; font-weight: 700; min-width: 80px; text-align: center; }
+        .section-progress { font-size: 10px; color: #6b7280; background: #fff; padding: 4px 8px; border-radius: 99px; border: 1px solid #e5e7eb; font-weight: 700; width: 80px; text-align: center; }
         .section-input-wrapper { width: 90px; }
-        .btn { cursor: pointer; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
-        .btn-primary { background: #2563eb; color: white; width: 100%; }
+
+        .btn { cursor: pointer; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+        .btn-primary { background: #2563eb; color: white; }
         .btn-primary:hover { background: #1d4ed8; }
         .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-        .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 16px; border-radius: 12px; margin-top: 10px; font-size: 14px; color: #0369a1; }
+        .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        
+        .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 16px; border-radius: 12px; margin-top: 10px; font-size: 13px; color: #0369a1; }
         .view-area { display: none; margin-top: 24px; border-top: 2px dashed #e5e7eb; padding-top: 24px; }
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; min-width: 600px; }
         .data-table th { text-align: left; padding: 12px; font-size: 11px; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #f3f4f6; }
         .data-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
-        .thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
-        .caption-text { font-size: 12px; color: #4b5563; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .badge { font-size: 10px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #6b7280; font-weight: 600; }
+        .thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; background: #f3f4f6; }
+        .caption-text { font-size: 12px; color: #4b5563; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+        .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 12px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-active { display: flex; }
+        
         .status-box { margin-top: 20px; padding: 16px; border-radius: 8px; font-size: 14px; display: none; }
         .status-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        #logArea { margin-top: 20px; max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 11px; background: #1f2937; color: #f3f4f6; padding: 12px; border-radius: 8px; display: none; }
-        .remove-btn { color: #dc2626; background: #fee2e2; border-radius: 6px; border: none; padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .remove-btn:hover { background: #fecaca; transform: scale(1.1); }
+        #logArea { margin-top: 20px; max-height: 150px; overflow-y: auto; font-family: monospace; font-size: 11px; background: #1f2937; color: #f3f4f6; padding: 12px; border-radius: 8px; display: none; }
     </style>
 </head>
 
@@ -46,12 +52,9 @@
     <div class="container">
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <h1>Auto Post Scheduler</h1>
-                    <p class="subtext">Schedule posts from <b>scheduled_posts</b> to <b>instagram_posts</b>.</p>
-                </div>
+                <div><h1>Auto Post Scheduler</h1><p class="subtext">Efficiently schedule Instagram contents.</p></div>
                 <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" id="historyBtn">📋 View Scheduled</button>
+                    <button class="btn btn-secondary" onclick="openHistory()">📋 View Scheduled</button>
                     <button class="btn btn-secondary" id="syncBtn">🔄 Sync</button>
                 </div>
             </div>
@@ -70,33 +73,55 @@
                     <div style="display: flex; justify-content: space-between;"><span>Total Posts:</span><strong id="selectedPosts">0</strong></div>
                     <div style="display: flex; justify-content: space-between; margin-top: 4px;"><span>Est. Days:</span><strong id="estimatedDays">0</strong></div>
                 </div>
-                <div class="form-group" style="margin-top: 24px;"><button class="btn btn-primary" id="previewBtn">🚀 Preview Mixed Schedule</button></div>
+                <div class="form-group" style="margin-top: 24px;"><button class="btn btn-primary" style="width:100%" id="previewBtn">🚀 Preview Mixed Schedule</button></div>
             </div>
 
             <!-- View 2: Preview -->
             <div id="previewView" class="view-area">
                 <div style="display: flex; justify-content: space-between; align-items: center;"><h2>Review Order</h2><button class="btn btn-secondary" onclick="hideViews()">← Back</button></div>
-                <table class="data-table"><thead><tr><th>Photo</th><th>Info</th><th>Date</th><th>Time</th><th>Action</th></tr></thead><tbody id="previewBody"></tbody></table>
-                <div class="form-group" style="margin-top: 24px;"><button class="btn btn-primary" id="confirmScheduleBtn" style="background: #10b981;">✅ Confirm & Save</button></div>
+                <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>Photo</th><th>Info</th><th>Date</th><th>Time</th><th>Action</th></tr></thead><tbody id="previewBody"></tbody></table></div>
+                <div class="form-group" style="margin-top: 24px;"><button class="btn btn-primary" style="width:100%; background: #10b981;" id="confirmScheduleBtn">✅ Confirm & Save</button></div>
             </div>
 
             <!-- View 3: Success Results -->
             <div id="resultsView" class="view-area">
-                <div style="display: flex; justify-content: space-between; align-items: center;"><h2 style="color: #166534;">🎉 Scheduled!</h2><button class="btn btn-secondary" onclick="location.reload()">Done</button></div>
+                <div style="display: flex; justify-content: space-between; align-items: center;"><h2 style="color: #166534;">🎉 Scheduled!</h2><button class="btn btn-secondary" onclick="location.reload()">New Batch</button></div>
                 <div id="resultsList" style="margin-top: 16px;"></div>
             </div>
 
             <!-- View 4: General History -->
             <div id="historyView" class="view-area">
                 <div style="display: flex; justify-content: space-between; align-items: center;"><h2>Upcoming Schedule</h2><button class="btn btn-secondary" onclick="hideViews()">← Back</button></div>
-                <p class="subtext">Showing all posts currently waiting for publishing.</p>
-                <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>Photo</th><th>Caption</th><th>Schedule Time</th><th>Status</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+                <div style="overflow-x: auto;"><table class="data-table"><thead><tr><th>Photo</th><th>Caption</th><th>Schedule (Dhaka)</th><th>Action</th></tr></thead><tbody id="historyBody"></tbody></table></div>
             </div>
 
             <div id="statusBox" class="status-box"></div>
             <div id="logArea"></div>
         </div>
         <div style="text-align: center;"><a href="index.html" style="color: #6b7280; text-decoration: none; font-size: 13px;">← Dashboard</a></div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top:0">Edit Scheduled Post</h3>
+            <img id="editThumb" src="" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:16px;">
+            
+            <div class="form-group">
+                <label>Caption</label>
+                <textarea id="editCaption" rows="4"></textarea>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div class="form-group"><label>Date</label><input type="date" id="editDate"></div>
+                <div class="form-group"><label>Time</label><input type="time" id="editTime"></div>
+            </div>
+            
+            <div style="display:flex; gap:12px; margin-top:12px;">
+                <button class="btn btn-primary" style="flex:1" id="saveEditBtn">Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script src="../admin/auth.js"></script>
@@ -107,18 +132,17 @@
         const historyView = document.getElementById('historyView');
         const previewBody = document.getElementById('previewBody');
         const historyBody = document.getElementById('historyBody');
-        const resultsList = document.getElementById('resultsList');
-        const statusBox = document.getElementById('statusBox');
-        const logArea = document.getElementById('logArea');
-        const startDateInput = document.getElementById('startDate');
         
+        const editModal = document.getElementById('editModal');
+        let currentEditPostId = null;
+
         let tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-        startDateInput.value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('startDate').value = tomorrow.toISOString().split('T')[0];
 
         function hideViews() {
             [previewView, resultsView, historyView].forEach(v => v.style.display = 'none');
             setupView.style.display = 'block';
-            statusBox.style.display = 'none';
+            document.getElementById('statusBox').style.display = 'none';
         }
 
         async function fetchSectionStats() {
@@ -126,11 +150,12 @@
             for (const s of sections) {
                 try {
                     const { data } = await supabase.from('scheduled_posts').eq('post_section', s).select('status');
-                    const total = data.length; const used = data.filter(p => p.status !== 'pending').length;
+                    const pending = data.filter(p => p.status === 'pending').length;
+                    const used = data.length - pending;
                     const b = document.getElementById(`prog_${s}`);
-                    b.textContent = `${used}/${total}`; b.dataset.pending = total - used;
-                    b.style.background = (total - used === 0) ? '#fee2e2' : '#fff';
-                } catch (e) { console.error(e); }
+                    b.textContent = `${used}/${data.length}`; b.dataset.pending = pending;
+                    b.style.background = (pending === 0) ? '#fee2e2' : '#fff';
+                } catch (e) { }
             }
         }
 
@@ -142,15 +167,10 @@
         document.querySelectorAll('.post-count-input').forEach(i => i.addEventListener('input', updateSummary));
 
         function showStatus(msg, type = 'info') {
-            statusBox.textContent = msg; statusBox.style.display = 'block';
-            statusBox.className = `status-box status-${type}`;
+            const s = document.getElementById('statusBox');
+            s.textContent = msg; s.style.display = 'block';
+            s.className = `status-box status-${type}`;
         }
-        function addLog(m) {
-            logArea.style.display = 'block'; const e = document.createElement('div');
-            e.textContent = `[${new Date().toLocaleTimeString()}] ${m}`;
-            logArea.appendChild(e); logArea.scrollTop = logArea.scrollHeight;
-        }
-        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }}
 
         document.getElementById('previewBtn').addEventListener('click', async () => {
             let selections = []; let total = 0;
@@ -158,8 +178,9 @@
                 const count = parseInt(row.querySelector('.post-count-input').value) || 0;
                 if (count > 0) { selections.push({ s: row.dataset.section, c: count }); total += count; }
             });
-            if (total === 0) return;
-            addLog('Fetching...');
+            if (total === 0) return alert('Select at least one count.');
+
+            document.getElementById('logArea').style.display = 'block';
             try {
                 let pool = [];
                 for (const sel of selections) {
@@ -168,12 +189,12 @@
                 }
                 shuffle(pool);
                 const times = ["11:00", "14:00", "18:30"]; previewBody.innerHTML = '';
-                const start = new Date(startDateInput.value);
+                const start = new Date(document.getElementById('startDate').value);
                 pool.forEach((post, i) => {
                     const d = new Date(start.getTime() + Math.floor(i / 3) * 86400000).toISOString().split('T')[0];
                     const tr = document.createElement('tr');
                     tr.dataset.json = JSON.stringify(post);
-                    tr.innerHTML = `<td><img src="${post.image_url}" class="thumb"></td><td><div class="badge">${post.post_section}</div><div class="caption-text">${post.caption || ''}</div></td><td><input type="date" value="${d}" class="row-date"></td><td><input type="time" value="${times[i % 3]}" class="row-time"></td><td><button class="remove-btn" onclick="this.closest('tr').remove()">✖</button></td>`;
+                    tr.innerHTML = `<td><img src="${post.image_url}" class="thumb"></td><td><div style="font-size:10px;color:#6b7280">${post.post_section}</div><div class="caption-text">${post.caption || ''}</div></td><td><input type="date" value="${d}" style="padding:4px; font-size:11px"></td><td><input type="time" value="${times[i % 3]}" style="padding:4px; font-size:11px"></td><td><button class="remove-btn" onclick="this.closest('tr').remove()">✖</button></td>`;
                     previewBody.appendChild(tr);
                 });
                 setupView.style.display = 'none'; previewView.style.display = 'block';
@@ -182,51 +203,89 @@
 
         document.getElementById('confirmScheduleBtn').addEventListener('click', async () => {
             const rows = document.querySelectorAll('#previewBody tr'); if (rows.length === 0) return;
-            showStatus('Saving...', 'info'); addLog('Processing database...');
+            showStatus('Processing...', 'info');
             try {
-                let finalData = []; let originalIds = []; resultsList.innerHTML = '';
+                let finalData = []; let originalIds = [];
                 rows.forEach(tr => {
-                    const post = JSON.parse(tr.dataset.json); const d = tr.querySelector('.row-date').value; const t = tr.querySelector('.row-time').value;
-                    finalData.push({ image_url: post.image_url, caption: post.caption, platform: 'instagram', status: 'pending', schedule_at: `${d}T${t}:00+06:00`, post_section: post.post_section, user_id: post.user_id });
+                    const post = JSON.parse(tr.dataset.json); const d = tr.querySelector('input[type="date"]').value; const t = tr.querySelector('input[type="time"]').value;
+                    finalData.push({ image_url: post.image_url, caption: post.caption, status: 'pending', schedule_at: `${d}T${t}:00+06:00`, post_section: post.post_section, user_id: post.user_id });
                     originalIds.push(post.id);
-                    const resItem = document.createElement('div'); resItem.style.padding = '8px'; resItem.innerHTML = `📅 ${d} ${t} - <b>${post.post_section}</b>`;
-                    resultsList.appendChild(resItem);
                 });
                 await supabase.from('instagram_posts').insert(finalData);
                 for (const id of originalIds) { await supabase.from('scheduled_posts').eq('id', id).update({ status: 'scheduled' }); }
-                hideViews(); resultsView.style.display = 'block'; fetchSectionStats();
-                addLog('Done.');
+                hideViews(); document.getElementById('resultsView').style.display = 'block'; fetchSectionStats();
+                document.getElementById('resultsList').innerHTML = `<p style="color:#166534">Successfully saved ${finalData.length} posts.</p>`;
             } catch (err) { showStatus(err.message, 'error'); }
         });
 
-        document.getElementById('historyBtn').addEventListener('click', async () => {
-            addLog('Fetching upcoming schedule...');
+        async function openHistory() {
+            setupView.style.display = 'none'; historyView.style.display = 'block';
+            historyBody.innerHTML = '<tr><td colspan="4" style="text-align:center">Loading history...</td></tr>';
             try {
-                const { data, error } = await supabase.from('instagram_posts').eq('status', 'pending').order('schedule_at', { ascending: true }).select('*');
-                if (error) throw error;
+                const { data } = await supabase.from('instagram_posts').eq('status', 'pending').order('schedule_at', { ascending: true }).select('*');
                 historyBody.innerHTML = '';
                 data.forEach(p => {
+                    const dt = new Date(p.schedule_at);
                     const tr = document.createElement('tr');
-                    const localTime = new Date(p.schedule_at).toLocaleString();
-                    tr.innerHTML = `<td><img src="${p.image_url}" class="thumb"></td><td><div class="caption-text">${p.caption || ''}</div></td><td>${localTime}</td><td><span class="badge" style="background:#dcfce7;color:#166534">Pending</span></td>`;
+                    tr.innerHTML = `
+                        <td><img src="${p.image_url}" class="thumb"></td>
+                        <td><div class="caption-text">${p.caption || ''}</div></td>
+                        <td style="font-size:11px">${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        <td class="action-cell">
+                            <button class="btn btn-secondary" onclick="openEditModal('${p.id}', \`${p.image_url}\`, \`${p.caption || ''}\`, \`${p.schedule_at}\`)">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deletePost('${p.id}')">🗑️</button>
+                        </td>
+                    `;
                     historyBody.appendChild(tr);
                 });
-                setupView.style.display = 'none'; historyView.style.display = 'block';
-            } catch (err) { alert(err.message); }
+            } catch (e) { alert(e.message); }
+        }
+
+        function openEditModal(id, img, cap, schedule) {
+            currentEditPostId = id;
+            document.getElementById('editThumb').src = img;
+            document.getElementById('editCaption').value = cap;
+            const dt = new Date(schedule);
+            document.getElementById('editDate').value = dt.toISOString().split('T')[0];
+            document.getElementById('editTime').value = dt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false });
+            editModal.classList.add('modal-active');
+        }
+
+        function closeModal() { editModal.classList.remove('modal-active'); }
+
+        document.getElementById('saveEditBtn').addEventListener('click', async () => {
+            const cap = document.getElementById('editCaption').value;
+            const d = document.getElementById('editDate').value;
+            const t = document.getElementById('editTime').value;
+            if(!d || !t) return alert('Date/Time needed');
+            
+            try {
+                const { error } = await supabase.from('instagram_posts').eq('id', currentEditPostId).update({
+                    caption: cap,
+                    schedule_at: `${d}T${t}:00+06:00`
+                });
+                if(error) throw error;
+                closeModal(); openHistory();
+                showStatus('Post updated', 'success');
+            } catch (e) { alert(e.message); }
         });
+
+        async function deletePost(id) {
+            if(!confirm('Delete this?')) return;
+            await supabase.from('instagram_posts').eq('id', id).delete();
+            openHistory();
+        }
 
         document.getElementById('syncBtn').addEventListener('click', async () => {
              if (!confirm('Sync status?')) return;
-             try {
-                const { data } = await supabase.from('instagram_posts').eq('status', 'published').select('image_url');
-                for (const item of data) { await supabase.from('scheduled_posts').eq('image_url', item.image_url).eq('status', 'scheduled').update({ status: 'published' }); }
-                showStatus('Sync complete', 'success'); fetchSectionStats();
-             } catch(e) { showStatus(e.message, 'error'); }
+             const { data } = await supabase.from('instagram_posts').eq('status', 'published').select('image_url');
+             for (const item of data) { await supabase.from('scheduled_posts').eq('image_url', item.image_url).eq('status', 'scheduled').update({ status: 'published' }); }
+             showStatus('Sync complete', 'success'); fetchSectionStats();
         });
 
+        function shuffle(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
         fetchSectionStats();
         updateSummary();
     </script>
 </body>
-
 </html>
