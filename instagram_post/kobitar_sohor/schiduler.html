@@ -224,7 +224,8 @@
             try {
                 const { data } = await supabase.from('z_insta_sche_kobitar_sohor').eq('status', 'pending').order('schedule_at', { ascending: true }).select('*');
                 historyBody.innerHTML = '';
-                data.forEach(p => {
+                window.historyPool = data;
+                data.forEach((p, i) => {
                     const dt = new Date(p.schedule_at);
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -232,13 +233,19 @@
                         <td><div class="caption-text">${p.caption || ''}</div></td>
                         <td style="font-size:11px">${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
                         <td class="action-cell">
-                            <button class="btn btn-secondary" onclick="openEditModal('${p.id}', \`${p.image_url}\`, \`${p.caption || ''}\`, \`${p.schedule_at}\`)">✏️ Edit</button>
+                            <button class="btn btn-secondary" onclick="openEditByIndex(${i})">✏️ Edit</button>
                             <button class="btn btn-danger" onclick="deletePost('${p.id}')">🗑️</button>
                         </td>
                     `;
                     historyBody.appendChild(tr);
                 });
             } catch (e) { alert(e.message); }
+        }
+
+        function openEditByIndex(index) {
+            const p = window.historyPool[index];
+            if (!p) return;
+            openEditModal(p.id, p.image_url, p.caption || '', p.schedule_at);
         }
 
         function openEditModal(id, img, cap, schedule) {
