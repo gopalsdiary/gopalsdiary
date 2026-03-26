@@ -52,7 +52,7 @@
     <div class="container">
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div><h1>Auto Post Scheduler</h1><p class="subtext">Efficiently schedule Instagram contents.</p></div>
+                <div><h1>Auto Post Scheduler (kobitar_sohor)</h1><p class="subtext">Efficiently schedule Instagram contents.</p></div>
                 <div style="display: flex; gap: 8px;">
                     <button class="btn btn-secondary" onclick="openHistory()">📋 View Scheduled</button>
                     <button class="btn btn-secondary" id="syncBtn">🔄 Sync</button>
@@ -124,7 +124,7 @@
         </div>
     </div>
 
-    <script src="../admin/auth.js"></script>
+    <script src="../../admin/auth.js"></script>
     <script>
         const setupView = document.getElementById('setupView');
         const previewView = document.getElementById('previewView');
@@ -149,8 +149,8 @@
             const sections = ['gopalsdiary', 'mehedi', 'kobir', 'other'];
             for (const s of sections) {
                 try {
-                    const { data } = await supabase.from('scheduled_posts').eq('post_section', s).select('status');
-                    const pending = data.filter(p => p.status === 'pending').length;
+                    const { data } = await supabase.from('z_insta_post_db').eq('post_section', s).select('status_kobitar_sohor');
+                    const pending = data.filter(p => !p.status_kobitar_sohor || p.status_kobitar_sohor === 'pending').length;
                     const used = data.length - pending;
                     const b = document.getElementById(`prog_${s}`);
                     b.textContent = `${used}/${data.length}`; b.dataset.pending = pending;
@@ -184,7 +184,7 @@
             try {
                 let pool = [];
                 for (const sel of selections) {
-                    const { data } = await supabase.from('scheduled_posts').eq('status', 'pending').eq('post_section', sel.s).order('created_at', { ascending: true }).limit(sel.c).select('*');
+                    const { data } = await supabase.from('z_insta_post_db').or('status_kobitar_sohor.eq.pending,status_kobitar_sohor.is.null').eq('post_section', sel.s).order('created_at', { ascending: true }).limit(sel.c).select('*');
                     pool.push(...data);
                 }
                 shuffle(pool);
@@ -211,8 +211,8 @@
                     finalData.push({ image_url: post.image_url, caption: post.caption, status: 'pending', schedule_at: `${d}T${t}:00+06:00`, post_section: post.post_section, user_id: post.user_id });
                     originalIds.push(post.id);
                 });
-                await supabase.from('instagram_posts').insert(finalData);
-                for (const id of originalIds) { await supabase.from('scheduled_posts').eq('id', id).update({ status: 'scheduled' }); }
+                await supabase.from('z_insta_sche_kobitar_sohor').insert(finalData);
+                for (const id of originalIds) { await supabase.from('z_insta_post_db').eq('id', id).update({ status_kobitar_sohor: 'scheduled' }); }
                 hideViews(); document.getElementById('resultsView').style.display = 'block'; fetchSectionStats();
                 document.getElementById('resultsList').innerHTML = `<p style="color:#166534">Successfully saved ${finalData.length} posts.</p>`;
             } catch (err) { showStatus(err.message, 'error'); }
@@ -222,7 +222,7 @@
             setupView.style.display = 'none'; historyView.style.display = 'block';
             historyBody.innerHTML = '<tr><td colspan="4" style="text-align:center">Loading history...</td></tr>';
             try {
-                const { data } = await supabase.from('instagram_posts').eq('status', 'pending').order('schedule_at', { ascending: true }).select('*');
+                const { data } = await supabase.from('z_insta_sche_kobitar_sohor').eq('status', 'pending').order('schedule_at', { ascending: true }).select('*');
                 historyBody.innerHTML = '';
                 data.forEach(p => {
                     const dt = new Date(p.schedule_at);
@@ -260,7 +260,7 @@
             if(!d || !t) return alert('Date/Time needed');
             
             try {
-                const { error } = await supabase.from('instagram_posts').eq('id', currentEditPostId).update({
+                const { error } = await supabase.from('z_insta_sche_kobitar_sohor').eq('id', currentEditPostId).update({
                     caption: cap,
                     schedule_at: `${d}T${t}:00+06:00`
                 });
@@ -272,14 +272,14 @@
 
         async function deletePost(id) {
             if(!confirm('Delete this?')) return;
-            await supabase.from('instagram_posts').eq('id', id).delete();
+            await supabase.from('z_insta_sche_kobitar_sohor').eq('id', id).delete();
             openHistory();
         }
 
         document.getElementById('syncBtn').addEventListener('click', async () => {
              if (!confirm('Sync status?')) return;
-             const { data } = await supabase.from('instagram_posts').eq('status', 'published').select('image_url');
-             for (const item of data) { await supabase.from('scheduled_posts').eq('image_url', item.image_url).eq('status', 'scheduled').update({ status: 'published' }); }
+             const { data } = await supabase.from('z_insta_sche_kobitar_sohor').eq('status', 'published').select('image_url');
+             for (const item of data) { await supabase.from('z_insta_post_db').eq('image_url', item.image_url).eq('status_kobitar_sohor', 'scheduled').update({ status_kobitar_sohor: 'published' }); }
              showStatus('Sync complete', 'success'); fetchSectionStats();
         });
 

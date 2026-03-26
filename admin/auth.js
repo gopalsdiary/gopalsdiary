@@ -190,6 +190,11 @@ class TableQuery {
         return this;
     }
 
+    or(expression) {
+        this.filters.push({ column: 'or', value: `(${expression})`, isRaw: true });
+        return this;
+    }
+
     limit(value) {
         this.limitValue = value;
         return this;
@@ -204,7 +209,11 @@ class TableQuery {
 
             if (this.filters.length > 0) {
                 this.filters.forEach(f => {
-                    params.append(`${f.column}`, `${f.operator}.${f.value}`);
+                    if (f.isRaw) {
+                        params.append(f.column, f.value);
+                    } else {
+                        params.append(`${f.column}`, `${f.operator}.${f.value}`);
+                    }
                 });
             }
 

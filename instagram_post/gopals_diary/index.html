@@ -254,7 +254,7 @@
 	<div class="container">
 		<header class="header-card">
 			<div>
-				<h1>Instagram Scheduler</h1>
+				<h1>Instagram Scheduler (Gopals_diary)</h1>
 			</div>
 			<a href="schiduler.html" class="btn-primary" style="text-decoration: none; padding: 8px 16px; font-size: 13px;">
 				✨ Auto Scheduler
@@ -454,13 +454,16 @@
 
 	<script src="../../admin/auth.js"></script>
 	<script>
+// Account-specific prefix to isolate settings from other dashboards
+const STORAGE_PREFIX = 'gopals_diary_';
+
 const FB_API_CONFIG = {
 	edgeFunctionPath: '/functions/v1/publish-post',
 	defaultPlatform: 'instagram',
 	graphApiBaseUrl: 'https://graph.facebook.com/v22.0',
-	graphApiToken: localStorage.getItem('graphApiToken') || 'EAAzvU5dynbMBQ5X1ZCC8CRtrZASthGA7QbFsdOgad3Sdn6dgO5sM99WV3DbkCzVYB7SM7Lk0TuxCzzKLYVx6BRiMutZAdHURDkw73ce9ZC0rHvWKGg7IdUsUoEzwhikYSNYuutjJS22DXJ3UdALaN9AQvww0Qqib0kGB6JQ9ZC905jUAkwolPjQ2FHyvFLetF',
-	igUserId: localStorage.getItem('igUserId') || '3832773753519724',
-	facebookPageId: localStorage.getItem('facebookPageId') || '',
+	graphApiToken: localStorage.getItem(STORAGE_PREFIX + 'graphApiToken') || 'EAARj741yrocBRJndlZC0sLKVRzgaKcE2tWscpyr7xf4H1urwtZC5NR25jGpCz1sC5b7rEtogxKDDrQZCmx68HFiNcMqhg5AaJ5CYXZAwkZAp9XaoQUyfVbGgCoFM9irZCnJLDPnoGzU2lZBHaYtqX9V6HB9OF54BNLMo21uZBp4oDSj3pguVK3GGGN4QhCFH',
+	igUserId: localStorage.getItem(STORAGE_PREFIX + 'igUserId') || '',
+	facebookPageId: localStorage.getItem(STORAGE_PREFIX + 'facebookPageId') || '',
 	useEdgeFunction: false // Force direct API for stability
 };
 
@@ -470,14 +473,35 @@ const FB_API_CONFIG = {
 function setGraphApiToken(token) {
 	const cleanToken = (token || '').trim();
 	FB_API_CONFIG.graphApiToken = cleanToken;
-	localStorage.setItem('graphApiToken', cleanToken);
+	localStorage.setItem(STORAGE_PREFIX + 'graphApiToken', cleanToken);
+	localStorage.setItem(STORAGE_PREFIX + 'verified', 'false'); // Reset verification on token change
+}
+
+function getGraphApiToken() {
+	return FB_API_CONFIG.graphApiToken;
 }
 
 /**
- * Gets the current Graph API token
+ * Sets the Instagram User ID (updates both config and localStorage)
  */
-function getGraphApiToken() {
-	return FB_API_CONFIG.graphApiToken;
+function setIgUserId(userId) {
+	FB_API_CONFIG.igUserId = userId;
+	localStorage.setItem(STORAGE_PREFIX + 'igUserId', userId);
+}
+
+/**
+ * Gets the current Instagram User ID
+ */
+function getIgUserId() {
+	return FB_API_CONFIG.igUserId;
+}
+
+/**
+ * Sets the Facebook Page ID (updates both config and localStorage)
+ */
+function setFacebookPageId(pageId) {
+	FB_API_CONFIG.facebookPageId = pageId;
+	localStorage.setItem(STORAGE_PREFIX + 'facebookPageId', pageId);
 }
 
 /**
@@ -507,7 +531,7 @@ async function resolveIgUserId() {
 
 		const resolvedId = firstWithIg.instagram_business_account.id;
 		FB_API_CONFIG.igUserId = resolvedId;
-		localStorage.setItem('igUserId', resolvedId);
+		localStorage.setItem(STORAGE_PREFIX + 'igUserId', resolvedId);
 		return resolvedId;
 	} catch (error) {
 		console.warn('Failed to resolve IG account ID:', error.message);
@@ -516,11 +540,7 @@ async function resolveIgUserId() {
 }
 
 /**
- * Test token and auto-resolve correct IG User ID with improved error detection and fallback strategy
- * 1. First validates the token by calling /me
- * 2. Then fetches all Facebook Pages and their connected Instagram Business Accounts
- * 3. If that fails or returns no IG accounts, tries /me/instagram_accounts as fallback
- * 4. Provides specific error messages for permission/scope issues
+ * Test token and auto-resolve correct IG User ID
  */
 async function testTokenAndResolveIgId() {
 	const graphToken = FB_API_CONFIG.graphApiToken;
@@ -549,7 +569,6 @@ async function testTokenAndResolveIgId() {
 	}
 
 	// Step 2: Fetch Facebook Pages and connected Instagram Business Accounts
-	// This is the CORRECT and RELIABLE approach (not /me/instagram_accounts)
 	let accountsData;
 	try {
 		const accountsUrl = `${FB_API_CONFIG.graphApiBaseUrl}/me/accounts?fields=id,name,category,access_token,instagram_business_account{id,username,name}&access_token=${encodeURIComponent(graphToken)}`;
@@ -568,15 +587,16 @@ async function testTokenAndResolveIgId() {
 	}
 
 	const pages = accountsData?.data || [];
-
-	// Step 3: Look for a page with a connected Instagram Business Account
 	const pageWithIg = pages.find((page) => page?.instagram_business_account?.id);
 
 	if (pageWithIg?.instagram_business_account?.id) {
 		const correctIgId = pageWithIg.instagram_business_account.id;
 		const igUsername = pageWithIg.instagram_business_account.username || pageWithIg.instagram_business_account.name || correctIgId;
 		setIgUserId(correctIgId);
-		if (pageWithIg.id) localStorage.setItem('facebookPageId', pageWithIg.id);
+		if (pageWithIg.id) localStorage.setItem(STORAGE_PREFIX + 'facebookPageId', pageWithIg.id);
+
+		// SUCCESS: Set verified flag
+		localStorage.setItem(STORAGE_PREFIX + 'verified', 'true');
 
 		return {
 			valid: true,
@@ -587,9 +607,7 @@ async function testTokenAndResolveIgId() {
 		};
 	}
 
-	// Step 4: If no IG account found via /me/accounts, provide detailed diagnostic info
 	if (pages.length > 0) {
-		// User has pages but none have an IG account connected
 		const pageNames = pages.map(p => `"${p.name}" (${p.id})`).join(', ');
 		throw new Error(
 			`No Instagram Business Account found linked to your pages: ${pageNames}. ` +
@@ -597,38 +615,8 @@ async function testTokenAndResolveIgId() {
 		);
 	}
 
-	// Step 5: Last resort - try /me/instagram_accounts (works only for Creator/Pro accounts with correct scopes)
-	try {
-		const meIgUrl = `${FB_API_CONFIG.graphApiBaseUrl}/me/instagram_accounts?fields=id,username,name&access_token=${encodeURIComponent(graphToken)}`;
-		const meIgRes = await fetch(meIgUrl, { method: 'GET' });
-		const meIgData = await meIgRes.json();
-
-		if (meIgRes.ok && meIgData?.data?.length > 0) {
-			const firstIg = meIgData.data[0];
-			const correctIgId = firstIg.id;
-			setIgUserId(correctIgId);
-			return {
-				valid: true,
-				message: `âœ“ Found via alternative method: "${firstIg.username || firstIg.name || correctIgId}" (ID: ${correctIgId}). ` +
-					`Note: This is a Creator/Personal account. For best results, connect it to a Facebook Business Page.`,
-				igUserId: correctIgId,
-				isCreatorAccount: true,
-			};
-		}
-	} catch (error) {
-		console.warn('Fallback /me/instagram_accounts also failed:', error.message);
-	}
-
-	// Step 6: Inform user about required setup
-	throw new Error(
-		`No Instagram Business Account found. Required setup:\n` +
-		`1. Your Instagram account must be a Business or Creator account (not Personal)\n` +
-		`2. Link Instagram â†’ Settings â†’ Linked Accounts â†’ Facebook Page\n` +
-		`3. In Meta App, grant token permissions for Instagram account (not just Page)\n` +
-		`4. Generate a fresh token, paste it here, and test again`
-	);
+	throw new Error(`No Instagram Business Account found. Re-check your account connection settings.`);
 }
-
 
 async function getPublishingContext() {
 	const graphToken = FB_API_CONFIG.graphApiToken;
@@ -662,7 +650,7 @@ async function getPublishingContext() {
 
 	const resolvedIgId = pageWithIg.instagram_business_account.id;
 	FB_API_CONFIG.igUserId = resolvedIgId;
-	localStorage.setItem('igUserId', resolvedIgId);
+	localStorage.setItem(STORAGE_PREFIX + 'igUserId', resolvedIgId);
 
 	return {
 		igUserId: resolvedIgId,
@@ -671,36 +659,6 @@ async function getPublishingContext() {
 		pageName: pageWithIg.name,
 		fromManualFallback: false,
 	};
-}
-
-/**
- * Set IG User ID manually
- */
-function setIgUserId(userId) {
-	FB_API_CONFIG.igUserId = userId;
-	localStorage.setItem('igUserId', userId);
-}
-
-/**
- * Get IG User ID with fallback
- */
-function getIgUserId() {
-	return FB_API_CONFIG.igUserId;
-}
-
-/**
- * Set Facebook Page ID manually
- */
-function setFacebookPageId(pageId) {
-	FB_API_CONFIG.facebookPageId = pageId;
-	localStorage.setItem('facebookPageId', pageId);
-}
-
-/**
- * Get Facebook Page ID
- */
-function getFacebookPageId() {
-	return FB_API_CONFIG.facebookPageId;
 }
 
 /**
@@ -754,6 +712,9 @@ function getDetailedGraphError(errorData, defaultMsg) {
 	}
 	if (msg.includes('Cannot parse access token') || msg.includes('Invalid OAuth')) {
 		return `Token expired or invalid. Regenerate from: https://developers.facebook.com/tools/accesstoken/`;
+	}
+	if (code === 9007 || msg.includes('Media ID is not available')) {
+		return `Media Container Not Ready (9007): Instagram is still processing the image. Please wait 10 seconds and try again.`;
 	}
 	if (msg.includes('is not available') || msg.includes('not linked')) {
 		return `Account connection issue: Ensure Instagram is linked to Facebook Page and connection is confirmed.`;
@@ -924,6 +885,10 @@ async function publishDirectToInstagram({ imageUrl, caption }) {
 		const creationId = createData.id;
 		console.log('âœ“ Media container created:', creationId);
 
+		// ðŸ ³ Wait for Instagram to process the container (Fixes Error 9007)
+		console.log('â ³ Waiting 3 seconds for Meta processing...');
+		await new Promise(r => setTimeout(r, 3000));
+
 		// Step 2: Publish container
 		const publishParams = new URLSearchParams({
 			creation_id: creationId,
@@ -1012,11 +977,12 @@ async function publishPost({ platform, imageUrl, caption }) {
  * Saves a post to Supabase for later publishing
  */
 async function saveToDatabase({ imageUrl, caption, platform, post_section }) {
-	return await supabase.request('scheduled_posts', 'POST', {
+	return await supabase.request('z_insta_post_db', 'POST', {
 		image_url: imageUrl,
 		caption: caption,
 		platform: platform || 'instagram',
-		status: 'pending',
+		status_gopals_diary: 'pending',
+		status_kobitar_sohor: 'pending',
 		post_section: post_section || 'other'
 	});
 }
@@ -1025,31 +991,37 @@ async function saveToDatabase({ imageUrl, caption, platform, post_section }) {
  * Updates a saved post status
  */
 async function updatePostStatus(postId, update = {}) {
-	return await supabase.request(`scheduled_posts?id=eq.${postId}`, 'PATCH', update);
+	return await supabase.request(`z_insta_post_db?id=eq.${postId}`, 'PATCH', update);
 }
 
 /**
  * Deletes a post from DB
  */
 async function deletePost(postId) {
-	return await supabase.request(`scheduled_posts?id=eq.${postId}`, 'DELETE');
+	return await supabase.request(`z_insta_post_db?id=eq.${postId}`, 'DELETE');
 }
 
 /**
  * Fetches pending posts from DB
  */
 async function getPendingPosts() {
-	return await supabase.request('scheduled_posts?status=eq.pending&order=created_at.desc', 'GET');
+	return await supabase.request('z_insta_post_db?or=(status_gopals_diary.eq.pending,status_gopals_diary.is.null)&order=created_at.desc', 'GET');
 }
 
 /**
  * Loads posts from database with optional filters
  */
 async function loadFromDatabase(filters = {}) {
-	let query = 'scheduled_posts';
+	let query = 'z_insta_post_db';
 	const conditions = [];
 
-	if (filters.status) conditions.push(`status=eq.${filters.status}`);
+	if (filters.status) {
+		if (filters.status === 'pending') {
+			conditions.push(`or=(status_gopals_diary.eq.pending,status_gopals_diary.is.null)`);
+		} else {
+			conditions.push(`status_gopals_diary=eq.${filters.status}`);
+		}
+	}
 	if (filters.id) conditions.push(`id=eq.${filters.id}`);
 	if (filters.platform) conditions.push(`platform=eq.${filters.platform}`);
 	if (filters.post_section && filters.post_section !== 'all') {
@@ -1382,7 +1354,7 @@ window.FBApi = {
 							<span class="section-badge">${post.post_section || 'other'}</span>
 						</div>
 						<div class="post-card-title">${escapeHtml(caption)}</div>
-						<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">${formatDate(post.published_at)}</div>
+						<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">${formatDate(post.published_at_gopals_diary)}</div>
 						<div class="post-actions">
 							<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
 								<button class="btn-sm btn-ghost" onclick="openEditModal('${post.id}')">Edit</button>
@@ -1421,6 +1393,13 @@ window.FBApi = {
 				console.error('CRITICAL: Cannot find button reference.');
 				return;
 			}
+
+			// Mandatory verification check
+			if (localStorage.getItem(STORAGE_PREFIX + 'verified') !== 'true') {
+				alert('âš ï¸  Account not verified! Please go to Settings and click "Test" to verify your connection first.');
+				return;
+			}
+
 			btn.disabled = true;
 			btn.textContent = 'Publishing...';
 			try {
@@ -1443,8 +1422,8 @@ window.FBApi = {
 				});
 
 				await window.FBApi.updatePostStatus(postId, { 
-					status: 'published',
-					published_at: new Date().toISOString()
+					status_gopals_diary: 'published',
+					published_at_gopals_diary: new Date().toISOString()
 				});
 				btn.textContent = 'âœ“ Published';
 				btn.style.color = '#059669';
@@ -1827,7 +1806,6 @@ window.FBApi = {
 					loginStatus.textContent = error.message;
 				}
 			});
-
 			logoutBtn.addEventListener('click', async () => {
 				await supabase.signOut(); showLogin();
 			});
@@ -1846,16 +1824,19 @@ window.FBApi = {
 			});
 
 			saveManualBtn.addEventListener('click', async () => {
+				// Mandatory verification check
+				if (localStorage.getItem(STORAGE_PREFIX + 'verified') !== 'true') {
+					alert('âš ï¸  Account not verified! Please go to Settings and click "Test" to verify your connection first.');
+					return;
+				}
+
 				const imageUrl = manualImageUrl.value.trim();
 				const caption = manualCaption.value.trim();
 				const post_section = document.getElementById('manualSection').value;
 				const fileInput = document.getElementById('imageFileInput');
 				const file = fileInput.files[0];
 
-				if (!imageUrl && !file) {
-					alert('Please enter a URL or choose a file.');
-					return;
-				}
+				if (!imageUrl && !file) return alert('Please enter a URL or choose a file.');
 
 				saveManualBtn.disabled = true;
 				saveManualBtn.textContent = 'Saving...';
@@ -1863,16 +1844,12 @@ window.FBApi = {
 
 				try {
 					let finalUrl = imageUrl;
-
-					// ðŸ› ï¸ Only upload if there's a file AND no URL yet (avoids double upload after crop)
 					if (file && !imageUrl) {
-						// Process file upload
 						const reader = new FileReader();
 						const base64Data = await new Promise((resolve) => {
 							reader.onload = (e) => resolve(e.target.result);
 							reader.readAsDataURL(file);
 						});
-
 						const tempId = 'new_' + Date.now();
 						const compressed = await window.FBApi.compressBase64Image(base64Data, 320, 10);
 						const fileName = `direct_upload_${tempId}.jpg`;
@@ -1882,19 +1859,12 @@ window.FBApi = {
 					await window.FBApi.saveToDatabase({ imageUrl: finalUrl, caption, platform: 'instagram', post_section });
 					manualStatus.textContent = 'âœ“ Saved to database';
 					manualStatus.style.color = '#059669';
-					
-					manualImageUrl.value = ''; 
-					manualCaption.value = '';
-					fileInput.value = '';
+					manualImageUrl.value = ''; manualCaption.value = ''; fileInput.value = '';
 					document.getElementById('fileNameDisplay').textContent = 'No file chosen';
 					if (typeof updateAddPostPreview === 'function') updateAddPostPreview('');
-					
-					setTimeout(() => {
-						switchTab('pendingView');
-					}, 1500);
-
+					setTimeout(() => switchTab('pendingView'), 1500);
 				} catch (error) {
-					manualStatus.textContent = 'âŒ Error: ' + error.message;
+					manualStatus.textContent = 'â Œ Error: ' + error.message;
 					manualStatus.style.color = '#dc2626';
 				} finally {
 					saveManualBtn.disabled = false;
@@ -1906,28 +1876,22 @@ window.FBApi = {
 				const file = e.target.files[0];
 				if (file) {
 					const reader = new FileReader();
-					reader.onload = (e) => {
-						openCropper('new', e.target.result, true);
-					};
+					reader.onload = (e) => openCropper('new', e.target.result, true);
 					reader.readAsDataURL(file);
 					document.getElementById('fileNameDisplay').textContent = file.name;
 				}
 			});
 
-			// Setup Add Post Preview
 			window.updateAddPostPreview = function(url) {
 				const previewImg = document.getElementById('manualImagePreview');
 				const placeholder = document.getElementById('manualImagePreviewPlaceholder');
 				if (url) {
-					previewImg.src = url;
-					previewImg.style.display = 'block';
-					placeholder.style.display = 'none';
+					previewImg.src = url; previewImg.style.display = 'block'; placeholder.style.display = 'none';
 				} else {
-					previewImg.src = '';
-					previewImg.style.display = 'none';
-					placeholder.style.display = 'block';
+					previewImg.src = ''; previewImg.style.display = 'none'; placeholder.style.display = 'block';
 				}
 			};
+
 			document.getElementById('manualImageUrl').addEventListener('input', function() {
 				updateAddPostPreview(this.value.trim());
 			});
@@ -1935,6 +1899,9 @@ window.FBApi = {
 			refreshBtn.addEventListener('click', loadPendingPosts);
 			bootstrapAuth();
 		}
+
+		// Initialize the portal
+		initializeApp();
 	</script>
 </body>
 

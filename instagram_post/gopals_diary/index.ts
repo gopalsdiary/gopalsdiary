@@ -16,21 +16,29 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { postId } = body;
+    const { postId, tableName = "z_insta_sche_gopals_diary" } = body;
     let posts = [];
 
+    // Determine the status column name based on the table
+    const statusColumn = tableName === "z_insta_post_db" ? "status_gopals_diary" : "status";
+    const publishedAtColumn = tableName === "z_insta_post_db" ? "published_at_gopals_diary" : "published_at";
+
     if (postId) {
-      const { data } = await supabaseClient.from("instagram_posts").select("*").eq("id", postId).maybeSingle();
+      const { data } = await supabaseClient.from(tableName).select("*").eq("id", postId).maybeSingle();
       if (data) posts = [data];
     } else {
       // অটোমেটিক লজিক: অতীত বা বর্তমানের পেন্ডিং পোস্টগুলো খুঁজে বের করা
-      const { data } = await supabaseClient
-        .from("instagram_posts")
-        .select("*")
-        .eq("status", "pending")
-        .lte("schedule_at", new Date().toISOString())
-        .order("schedule_at", { ascending: true })
-        .limit(2); // প্রতি ১৫ মিনিটে সর্বোচ্চ ২ টি পোস্ট পাবলিশ হবে
+      let query = supabaseClient.from(tableName).select("*");
+
+      if (tableName === "z_insta_post_db") {
+        query = query.or(`${statusColumn}.eq.pending,${statusColumn}.is.null`);
+      } else {
+        query = query.eq(statusColumn, "pending").lte("schedule_at", new Date().toISOString());
+      }
+
+      const { data } = await query
+        .order(tableName === "z_insta_post_db" ? "created_at" : "schedule_at", { ascending: true })
+        .limit(2);
       posts = data || [];
     }
 
@@ -40,18 +48,20 @@ Deno.serve(async (req) => {
     }
 
     const results = [];
-    const IG_USER_ID = Deno.env.get("IG_USER_ID");
-    const TOKEN = Deno.env.get("FB_GRAPH_TOKEN");
+    const IG_USER_ID = body.igUserId || Deno.env.get("IG_USER_ID");
+    const TOKEN = body.fbToken || Deno.env.get("FB_GRAPH_TOKEN");
 
     for (const post of posts) {
-      // 🚨 ডুপ্লিকেট বন্ধ করার মেইন লজিক (Locking):
       // পোস্ট প্রোসেস করার আগে স্ট্যাটাস 'publishing' এ পরিবর্তন করার চেষ্টা করা
-      const { data: locked } = await supabaseClient
-        .from("instagram_posts")
-        .update({ status: "publishing" })
-        .eq("id", post.id)
-        .eq("status", "pending") // শুধুমাত্র যদি এখনও পেন্ডিং থাকে তবেই আপডেট হবে
-        .select();
+      let updateQuery = supabaseClient.from(tableName).update({ [statusColumn]: "publishing" }).eq("id", post.id);
+      
+      if (tableName === "z_insta_post_db") {
+        updateQuery = updateQuery.or(`${statusColumn}.eq.pending,${statusColumn}.is.null`);
+      } else {
+        updateQuery = updateQuery.eq(statusColumn, "pending");
+      }
+      
+      const { data: locked } = await updateQuery.select();
 
       // যদি সে অলরেডি পেন্ডিং না থাকে (অন্য কোনো ফাংশন অলরেডি ধরছে), তবে স্কিপ করবে
       if (!locked || locked.length === 0) {
@@ -79,17 +89,17 @@ Deno.serve(async (req) => {
         const data2 = await res2.json();
         if (!data2.id) throw new Error(data2.id || "Publish failed");
 
-        await supabaseClient.from("instagram_posts").update({ status: "published", published_at: new Date().toISOString() }).eq("id", post.id);
+        await supabaseClient.from(tableName).update({ [statusColumn]: "published", [publishedAtColumn]: new Date().toISOString() }).eq("id", post.id);
         results.push({ id: post.id, status: "success" });
-      } catch (e) {
+      } catch (e: any) {
         // ফেইল করলে স্ট্যাটাস 'failed' করে লজিক সেভ করা
-        await supabaseClient.from("instagram_posts").update({ status: "failed", error_log: e.message }).eq("id", post.id);
+        await supabaseClient.from(tableName).update({ [statusColumn]: "failed", error_log: e.message }).eq("id", post.id);
         results.push({ id: post.id, error: e.message });
       }
     }
 
     return new Response(JSON.stringify({ success: true, processed: results }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  } catch (err) {
+  } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
