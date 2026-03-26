@@ -60,6 +60,11 @@ class SupabaseClient {
 
         const response = await fetch(url, config);
         
+        if (response.status === 401) {
+            localStorage.clear();
+            window.location.href = '/instagram_post/index.html';
+        }
+
         if (!response.ok) {
             const error = await response.json().catch(() => ({}));
             console.error('Request failed:', error);

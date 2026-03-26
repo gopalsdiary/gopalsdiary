@@ -1,1939 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Private Instagram Dashboard</title>
-	<style>
-	:root {
-		--primary: #8b5cf6;
-		--primary-dark: #7c3aed;
-		--bg: #f8fafc;
-		--card-bg: #ffffff;
-		--text-main: #1e293b;
-		--text-muted: #64748b;
-		--border: #e2e8f0;
-		--radius: 12px;
-		--shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-		--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-	}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Dashboard Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #d946ef;
+            --bg-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
 
-	* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-	body {
-		margin: 0;
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		background: var(--bg);
-		color: var(--text-main);
-		line-height: 1.5;
-	}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
 
-	.container {
-		max-width: 1100px;
-		margin: 0 auto;
-		padding: 12px;
-	}
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
 
-	/* Card & Section Styling */
-	.card {
-		background: var(--card-bg);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		padding: 20px;
-		margin-bottom: 16px;
-		box-shadow: var(--shadow);
-	}
+        .container {
+            width: 100%;
+            max-width: 420px;
+            perspective: 1000px;
+        }
 
-	header.header-card {
-		background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
-		color: white;
-		border: none;
-		position: sticky;
-		top: 0;
-		z-index: 100;
-		border-radius: 0 0 var(--radius) var(--radius);
-		margin: -12px -12px 12px -12px;
-		padding: 10px 20px;
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeIn 0.6s ease-out;
+        }
 
-	@media (min-width: 768px) {
-		header.header-card {
-			margin: 0 0 20px 0;
-			border-radius: var(--radius);
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-		}
-	}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-	h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.025em; }
-	.subtext { opacity: 0.9; font-size: 13px; margin: 4px 0 0 0; }
+        .logo-area {
+            margin-bottom: 32px;
+        }
 
-	/* Buttons & Inputs */
-	button {
-		font-family: inherit;
-		font-weight: 600;
-		font-size: 14px;
-		padding: 10px 16px;
-		border-radius: 8px;
-		border: none;
-		cursor: pointer;
-		transition: all 0.2s;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-	}
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            border-radius: 18px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 10px 20px rgba(220, 39, 67, 0.3);
+        }
 
-	.btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2); }
-	.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-	.btn-primary:active { transform: translateY(0); }
+        h1 {
+            font-size: 24px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
 
-	.btn-secondary { background: #f1f5f9; color: #475569; }
-	.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-	.btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
 
-	input, textarea, select {
-		width: 100%;
-		background: #f8fafc;
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		padding: 10px 14px;
-		font-size: 14px;
-		outline: none;
-		transition: border-color 0.2s, box-shadow 0.2s;
-	}
-	input:focus, textarea:focus { 
-		border-color: var(--primary); 
-		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-		background: white;
-	}
+        /* Login Form */
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
 
-	/* Tabs Styling - Mobile Scrollable Pill */
-	.tabs {
-		display: flex;
-		gap: 8px;
-		margin-bottom: 20px;
-		overflow-x: auto;
-		padding: 4px 2px;
-		scrollbar-width: none; /* Hide for Firefox */
-	}
-	.tabs::-webkit-scrollbar { display: none; } /* Hide for Chrome */
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-	.tab-btn {
-		white-space: nowrap;
-		background: #f1f5f9;
-		color: #64748b;
-		padding: 8px 16px;
-		border-radius: 999px;
-		font-size: 13px;
-		border: 1px solid transparent;
-		flex: none;
-	}
-	.tab-btn.active {
-		background: var(--primary);
-		color: white;
-		box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
-	}
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+        }
 
-	/* Post Grid & Cards */
-	.grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 12px;
-	}
-	@media (min-width: 600px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
-	@media (min-width: 900px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+        input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
 
-	.post-card {
-		background: white;
-		border: 1px solid var(--border);
-		border-radius: 12px;
-		overflow: hidden;
-		display: flex;
-		flex-direction: column;
-		transition: transform 0.2s, box-shadow 0.2s;
-	}
-	.post-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
 
-	.post-card-img-wrapper {
-		position: relative;
-		width: 100%;
-		padding-top: 100%; /* 1:1 Aspect */
-		background: #f1f5f9;
-	}
-	.post-card img {
-		position: absolute;
-		top: 0; left: 0;
-		width: 100%; height: 100%;
-		object-fit: cover;
-	}
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4);
+        }
 
-	.post-card-body { padding: 10px; flex: 1; display: flex; flex-direction: column; }
-	.post-card-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 1; line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-	
-	.post-badge-container { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
-	.section-badge { font-size: 9px; padding: 2px 6px; background: #f1f5f9; color: #64748b; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
-	.published-badge { font-size: 9px; padding: 2px 6px; background: #ecfdf5; color: #059669; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(139, 92, 246, 0.5);
+        }
 
-	.post-actions { display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: auto; }
-	.post-actions .btn-sm { font-size: 11px; padding: 6px; border-radius: 6px; }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
 
-	/* Manual View Split (Responsive) */
-	.manual-split { display: flex; flex-direction: column; gap: 20px; }
-	@media (min-width: 768px) { .manual-split { flex-direction: row; } }
-	.manual-form { flex: 1; }
-	.manual-preview-sidebar { width: 100%; max-width: 280px; margin: 0 auto; }
+        /* Portal View */
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
 
-	.image-preview-box {
-		width: 100%;
-		aspect-ratio: 4/5;
-		background: #f8fafc;
-		border: 2px dashed var(--border);
-		border-radius: 12px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-		position: relative;
-	}
+        .portal-btn {
+            text-decoration: none;
+            padding: 24px;
+            border-radius: 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
 
-	.hidden { display: none !important; }
+        .portal-btn:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
 
-	/* Modals */
-	.modal-overlay {
-		position: fixed; inset: 0;
-		background: rgba(15, 23, 42, 0.8);
-		backdrop-filter: blur(4px);
-		z-index: 1000;
-		display: none;
-		align-items: center;
-		justify-content: center;
-		padding: 16px;
-	}
-	.modal-overlay.active { display: flex; }
-	.modal-content {
-		background: white;
-		border-radius: 16px;
-		width: 100%;
-		max-width: 500px;
-		padding: 24px;
-		max-height: 90vh;
-		overflow-y: auto;
-	}
+        .portal-btn .title {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+        }
 
-	/* Filter Bar */
-	.filter-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-	.filter-bar span { font-size: 12px; font-weight: 600; color: #64748b; }
-	.filter-select { width: auto; font-size: 12px; padding: 6px 12px; }
+        .portal-btn .desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
 
-	/* Lightbox Improved */
-	.lightbox-overlay { 
-		position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
-		display: none; opacity: 0; transition: opacity 0.3s;
-	}
-	.lightbox-overlay.active { display: flex; opacity: 1; }
-	.lightbox-content { 
-		display: flex; flex-direction: column; width: 100%; height: 100%; position: relative;
-	}
-	@media(min-width: 768px) {
-		.lightbox-content { flex-direction: row; max-width: 90vw; max-height: 85vh; margin: auto; border-radius: 12px; overflow: hidden; background: #000; }
-	}
-	.lightbox-image-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; }
-	.lightbox-image-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
-	.lightbox-details { flex: 0 0 320px; background: #fff; padding: 20px; overflow-y: auto; }
-	@media(max-width: 767px) { .lightbox-details { background: #000; color: #fff; padding: 16px; font-size: 13px; } }
+        .hidden { display: none !important; }
 
-</style>
+        #errorMsg {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 12px;
+            min-height: 1.2em;
+        }
+
+        .logout-link {
+            display: block;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logout-link:hover { color: #ef4444; }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 480px) {
+            .card { padding: 32px 24px; }
+        }
+    </style>
 </head>
-
 <body>
-	<div class="container">
-		<header class="header-card">
-			<div>
-				<h1>Instagram Scheduler</h1>
-			</div>
-			<a href="schiduler.html" class="btn-primary" style="text-decoration: none; padding: 8px 16px; font-size: 13px;">
-				✨ Auto Scheduler
-			</a>
-		</header>
-
-		<section id="loginCard" class="card">
-			<h2 style="margin-top:0; font-size: 18px;">Admin Login</h2>
-			<div style="display: flex; flex-direction: column; gap:12px;">
-				<input id="email" type="email" placeholder="Email address">
-				<input id="password" type="password" placeholder="Password">
-				<button id="loginBtn" class="btn-primary" style="width: 100%;">Sign In</button>
-			</div>
-			<div id="loginStatus" style="font-size: 12px; text-align: center; margin-top: 10px;"></div>
-		</section>
-
-		<section id="dashboardCard" class="card hidden" style="padding: 16px;">
-			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
-				<div style="font-size: 13px; font-weight: 600; color: var(--text-muted);" id="userInfo">Logged in</div>
-				<button id="logoutBtn" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">Logout</button>
-			</div>
-
-			<div class="tabs">
-				<button id="tabPending" class="tab-btn active">Pending</button>
-				<button id="tabPublished" class="tab-btn">Posted</button>
-				<button id="tabManual" class="tab-btn">Add</button>
-				<button id="tabSettings" class="tab-btn">Settings</button>
-			</div>
-
-			<div id="pendingView" class="tab-content">
-				<div class="filter-bar">
-					<span>Filter:</span>
-					<select id="filterSectionPending" class="filter-select" onchange="loadPendingPosts()">
-						<option value="all">All Sections</option>
-						<option value="gopalsdiary">Gopal's Diary</option>
-						<option value="mehedi">Mehedi</option>
-						<option value="kobir">Kobir</option>
-						<option value="other">Other</option>
-					</select>
-					<button id="refreshBtn" class="btn-ghost" style="padding: 4px 10px; margin-left: auto;">↻</button>
-				</div>
-				<div id="pendingGrid" class="grid"></div>
-			</div>
-
-			<div id="publishedView" class="tab-content hidden">
-				<div class="filter-bar">
-					<span>History:</span>
-					<select id="filterSectionPublished" class="filter-select" onchange="loadPublishedPosts()">
-						<option value="all">All Sections</option>
-						<option value="gopalsdiary">Gopal's Diary</option>
-						<option value="mehedi">Mehedi</option>
-						<option value="kobir">Kobir</option>
-						<option value="other">Other</option>
-					</select>
-				</div>
-				<div id="publishedGrid" class="grid"></div>
-			</div>
-
-			<div id="manualView" class="tab-content hidden">
-				<div class="manual-split">
-					<div class="manual-form">
-						<h3 style="margin-top: 0; font-size: 16px;">New Content</h3>
-						<div style="display: flex; flex-direction: column; gap: 12px;">
-							<input id="manualImageUrl" placeholder="Direct Image URL">
-							<div style="display: flex; align-items: center; gap: 10px;">
-								<label class="btn-secondary" style="font-size: 12px; cursor: pointer;">
-									📁 Choose File
-									<input type="file" id="imageFileInput" accept="image/*" style="display:none;">
-								</label>
-								<span id="fileNameDisplay" style="font-size: 11px; color: var(--text-muted);">No file...</span>
-							</div>
-							<select id="manualSection" class="filter-select" style="width: 100%; padding: 10px;">
-								<option value="gopalsdiary">Gopal's Diary</option>
-								<option value="mehedi">Section: Mehedi</option>
-								<option value="kobir">Section: Kobir</option>
-								<option value="other">Section: Other</option>
-							</select>
-							<textarea id="manualCaption" placeholder="Write caption..."></textarea>
-							<div style="display: flex; gap: 8px; margin-top: -4px; margin-bottom: 8px;">
-								<button class="btn-ghost" style="font-size: 10px; padding: 4px 8px;" onclick="applyTemplate('manualCaption', 'custom1')">📋 Custom 1</button>
-							</div>
-							<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-								<button id="validateImageBtn" class="btn-ghost">Check URL</button>
-								<button id="saveManualBtn" class="btn-primary">Save Post</button>
-							</div>
-							<div id="manualStatus" style="font-size: 11px; text-align: center;"></div>
-						</div>
-					</div>
-					<div class="manual-preview-sidebar">
-						<div class="image-preview-box">
-							<span id="manualImagePreviewPlaceholder" style="font-size: 12px; color:#94a3b8">Preview Area</span>
-							<img id="manualImagePreview" style="display:none;" src="">
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div id="settingsView" class="tab-content hidden">
-				<h3 style="margin-top:0; font-size: 16px;">Meta Integration</h3>
-				<div style="display: flex; flex-direction: column; gap: 16px;">
-					<div>
-						<label style="font-size: 12px; font-weight: 700;">Graph API Token</label>
-						<textarea id="graphApiTokenInput" style="min-height: 80px; font-size: 11px; margin-top: 4px;"></textarea>
-						<div style="display: flex; gap: 4px; margin-top: 6px;">
-							<button id="graphApiTokenSaveBtn" class="btn-secondary" style="font-size: 11px;">Save</button>
-							<button id="testTokenBtn" class="btn-secondary" style="font-size: 11px; background: #e0f2fe; color: #0369a1;">Test</button>
-						</div>
-						<div id="graphApiTokenStatus" style="font-size: 11px; margin-top: 4px;"></div>
-					</div>
-
-					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-						<div>
-							<label style="font-size: 11px; font-weight: 700;">IG User ID</label>
-							<input id="igUserIdInput" style="font-size: 12px; margin-top: 4px;">
-							<button id="igUserIdSaveBtn" class="btn-ghost" style="margin-top: 6px; width: 100%; font-size: 11px;">Save</button>
-							<div id="igUserIdStatus" style="font-size: 9px; margin-top: 2px;"></div>
-						</div>
-						<div>
-							<label style="font-size: 11px; font-weight: 700;">Page ID</label>
-							<input id="facebookPageIdInput" style="font-size: 12px; margin-top: 4px;">
-							<button id="facebookPageIdSaveBtn" class="btn-ghost" style="margin-top: 6px; width: 100%; font-size: 11px;">Save</button>
-							<div id="facebookPageIdStatus" style="font-size: 9px; margin-top: 2px;"></div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div id="editView" class="tab-content hidden">
-				<h3 style="margin-top: 0; font-size: 16px;">Edit Post</h3>
-				<div style="display: flex; flex-direction: column; gap: 12px; max-width: 500px;">
-					<div>
-						<label style="font-size:12px; color: var(--text-muted);">Section</label>
-						<select id="editSection" style="margin-top:4px; padding: 10px;">
-							<option value="gopalsdiary">Gopal's Diary</option>
-							<option value="mehedi">Mehedi</option>
-							<option value="kobir">Kobir</option>
-							<option value="other">Other</option>
-						</select>
-					</div>
-					<div>
-						<label style="font-size:12px; color: var(--text-muted);">Caption</label>
-						<textarea id="editCaption" style="height: 120px; margin-top:4px;"></textarea>
-						<div style="display: flex; gap: 8px; margin-top: 4px; margin-bottom: 8px;">
-							<button class="btn-ghost" style="font-size: 10px; padding: 4px 8px;" onclick="applyTemplate('editCaption', 'custom1')">📋 Custom 1</button>
-						</div>
-					</div>
-					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-						<button class="btn-secondary" onclick="closeEditView()">Cancel</button>
-						<button id="saveEditBtn" class="btn-primary">Update Post</button>
-					</div>
-				</div>
-			</div>
-		</section>
-	</div>
-
-
-	<!-- Image Preview Lightbox -->
-	<div id="fullPreviewModal" class="lightbox-overlay" onclick="closeFullPreviewModal(event)">
-		<div class="lightbox-content">
-			<button class="btn-ghost" style="position: absolute; top: 15px; right: 15px; z-index: 10; padding: 8px 12px; color: white; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; font-size: 20px;" onclick="closeFullPreviewModal(event)">&times;</button>
-			<div class="lightbox-image-wrapper">
-				<img id="fullPreviewImage" src="">
-			</div>
-			<div class="lightbox-details">
-				<h3 style="margin-top:0; font-size: 18px; margin-bottom: 12px;">Post Details</h3>
-				<div id="fullPreviewCaption" style="font-size: 14px; color: var(--text-muted); white-space: pre-wrap; line-height: 1.6;"></div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Premium Cropper Modal -->
-	<div id="cropperModal" class="modal-overlay">
-		<div class="modal-content" style="max-width: 600px;">
-			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-				<h3 style="margin: 0; font-size: 18px;">Adjust Image</h3>
-				<button class="btn-ghost" style="padding: 4px 8px;" onclick="closeCropper()">&times;</button>
-			</div>
-
-			<div style="margin-bottom: 20px; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
-				<button class="tab-btn active" style="padding: 6px 12px;" onclick="setRatio(0.8)">4:5</button>
-				<button class="tab-btn" style="padding: 6px 12px;" onclick="setRatio(1)">1:1</button>
-				<button class="tab-btn" style="padding: 6px 12px;" onclick="setRatio(1.91)">1.91:1</button>
-				<button class="btn-ghost" style="font-size: 12px; margin-left: auto;" onclick="fitImage()">🔳 Fit</button>
-			</div>
-
-			<div style="width: 100%; height: 400px; background: #f1f5f9; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
-				<img id="cropImage" src="" style="max-width: 100%; display: block;">
-			</div>
-
-			<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-				<button class="btn-secondary" onclick="closeCropper()">Cancel</button>
-				<button id="saveCropBtn" class="btn-primary">Save & Publish</button>
-			</div>
-		</div>
-	</div>
-
-	<script src="../admin/auth.js" defer></script>
-	<script>
-const FB_API_CONFIG = {
-	edgeFunctionPath: '/functions/v1/publish-post',
-	defaultPlatform: 'instagram',
-	graphApiBaseUrl: 'https://graph.facebook.com/v22.0',
-	graphApiToken: localStorage.getItem('graphApiToken') || 'EAAzvU5dynbMBQ5X1ZCC8CRtrZASthGA7QbFsdOgad3Sdn6dgO5sM99WV3DbkCzVYB7SM7Lk0TuxCzzKLYVx6BRiMutZAdHURDkw73ce9ZC0rHvWKGg7IdUsUoEzwhikYSNYuutjJS22DXJ3UdALaN9AQvww0Qqib0kGB6JQ9ZC905jUAkwolPjQ2FHyvFLetF',
-	igUserId: localStorage.getItem('igUserId') || '3832773753519724',
-	facebookPageId: localStorage.getItem('facebookPageId') || '',
-	useEdgeFunction: false // Force direct API for stability
-};
-
-/**
- * Sets the Graph API token (updates both config and localStorage)
- */
-function setGraphApiToken(token) {
-	const cleanToken = (token || '').trim();
-	FB_API_CONFIG.graphApiToken = cleanToken;
-	localStorage.setItem('graphApiToken', cleanToken);
-}
-
-/**
- * Gets the current Graph API token
- */
-function getGraphApiToken() {
-	return FB_API_CONFIG.graphApiToken;
-}
-
-/**
- * Fetches Instagram Business Account ID from Graph API (with graceful fallback)
- */
-async function resolveIgUserId() {
-	if (FB_API_CONFIG.igUserId) return FB_API_CONFIG.igUserId;
-
-	const graphToken = FB_API_CONFIG.graphApiToken;
-	if (!graphToken) return null;
-
-	try {
-		const response = await fetch(
-			`${FB_API_CONFIG.graphApiBaseUrl}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username}&access_token=${encodeURIComponent(graphToken)}`
-		);
-		const data = await response.json();
-
-		if (!response.ok) {
-			throw new Error(data?.error?.message || 'Could not fetch page/account mapping');
-		}
-
-		const pages = data?.data || [];
-		const firstWithIg = pages.find((page) => page?.instagram_business_account?.id);
-		if (!firstWithIg) {
-			throw new Error('No connected Instagram Business Account found. Connect Instagram to your Facebook Page first.');
-		}
-
-		const resolvedId = firstWithIg.instagram_business_account.id;
-		FB_API_CONFIG.igUserId = resolvedId;
-		localStorage.setItem('igUserId', resolvedId);
-		return resolvedId;
-	} catch (error) {
-		console.warn('Failed to resolve IG account ID:', error.message);
-		return null;
-	}
-}
-
-/**
- * Test token and auto-resolve correct IG User ID with improved error detection and fallback strategy
- * 1. First validates the token by calling /me
- * 2. Then fetches all Facebook Pages and their connected Instagram Business Accounts
- * 3. If that fails or returns no IG accounts, tries /me/instagram_accounts as fallback
- * 4. Provides specific error messages for permission/scope issues
- */
-async function testTokenAndResolveIgId() {
-	const graphToken = FB_API_CONFIG.graphApiToken;
-	if (!graphToken || graphToken.length < 50) {
-		throw new Error('Token missing or too short. Paste a fresh token from Meta App Dashboard.');
-	}
-
-	// Step 1: Validate token by fetching /me
-	let meData;
-	try {
-		const meRes = await fetch(
-			`${FB_API_CONFIG.graphApiBaseUrl}/me?fields=id,name,verified&access_token=${encodeURIComponent(graphToken)}`,
-			{ method: 'GET' }
-		);
-		meData = await meRes.json();
-
-		if (!meRes.ok) {
-			const error = meData?.error;
-			if (error?.code === 190 || error?.message?.includes('Invalid OAuth')) {
-				throw new Error('Token is expired or invalid. Generate a fresh token from: https://developers.facebook.com/tools/accesstoken/');
-			}
-			throw new Error(error?.message || 'Token validation failed');
-		}
-	} catch (error) {
-		throw new Error(`Token Invalid: ${error.message}`);
-	}
-
-	// Step 2: Fetch Facebook Pages and connected Instagram Business Accounts
-	// This is the CORRECT and RELIABLE approach (not /me/instagram_accounts)
-	let accountsData;
-	try {
-		const accountsUrl = `${FB_API_CONFIG.graphApiBaseUrl}/me/accounts?fields=id,name,category,access_token,instagram_business_account{id,username,name}&access_token=${encodeURIComponent(graphToken)}`;
-		const accountsRes = await fetch(accountsUrl, { method: 'GET' });
-		accountsData = await accountsRes.json();
-
-		if (!accountsRes.ok) {
-			const error = accountsData?.error;
-			if (error?.code === 200 || error?.message?.includes('permissions')) {
-				throw new Error('Missing permission: pages_show_list. Re-generate token with pages_show_list + pages_read_engagement permissions.');
-			}
-			throw new Error(error?.message || 'Failed to fetch pages');
-		}
-	} catch (error) {
-		throw new Error(`Pages Fetch Error: ${error.message}`);
-	}
-
-	const pages = accountsData?.data || [];
-
-	// Step 3: Look for a page with a connected Instagram Business Account
-	const pageWithIg = pages.find((page) => page?.instagram_business_account?.id);
-
-	if (pageWithIg?.instagram_business_account?.id) {
-		const correctIgId = pageWithIg.instagram_business_account.id;
-		const igUsername = pageWithIg.instagram_business_account.username || pageWithIg.instagram_business_account.name || correctIgId;
-		setIgUserId(correctIgId);
-		if (pageWithIg.id) localStorage.setItem('facebookPageId', pageWithIg.id);
-
-		return {
-			valid: true,
-			message: `âœ“ Success! Found Instagram Business Account: "${igUsername}" (ID: ${correctIgId}) linked to Facebook Page: "${pageWithIg.name}"`,
-			igUserId: correctIgId,
-			pageName: pageWithIg.name,
-			pageId: pageWithIg.id,
-		};
-	}
-
-	// Step 4: If no IG account found via /me/accounts, provide detailed diagnostic info
-	if (pages.length > 0) {
-		// User has pages but none have an IG account connected
-		const pageNames = pages.map(p => `"${p.name}" (${p.id})`).join(', ');
-		throw new Error(
-			`No Instagram Business Account found linked to your pages: ${pageNames}. ` +
-			`Solution: Go to Instagram Settings > Linked Accounts > Facebook, confirm/link your Facebook Page, then regenerate token.`
-		);
-	}
-
-	// Step 5: Last resort - try /me/instagram_accounts (works only for Creator/Pro accounts with correct scopes)
-	try {
-		const meIgUrl = `${FB_API_CONFIG.graphApiBaseUrl}/me/instagram_accounts?fields=id,username,name&access_token=${encodeURIComponent(graphToken)}`;
-		const meIgRes = await fetch(meIgUrl, { method: 'GET' });
-		const meIgData = await meIgRes.json();
-
-		if (meIgRes.ok && meIgData?.data?.length > 0) {
-			const firstIg = meIgData.data[0];
-			const correctIgId = firstIg.id;
-			setIgUserId(correctIgId);
-			return {
-				valid: true,
-				message: `âœ“ Found via alternative method: "${firstIg.username || firstIg.name || correctIgId}" (ID: ${correctIgId}). ` +
-					`Note: This is a Creator/Personal account. For best results, connect it to a Facebook Business Page.`,
-				igUserId: correctIgId,
-				isCreatorAccount: true,
-			};
-		}
-	} catch (error) {
-		console.warn('Fallback /me/instagram_accounts also failed:', error.message);
-	}
-
-	// Step 6: Inform user about required setup
-	throw new Error(
-		`No Instagram Business Account found. Required setup:\n` +
-		`1. Your Instagram account must be a Business or Creator account (not Personal)\n` +
-		`2. Link Instagram â†’ Settings â†’ Linked Accounts â†’ Facebook Page\n` +
-		`3. In Meta App, grant token permissions for Instagram account (not just Page)\n` +
-		`4. Generate a fresh token, paste it here, and test again`
-	);
-}
-
-
-async function getPublishingContext() {
-	const graphToken = FB_API_CONFIG.graphApiToken;
-	if (!graphToken || graphToken.length < 50) {
-		throw new Error('Graph API token missing/invalid. Paste a fresh token in Settings.');
-	}
-
-	const response = await fetch(
-		`${FB_API_CONFIG.graphApiBaseUrl}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username}&access_token=${encodeURIComponent(graphToken)}`
-	);
-	const data = await response.json();
-
-	if (!response.ok) {
-		throw new Error(data?.error?.message || 'Failed to load Facebook pages from token');
-	}
-
-	const pages = data?.data || [];
-	const pageWithIg = pages.find((page) => page?.instagram_business_account?.id && page?.access_token);
-	if (!pageWithIg) {
-		if (FB_API_CONFIG.igUserId) {
-			return {
-				igUserId: FB_API_CONFIG.igUserId,
-				pageAccessToken: graphToken,
-				pageId: null,
-				pageName: null,
-				fromManualFallback: true,
-			};
-		}
-		throw new Error('No Facebook Page with connected Instagram Business Account found for this token, and no fallback IG User ID is set. In Settings, save your Instagram Business Account ID then try again.');
-	}
-
-	const resolvedIgId = pageWithIg.instagram_business_account.id;
-	FB_API_CONFIG.igUserId = resolvedIgId;
-	localStorage.setItem('igUserId', resolvedIgId);
-
-	return {
-		igUserId: resolvedIgId,
-		pageAccessToken: pageWithIg.access_token,
-		pageId: pageWithIg.id,
-		pageName: pageWithIg.name,
-		fromManualFallback: false,
-	};
-}
-
-/**
- * Set IG User ID manually
- */
-function setIgUserId(userId) {
-	FB_API_CONFIG.igUserId = userId;
-	localStorage.setItem('igUserId', userId);
-}
-
-/**
- * Get IG User ID with fallback
- */
-function getIgUserId() {
-	return FB_API_CONFIG.igUserId;
-}
-
-/**
- * Set Facebook Page ID manually
- */
-function setFacebookPageId(pageId) {
-	FB_API_CONFIG.facebookPageId = pageId;
-	localStorage.setItem('facebookPageId', pageId);
-}
-
-/**
- * Get Facebook Page ID
- */
-function getFacebookPageId() {
-	return FB_API_CONFIG.facebookPageId;
-}
-
-/**
- * Helper function to extract meaningful error info from Graph API error responses
- */
-function getDetailedGraphError(errorData, defaultMsg) {
-	const error = errorData?.error;
-	if (!error) return defaultMsg;
-
-	const msg = error.message || '';
-	const code = error.code;
-	const subcode = error.error_subcode;
-
-	console.error('Full Graph API Error Details:', {
-		message: msg,
-		code: code,
-		subcode: subcode,
-		type: error.type,
-		fbtrace_id: error.fbtrace_id
-	});
-
-	// Check for image related errors
-	if (code === 9004 || msg.includes('media type') || msg.includes('Only photo or video')) {
-		return `Instagram Rejected Image (9004):\n` +
-			`1. Aspect Ratio: Ensure image is between 4:5 and 1.91:1. Use 'Adjust Image' to fix.\n` +
-			`2. Hosting: Facebook may be blocking your image host (e.g. imgBB). Use 'Adjust Image' to move it to Supabase.\n` +
-			`3. Image size: Ensure it is less than 8MB.`;
-	}
-	if (msg.includes('image_url') || msg.includes('URL is invalid') || msg.includes('accessible')) {
-		return `Image error: Instagram cannot access the image URL.\n` +
-			`Detail: ${msg}\n\n` +
-			`Solution: Ensure the URL is public. Use 'Adjust Image' to move it to Supabase Storage for better compatibility.`;
-	}
-	if (msg.includes('400') || msg.includes('Bad Request')) {
-		return `Bad Request (400): The data sent to Instagram was rejected.\n` +
-			`Message: ${msg}\n` +
-			`Common fixes: Use the 'Adjust Image' button to re-process the image through Supabase.`;
-	}
-	if (msg.includes('Image URL is invalid')) {
-		return `Invalid image URL. Make sure:\n` +
-			`1. URL starts with http:// or https://\n` +
-			`2. Image is public (test in Incognito window)\n` +
-			`3. Image format is JPEG or PNG\n` +
-			`4. Image size is less than 8MB`;
-	}
-	if (msg.includes('Unsupported post request') || msg.includes('Object with ID')) {
-		return `Invalid IG Business Account ID. Ensure it matches your token's Instagram account.`;
-	}
-	if (msg.includes('permissions error') || code === 200 || subcode === 2207052) {
-		return `Permission error: Re-generate token with instagram_basic, instagram_content_publish, pages_show_list, pages_read_engagement permissions.`;
-	}
-	if (msg.includes('Cannot parse access token') || msg.includes('Invalid OAuth')) {
-		return `Token expired or invalid. Regenerate from: https://developers.facebook.com/tools/accesstoken/`;
-	}
-	if (msg.includes('is not available') || msg.includes('not linked')) {
-		return `Account connection issue: Ensure Instagram is linked to Facebook Page and connection is confirmed.`;
-	}
-	if (msg.includes('is not a') || msg.includes('not a member')) {
-		return `Account type issue: Instagram must be a Business or Creator account (not Personal).`;
-	}
-
-	return msg || defaultMsg;
-}
-
-/**
- * Validate image URL for Instagram compatibility
- * Checks: accessibility, format, size, and aspect ratio
- */
-async function validateImageUrl(imageUrl) {
-	if (!imageUrl || typeof imageUrl !== 'string') {
-		throw new Error('Image URL is required and must be a string.');
-	}
-
-	// âœ“ Auto-fix common ImgBB typo: i.ibb.co.com -> i.ibb.co
-	if (imageUrl.includes('i.ibb.co.com')) {
-		console.warn('âš ï¸ Correcting ImgBB typo: i.ibb.co.com -> i.ibb.co');
-		imageUrl = imageUrl.replace('i.ibb.co.com', 'i.ibb.co');
-	}
-
-	let parsedUrl;
-	try {
-		parsedUrl = new URL(imageUrl);
-	} catch (error) {
-		throw new Error(`âŒ Invalid URL format: ${imageUrl}`);
-	}
-
-	// âœ“ Check 1: URL must be publicly accessible (not localhost or file path)
-	if (imageUrl.includes('localhost') || imageUrl.includes('127.0.0.1') || imageUrl.includes('file://') || imageUrl.startsWith('C:') || imageUrl.startsWith('/')) {
-		throw new Error(
-			`âŒ Image URL must be publicly accessible on the internet. ` +
-			`Your URL looks like a local file/localhost.\n` +
-			`Solutions:\n` +
-			`1. Use imgBB (recommended - always public)\n` +
-			`2. Upload to Cloudinary or Imgur\n` +
-			`3. Use a publicly accessible image URL (starts with http:// or https://)`
-		);
-	}
-
-	// âœ“ Check 2: URL must be absolute HTTP/HTTPS
-	if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-		throw new Error(
-			`âŒ Image URL must start with http:// or https://\n` +
-			`Your URL: ${imageUrl}`
-		);
-	}
-
-	// âœ“ Check 3: Host rules for ImgBB and known services
-	const host = parsedUrl.hostname.toLowerCase();
-	const safeServices = ['i.ibb.co', 'imgbb.com', 'imgur.com', 'i.imgur.com', 'cloudinary.com', 'res.cloudinary.com', 'images.unsplash.com'];
-	const isFromSafeService = safeServices.some(service => host === service || host.endsWith(`.${service}`));
-
-	if (host === 'ibb.co') {
-		throw new Error(
-			`âŒ This is an imgBB viewer URL (${imageUrl}), not a direct image URL.\n` +
-			`Please copy the direct link from imgBB (must start with https://i.ibb.co/ and end with .jpg/.jpeg/.png).`
-		);
-	}
-
-	if (isFromSafeService) {
-		console.log(`âœ“ Image from safe service detected: ${host}`);
-	}
-
-	// âœ“ Check 4: For other URLs, verify accessibility by HEAD request
-	try {
-		const headRes = await fetch(imageUrl, { method: 'HEAD' });
-		if (!headRes.ok && headRes.status !== 405) { // 405=Method Not Allowed is ok for HEAD
-			throw new Error(`Image URL returned status ${headRes.status}`);
-		}
-	} catch (error) {
-		throw new Error(
-			`âŒ Cannot access image URL. Verify it's publicly accessible:\n` +
-			`${imageUrl}\n` +
-			`Test: Open this URL in an Incognito window - if it doesn't load, Instagram API can't access it either.\n` +
-			`Error: ${error.message}`
-		);
-	}
-
-	// âœ“ Check 5: File format must be JPEG or PNG
-	const pathLower = parsedUrl.pathname.toLowerCase();
-	const isSupportedExt = /\.(jpg|jpeg|png)$/.test(pathLower);
-	if (!isSupportedExt) {
-		throw new Error(
-			`âŒ Image format must be JPEG or PNG.` +
-			`Supported: .jpg, .jpeg, .png\n` +
-			`Your URL: ${imageUrl}`
-		);
-	}
-
-	// âœ“ Check 6: Deep validation for Aspect Ratio and Dimensions
-	return new Promise((resolve, reject) => {
-		const img = new Image();
-		img.crossOrigin = "Anonymous";
-
-		const timeout = setTimeout(() => {
-			console.warn('Image dimension check timed out. Proceeding...');
-			resolve(imageUrl);
-		}, 5000);
-
-		img.onload = () => {
-			clearTimeout(timeout);
-			const ratio = img.width / img.height;
-			console.log(`Image dimensions: ${img.width}x${img.height}, Ratio: ${ratio.toFixed(2)}`);
-
-			// Instagram strict: 4:5 (0.8) to 1.91:1. Using 0.75 tolerance for safety
-			if (ratio < 0.75 || ratio > 2.0) {
-				reject(new Error(
-					`âŒ Aspect Ratio Error: ${img.width}x${img.height} (Ratio: ${ratio.toFixed(2)}).\n` +
-					`Instagram requires between 0.8 (4:5) and 1.91 (1.91:1).`
-				));
-			} else {
-				resolve(imageUrl);
-			}
-		};
-
-		img.onerror = () => {
-			clearTimeout(timeout);
-			console.warn('CORS/Load error on dimension check. Proceeding...');
-			resolve(imageUrl);
-		};
-
-		img.src = imageUrl;
-	});
-}
-
-async function publishDirectToInstagram({ imageUrl, caption }) {
-	const ctx = await getPublishingContext();
-	const igUserId = ctx.igUserId;
-	const publishToken = ctx.pageAccessToken;
-
-	try {
-		// âœ“ Validate image and get cleaned URL
-		const validatedUrl = await validateImageUrl(imageUrl);
-
-		// ðŸ›¡ï¸ NO CACHE BUSTER: Parameters like ?cb= can confuse some Meta crawler versions
-		// We rely on unique filenames from autoFixPostImage instead of URL params.
-		const cleanUrl = validatedUrl.split('?')[0];
-
-		// ðŸ§¼ Sanitize Caption (Preserving newlines for paragraphs)
-		const cleanCaption = (caption || 'Posted via Gopal\'s Diary').trim()
-			.replace(/[\{\}\[\]]/g, '')
-			.replace(/[ \t]+/g, ' '); // Reduces excessive spaces but preserves \n and \r
-
-		console.log('Publishing to IG (Direct API):', { igUserId, imageUrl: cleanUrl });
-
-		// Step 1: Create media container using Query Parameters (Highly compatible for v25.0)
-		const createParams = new URLSearchParams({
-			image_url: cleanUrl,
-			caption: cleanCaption,
-			access_token: publishToken,
-		});
-
-		const createUrl = `${FB_API_CONFIG.graphApiBaseUrl}/${igUserId}/media?${createParams.toString()}`;
-		const createRes = await fetch(createUrl, { method: 'POST' });
-
-		const createData = await createRes.json();
-		if (!createRes.ok) {
-			const detailedError = getDetailedGraphError(createData, 'Failed to create media');
-			throw new Error(detailedError);
-		}
-
-		const creationId = createData.id;
-		console.log('âœ“ Media container created:', creationId);
-
-		// Step 2: Publish container
-		const publishParams = new URLSearchParams({
-			creation_id: creationId,
-			access_token: publishToken,
-		});
-
-		const publishUrl = `${FB_API_CONFIG.graphApiBaseUrl}/${igUserId}/media_publish?${publishParams.toString()}`;
-		const publishRes = await fetch(publishUrl, { method: 'POST' });
-
-		const publishData = await publishRes.json();
-		if (!publishRes.ok) {
-			const detailedError = getDetailedGraphError(publishData, 'Failed to publish media');
-			throw new Error(detailedError);
-		}
-
-		return { success: true, id: publishData.id };
-	} catch (error) {
-		console.error('Publishing Failure:', error.message);
-		throw new Error(error.message);
-	}
-}
-
-/**
- * Publishes a post via Edge Function with direct API fallback
- */
-async function publishPost({ platform, imageUrl, caption }) {
-	const session = supabase.getSession();
-	const accessToken = session?.access_token;
-
-	if (!accessToken) {
-		throw new Error('Authentication required. Please login first.');
-	}
-
-	const targetPlatform = platform || FB_API_CONFIG.defaultPlatform;
-	const functionUrl = `${SUPABASE_URL}${FB_API_CONFIG.edgeFunctionPath}`;
-
-	if (!imageUrl) {
-		throw new Error('Image URL is required for publishing.');
-	}
-
-	if (FB_API_CONFIG.useEdgeFunction) {
-		try {
-			const controller = new AbortController();
-			const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-			const response = await fetch(functionUrl, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${accessToken}`,
-					'apikey': SUPABASE_ANON_KEY
-				},
-				body: JSON.stringify({
-					platform: targetPlatform,
-					imageUrl,
-					caption
-				}),
-				signal: controller.signal
-			});
-
-			clearTimeout(timeoutId);
-
-			let data = null;
-			try {
-				data = await response.json();
-			} catch (error) {
-				data = null;
-			}
-
-			if (response.ok) return data;
-			console.warn('Edge Function error:', response.status, data?.error || data?.message);
-		} catch (error) {
-			console.warn('Edge Function unavailable, falling back to direct Graph API:', error.message);
-		}
-	}
-
-	// Fallback: Direct Instagram Graph API
-	if (targetPlatform === 'instagram') {
-		return await publishDirectToInstagram({ imageUrl, caption });
-	}
-
-	throw new Error('Publishing failed. Please try again.');
-}
-
-/**
- * Saves a post to Supabase for later publishing
- */
-async function saveToDatabase({ imageUrl, caption, platform, post_section }) {
-	return await supabase.request('scheduled_posts', 'POST', {
-		image_url: imageUrl,
-		caption: caption,
-		platform: platform || 'instagram',
-		status: 'pending',
-		post_section: post_section || 'other'
-	});
-}
-
-/**
- * Updates a saved post status
- */
-async function updatePostStatus(postId, update = {}) {
-	return await supabase.request(`scheduled_posts?id=eq.${postId}`, 'PATCH', update);
-}
-
-/**
- * Deletes a post from DB
- */
-async function deletePost(postId) {
-	return await supabase.request(`scheduled_posts?id=eq.${postId}`, 'DELETE');
-}
-
-/**
- * Fetches pending posts from DB
- */
-async function getPendingPosts() {
-	return await supabase.request('scheduled_posts?status=eq.pending&order=created_at.desc', 'GET');
-}
-
-/**
- * Loads posts from database with optional filters
- */
-async function loadFromDatabase(filters = {}) {
-	let query = 'scheduled_posts';
-	const conditions = [];
-
-	if (filters.status) conditions.push(`status=eq.${filters.status}`);
-	if (filters.id) conditions.push(`id=eq.${filters.id}`);
-	if (filters.platform) conditions.push(`platform=eq.${filters.platform}`);
-	if (filters.post_section && filters.post_section !== 'all') {
-		conditions.push(`post_section=eq.${filters.post_section}`);
-	}
-
-	// Always sort by post_sl descending (newest first)
-	let queryString = conditions.length > 0 ? '?' + conditions.join('&') : '';
-	
-	if (queryString) {
-		queryString += '&order=post_sl.desc';
-	} else {
-		queryString = '?order=post_sl.desc';
-	}
-
-	return await supabase.request(query + queryString, 'GET');
-}
-
-/**
- * Compresses a base64 image to meet size requirements (target ~190KB)
- */
-async function compressBase64Image(base64Data, targetSizeKB = 320, toleranceKB = 10) {
-	return new Promise((resolve) => {
-		const img = new Image();
-		img.src = base64Data;
-		img.onload = () => {
-			const canvas = document.createElement('canvas');
-			let width = img.width;
-			let height = img.height;
-			
-			canvas.width = width;
-			canvas.height = height;
-			const ctx = canvas.getContext('2d');
-			ctx.drawImage(img, 0, 0, width, height);
-
-			let quality = 0.95;
-			let resultData = base64Data;
-			let currentSizeKB = (resultData.length * 3 / 4) / 1024;
-
-			console.log(`Initial size: ${currentSizeKB.toFixed(2)}KB @ ${width}x${height}`);
-
-			if (currentSizeKB <= targetSizeKB + toleranceKB) {
-				console.log('Image already within target size. Performing redraw for cleanup.');
-				// Still perform a redraw to ensure clean headers and format
-				resultData = canvas.toDataURL('image/jpeg', 0.9); 
-				resolve(resultData);
-				return;
-			}
-
-			// Stage 1: Iterative quality compression
-			while (currentSizeKB > targetSizeKB + toleranceKB && quality > 0.1) {
-				resultData = canvas.toDataURL('image/jpeg', quality);
-				currentSizeKB = (resultData.length * 3 / 4) / 1024;
-				quality -= 0.05;
-			}
-			
-			// Stage 2: Dimension reduction if still too large
-			if (currentSizeKB > targetSizeKB + toleranceKB) {
-				console.log('Quality reduction reached limit. Starting dimension reduction...');
-				let scale = 0.9;
-				while (currentSizeKB > targetSizeKB + toleranceKB && scale > 0.3) {
-					width = Math.floor(img.width * scale);
-					height = Math.floor(img.height * scale);
-					canvas.width = width;
-					canvas.height = height;
-					ctx.drawImage(img, 0, 0, width, height);
-					
-					resultData = canvas.toDataURL('image/jpeg', 0.5); // Use mid-quality while resizing
-					currentSizeKB = (resultData.length * 3 / 4) / 1024;
-					scale -= 0.1;
-				}
-			}
-
-			console.log(`Final size: ${currentSizeKB.toFixed(2)}KB (Quality: ${quality.toFixed(2)}, Res: ${width}x${height})`);
-			resolve(resultData);
-		};
-		img.onerror = () => resolve(base64Data); // Fallback to original
-	});
-}
-
-/**
- * Uploads a base64 image to Supabase Storage bucket 'insta_post_bucket'
- */
-async function uploadToSupabaseStorage(base64Data, fileName) {
-	const session = supabase.getSession();
-	const token = session?.access_token || SUPABASE_ANON_KEY;
-	
-	// Convert base64 to Blob
-	const base64Content = base64Data.split(',')[1];
-	const byteCharacters = atob(base64Content);
-	const byteNumbers = new Array(byteCharacters.length);
-	for (let i = 0; i < byteCharacters.length; i++) {
-		byteNumbers[i] = byteCharacters.charCodeAt(i);
-	}
-	const byteArray = new Uint8Array(byteNumbers);
-	const blob = new Blob([byteArray], { type: 'image/jpeg' });
-
-	const bucketName = 'insta_post_bucket';
-	const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${bucketName}/${fileName}`;
-
-	const response = await fetch(uploadUrl, {
-		method: 'POST',
-		headers: {
-			'Authorization': `Bearer ${token}`,
-			'apikey': SUPABASE_ANON_KEY,
-			'Content-Type': 'image/jpeg',
-			'x-upsert': 'true'
-		},
-		body: blob
-	});
-
-	if (!response.ok) {
-		const err = await response.json();
-		throw new Error(`Storage Upload Failed: ${err.message || response.statusText}`);
-	}
-
-	// Construct public URL
-	return `${SUPABASE_URL}/storage/v1/object/public/${bucketName}/${fileName}`;
-}
-
-/**
- * Uploads a base64 image (manual crop) to Supabase Storage and updates database
- */
-async function uploadBase64AndStore(postId, base64Data) {
-	try {
-		console.log('ðŸ”„ Starting image compression and upload process...');
-		
-		// 1. Compress image to target size (~320KB)
-		const compressedBase64 = await compressBase64Image(base64Data, 320, 10);
-		
-		// 2. Upload to Supabase Storage
-		const fileName = `manual_crop_${postId}_${Date.now()}.jpg`;
-		const newUrl = await uploadToSupabaseStorage(compressedBase64, fileName);
-
-		console.log('âœ… Uploaded to Supabase Storage:', newUrl);
-
-		// 3. Update Supabase Database
-		await updatePostStatus(postId, { image_url: newUrl });
-
-		// Propagation delay for Meta crawler
-		console.log('â³ Waiting 10 seconds for crawler propagation...');
-		await new Promise(r => setTimeout(r, 10000));
-
-		return newUrl;
-	} catch (error) {
-		console.error('âŒ Upload/Store Failed:', error.message);
-		throw error;
-	}
-}
-
-window.FBApi = {
-	publishPost,
-	publishDirectToInstagram,
-	validateImageUrl,
-	resolveIgUserId,
-	setIgUserId,
-	getIgUserId,
-	setGraphApiToken,
-	getGraphApiToken,
-	getPublishingContext,
-	testTokenAndResolveIgId,
-	saveToDatabase,
-	getPendingPosts,
-	loadFromDatabase,
-	updatePostStatus,
-	deletePost,
-	uploadBase64AndStore,
-	compressBase64Image,
-	uploadToSupabaseStorage
-};
-
-
-</script>
-	<script defer>
-		// Ensure window.FBApi is available before running this code
-		document.addEventListener('DOMContentLoaded', initializeApp);
-
-		// Utility functions
-		function escapeHtml(text) {
-			const div = document.createElement('div');
-			div.textContent = text;
-			return div.innerHTML;
-		}
-
-		const CUSTOM_CAPTION_1 = `বুঝলে, প্রিয় !?
-*
-#banglatypography
-#banglaquotes
-#kolkata
-#kolkatasutra
-#bengaliquotes
-#kolkatadiaries
-#bengaliquote
-#banglacaligraphy
-#bengali
-#dhakagram
-#gopals_diary
-#bdquotes
-#aesthetically
-#banglagram
-#dhakadiaries
-#banglakobita
-#bongquotes
-#bengalipoem
-#dhakagraam
-#kolkatagram
-#bongoquotes
-#kolkataquotes
-#bengalipoetry-Kolkata 🥰❤`;
-
-		function applyTemplate(targetId, key) {
-			const el = document.getElementById(targetId);
-			if (key === 'custom1' && el) {
-				const current = el.value.trim();
-				el.value = (current ? current + '\n\n' : '') + CUSTOM_CAPTION_1;
-			}
-		}
-
-		function toggleCaption(btn, postId) {
-			const captionEl = btn.previousElementSibling;
-			if (captionEl.classList.contains('expanded')) {
-				captionEl.classList.remove('expanded');
-				btn.textContent = 'See more';
-			} else {
-				captionEl.classList.add('expanded');
-				btn.textContent = 'See less';
-			}
-		}
-
-		// Preview Modal Logic
-		function openFullPreviewModal(imgSrc, captionText) {
-			document.getElementById('fullPreviewImage').src = imgSrc;
-			document.getElementById('fullPreviewCaption').textContent = captionText || '(No caption)';
-			document.getElementById('fullPreviewModal').classList.add('active');
-			document.body.style.overflow = 'hidden';
-		}
-
-		function closeFullPreviewModal(e) {
-			if (e && e.target.id !== 'fullPreviewModal' && !e.target.classList.contains('close-btn')) return;
-			document.getElementById('fullPreviewModal').classList.remove('active');
-			document.body.style.overflow = '';
-			setTimeout(() => { document.getElementById('fullPreviewImage').src = ''; }, 300);
-		}
-
-		// Load and render pending posts from Supabase
-		let pendingGrid, publishedGrid;
-		async function loadPendingPosts() {
-			if (!pendingGrid) return;
-			const section = document.getElementById('filterSectionPending').value;
-			pendingGrid.innerHTML = '<p style="color: #6b7280;">Loading posts...</p>';
-			try {
-				const posts = await window.FBApi.loadFromDatabase({ status: 'pending', post_section: section });
-				renderPending(posts);
-			} catch (error) {
-				pendingGrid.innerHTML = `<p style="color: #dc2626;">Error: ${escapeHtml(error.message)}</p>`;
-			}
-		}
-
-		async function loadPublishedPosts() {
-			if (!publishedGrid) return;
-			const section = document.getElementById('filterSectionPublished').value;
-			publishedGrid.innerHTML = '<p style="color: #6b7280;">Loading history...</p>';
-			try {
-				const posts = await window.FBApi.loadFromDatabase({ status: 'published', post_section: section });
-				renderPublished(posts);
-			} catch (error) {
-				publishedGrid.innerHTML = `<p style="color: #dc2626;">Error: ${escapeHtml(error.message)}</p>`;
-			}
-		}
-
-		function formatDate(isoString) {
-			if (!isoString) return 'Unknown date';
-			const date = new Date(isoString);
-			return date.toLocaleString('en-US', { 
-				month: 'short', 
-				day: 'numeric', 
-				hour: '2-digit', 
-				minute: '2-digit' 
-			});
-		}
-
-		// Render pending posts grid
-		function renderPending(posts) {
-			if (!pendingGrid) return;
-			if (!posts || posts.length === 0) {
-				pendingGrid.innerHTML = '<p style="color: #64748b; font-size: 13px; grid-column: 1/-1; text-align: center; padding: 20px;">No pending posts.</p>';
-				return;
-			}
-			pendingGrid.innerHTML = posts.map(post => {
-				const caption = post.caption || '(No caption)';
-				const needsMore = caption.length > 50;
-				return `
-				<div class="post-card">
-					<div class="post-card-img-wrapper">
-						<img src="${escapeHtml(post.image_url)}" alt="Post" onclick="openFullPreviewModal(this.src, this.parentElement.nextElementSibling.querySelector('.post-card-title').textContent)" style="cursor: pointer;">
-					</div>
-					<div class="post-card-body">
-						<div class="post-badge-container">
-							<span class="section-badge">${post.post_section || 'other'}</span>
-							<span class="section-badge" style="background:#eff6ff; color:#3b82f6;">#${post.post_sl}</span>
-						</div>
-						<div class="post-card-title">${escapeHtml(caption)}</div>
-						<div class="post-actions" style="margin-top: 8px;">
-							<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-								<button class="btn-sm btn-ghost" onclick="openEditModal('${post.id}')">Edit</button>
-								<button class="btn-sm btn-primary" onclick="publishFromDB('${post.id}')">Publish</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;}).join('');
-		}
-
-		function renderPublished(posts) {
-			if (!publishedGrid) return;
-			if (!posts || posts.length === 0) {
-				publishedGrid.innerHTML = '<p style="color: #64748b; font-size: 13px; grid-column: 1/-1; text-align: center; padding: 20px;">No published posts yet.</p>';
-				return;
-			}
-			publishedGrid.innerHTML = posts.map(post => {
-				const caption = post.caption || '(No caption)';
-				return `
-				<div class="post-card">
-					<div class="post-card-img-wrapper">
-						<img src="${escapeHtml(post.image_url)}" alt="Post" onclick="openFullPreviewModal(this.src, this.parentElement.nextElementSibling.querySelector('.post-card-title').textContent)" style="cursor: pointer;">
-					</div>
-					<div class="post-card-body">
-						<div class="post-badge-container">
-							<span class="published-badge">Published</span>
-							<span class="section-badge">${post.post_section || 'other'}</span>
-						</div>
-						<div class="post-card-title">${escapeHtml(caption)}</div>
-						<div style="font-size: 10px; color: var(--text-muted); margin-bottom: 8px;">${formatDate(post.published_at)}</div>
-						<div class="post-actions">
-							<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-								<button class="btn-sm btn-ghost" onclick="openEditModal('${post.id}')">Edit</button>
-								<button class="btn-sm btn-secondary" style="background:#eff6ff; color:#3b82f6;" onclick="repostPost('${post.id}')">Repost</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;}).join('');
-		}
-
-		async function repostPost(postId) {
-			if (!confirm('Add this post back to pending list?')) return;
-			try {
-				const posts = await window.FBApi.loadFromDatabase({ id: postId });
-				if (!posts || posts.length === 0) throw new Error('Post not found');
-				const post = posts[0];
-				
-				await window.FBApi.saveToDatabase({
-					imageUrl: post.image_url,
-					caption: post.caption,
-					platform: post.platform || 'instagram'
-				});
-				
-				alert('âœ“ Added to pending!');
-				switchTab('pendingView');
-			} catch (error) {
-				alert('Error: ' + error.message);
-			}
-		}
-
-		// Global function for onclick handlers
-		async function publishFromDB(postId, btnElement = null) {
-			const btn = btnElement || (typeof event !== 'undefined' ? (event.target || event.srcElement) : null);
-			if (!btn) {
-				console.error('CRITICAL: Cannot find button reference.');
-				return;
-			}
-			btn.disabled = true;
-			btn.textContent = 'Publishing...';
-			try {
-				const posts = await window.FBApi.loadFromDatabase({ id: postId });
-				if (!posts || posts.length === 0) throw new Error('Post not found');
-				const post = posts[0];
-
-				// ðŸ› ï¸ Check aspect ratio first
-				try {
-					await window.FBApi.validateImageUrl(post.image_url);
-				} catch (valError) {
-					if (valError.message.includes('Aspect Ratio')) {
-						throw valError; // Caught by catch block below
-					}
-				}
-
-				const result = await window.FBApi.publishPost({
-					imageUrl: post.image_url,
-					caption: post.caption || '',
-				});
-
-				await window.FBApi.updatePostStatus(postId, { 
-					status: 'published',
-					published_at: new Date().toISOString()
-				});
-				btn.textContent = 'âœ“ Published';
-				btn.style.color = '#059669';
-				btn.disabled = true; 
-				loadPendingPosts();
-			} catch (error) {
-				const is9004 = error.message.includes('9004');
-				const isRatio = error.message.includes('Aspect Ratio');
-
-				// ðŸ› ï¸ SMART FIX: If 9004 occurs but ratio is OK, it might be crawler lag
-				if (is9004 && !isRatio) {
-					console.warn('âš ï¸ Meta Crawler reported 9004. Retrying once in 5s before asking to crop...');
-					btn.textContent = 'Retrying...';
-					await new Promise(r => setTimeout(r, 5000));
-					try {
-						// Recursive call only once (manually bypass this check if needed)
-						await publishFromDB(postId, btn);
-						return;
-					} catch (retryErr) {
-						// If retry fails, continue to cropper logic
-						error = retryErr;
-					}
-				}
-
-				if (is9004 || isRatio) {
-					btn.textContent = 'Adjust Image';
-					btn.style.color = '#8b5cf6';
-					try {
-						const posts = await window.FBApi.loadFromDatabase({ id: postId });
-						const post = posts[0];
-						openCropper(post.id, post.image_url);
-					} catch (fixError) {
-						alert(`Failed to load cropper: ${fixError.message}`);
-					}
-				} else {
-					btn.textContent = 'âŒ Failed';
-					btn.style.color = '#dc2626';
-					alert(`Publish error: ${error.message}`);
-				}
-			} finally {
-				if (btn.textContent !== 'Adjust Image' && btn.textContent !== 'âœ“ Published' && btn.textContent !== 'Retrying...') {
-					btn.disabled = false;
-				}
-			}
-		}
-
-		// Cropper Global Variables
-		let cropper = null;
-		let currentPostIdForCrop = null;
-
-		function openCropper(postId, imageUrl, isNew = false) {
-			currentPostIdForCrop = postId;
-			isNewPostCrop = isNew;
-			const modal = document.getElementById('cropperModal');
-			const img = document.getElementById('cropImage');
-
-			modal.classList.add('active');
-			img.src = imageUrl;
-
-			if (cropper) cropper.destroy();
-
-			cropper = new Cropper(img, {
-				aspectRatio: 0.8, // 4:5
-				viewMode: 0, // 0 allows zooming out the image smaller than the crop box (adds borders)
-				background: false,
-				responsive: true,
-				guides: true,
-				center: true,
-				autoCropArea: 1,
-				ready() {
-					console.log('Cropper ready');
-				}
-			});
-		}
-
-		function setRatio(ratio) {
-			if (cropper) cropper.setAspectRatio(ratio);
-			const btns = document.querySelectorAll('.ratio-btn');
-			btns.forEach(b => b.classList.remove('active'));
-			if (window.event && window.event.target) {
-				window.event.target.classList.add('active');
-			}
-		}
-
-		function fitImage() {
-			if (!cropper) return;
-			const cropBoxData = cropper.getCropBoxData();
-			const imageData = cropper.getImageData();
-			
-			// Calculate the perfect zoom scale to fit the image entirely inside the crop box
-			const scale = Math.min(
-				cropBoxData.width / imageData.naturalWidth,
-				cropBoxData.height / imageData.naturalHeight
-			);
-			
-			// Apply zoom and center
-			cropper.zoomTo(scale);
-			
-			// Small timeout to ensure zoom is applied before moving
-			setTimeout(() => {
-				const newImageData = cropper.getImageData();
-				cropper.moveTo(
-					cropBoxData.left + (cropBoxData.width - newImageData.width) / 2,
-					cropBoxData.top + (cropBoxData.height - newImageData.height) / 2
-				);
-			}, 50);
-		}
-
-		function closeCropper() {
-			document.getElementById('cropperModal').classList.remove('active');
-			if (cropper) cropper.destroy();
-			cropper = null;
-		}
-
-		// Edit View Logic
-		let currentPostIdForEdit = null;
-		async function openEditModal(postId) {
-			currentPostIdForEdit = postId;
-			const sectionSelect = document.getElementById('editSection');
-			const captionArea = document.getElementById('editCaption');
-
-			try {
-				const posts = await window.FBApi.loadFromDatabase({ id: postId });
-				if (!posts || posts.length === 0) throw new Error('Post not found');
-				const post = posts[0];
-
-				sectionSelect.value = post.post_section || 'other';
-				captionArea.value = post.caption || '';
-				
-				// Using the globally defined switchTab inside the initializeApp scope
-				// Since openEditModal is defined outside but called, we need to make sure 
-				// it has access or we move it inside.
-				// Based on the structure, these functions are actually outside in a separate script tag.
-				// Let's check the script tags again.
-				window.currentSwitchTab('editView');
-			} catch (error) {
-				alert('Error loading post: ' + error.message);
-			}
-		}
-
-		function closeEditView() {
-			window.currentSwitchTab('pendingView');
-			currentPostIdForEdit = null;
-		}
-
-		document.getElementById('saveEditBtn').addEventListener('click', async () => {
-			if (!currentPostIdForEdit) return;
-			const btn = document.getElementById('saveEditBtn');
-			const section = document.getElementById('editSection').value;
-			const caption = document.getElementById('editCaption').value;
-
-			btn.disabled = true;
-			btn.textContent = 'Updating...';
-
-			try {
-				await window.FBApi.updatePostStatus(currentPostIdForEdit, { 
-					post_section: section,
-					caption: caption 
-				});
-				closeEditView();
-				loadPendingPosts();
-				loadPublishedPosts();
-			} catch (error) {
-				alert('Failed to update: ' + error.message);
-			} finally {
-				btn.disabled = false;
-				btn.textContent = 'Update Changes';
-			}
-		});
-
-		// ðŸ–¼ï¸ Variable to track if we're cropping for a NEW post or an EXISTING one
-		let isNewPostCrop = false;
-
-		// Handle Save Manual Crop
-		document.getElementById('saveCropBtn').addEventListener('click', async () => {
-			if (!cropper) return;
-
-			const btn = document.getElementById('saveCropBtn');
-			const originalText = btn.textContent;
-			btn.disabled = true;
-			btn.textContent = 'Uploading...';
-
-			try {
-				const canvas = cropper.getCroppedCanvas({
-					width: 1080,
-					imageSmoothingQuality: 'high',
-					fillColor: '#FFFFFF', // Clean white background for empty padding
-				});
-
-				const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-
-				// ðŸ› ï¸ Check if we are updating or creating new
-				if (isNewPostCrop) {
-					console.log('ðŸš€ Saving crop for NEW post...');
-					const compressed = await window.FBApi.compressBase64Image(dataUrl, 320, 10);
-					const fileName = `direct_upload_${Date.now()}.jpg`;
-					const finalUrl = await window.FBApi.uploadToSupabaseStorage(compressed, fileName);
-					
-					document.getElementById('manualImageUrl').value = finalUrl;
-					document.getElementById('manualStatus').textContent = 'âœ“ Image ready for new post';
-					document.getElementById('manualStatus').style.color = '#059669';
-					if (typeof updateAddPostPreview === 'function') updateAddPostPreview(finalUrl);
-					
-					// ðŸ› ï¸ Clear file input to avoid double upload in saveManualBtn
-					const fileInput = document.getElementById('imageFileInput');
-					if (fileInput) {
-						fileInput.value = '';
-						document.getElementById('fileNameDisplay').textContent = 'No file chosen';
-					}
-
-					closeCropper();
-				} else {
-					console.log('ðŸš€ Saving manual crop for existing post:', currentPostIdForCrop);
-					await window.FBApi.uploadBase64AndStore(currentPostIdForCrop, dataUrl);
-
-					closeCropper();
-					await loadPendingPosts();
-
-					alert('Image saved! Continuing publication...');
-
-					// Re-publish - wait for DOM to update and find the new button
-					const gridBtn = document.querySelector(`button[onclick*="'${currentPostIdForCrop}'"]`);
-					if (gridBtn) {
-						await publishFromDB(currentPostIdForCrop, gridBtn);
-					}
-				}
-			} catch (error) {
-				alert('Failed: ' + error.message);
-			} finally {
-				btn.disabled = false;
-				btn.textContent = originalText;
-			}
-		});
-
-		function initializeApp() {
-			const loginCard = document.getElementById('loginCard');
-			const dashboardCard = document.getElementById('dashboardCard');
-			const tabPending = document.getElementById('tabPending');
-			const tabPublished = document.getElementById('tabPublished');
-			const tabManual = document.getElementById('tabManual');
-			const tabSettings = document.getElementById('tabSettings');
-			const pendingView = document.getElementById('pendingView');
-			const publishedView = document.getElementById('publishedView');
-			const manualView = document.getElementById('manualView');
-			const settingsView = document.getElementById('settingsView');
-			const editView = document.getElementById('editView');
-			const loginBtn = document.getElementById('loginBtn');
-			const logoutBtn = document.getElementById('logoutBtn');
-			const refreshBtn = document.getElementById('refreshBtn');
-			const saveManualBtn = document.getElementById('saveManualBtn');
-			const validateImageBtn = document.getElementById('validateImageBtn');
-			const igUserIdSaveBtn = document.getElementById('igUserIdSaveBtn');
-			const facebookPageIdSaveBtn = document.getElementById('facebookPageIdSaveBtn');
-			const graphApiTokenSaveBtn = document.getElementById('graphApiTokenSaveBtn');
-			const testTokenBtn = document.getElementById('testTokenBtn');
-			const loginStatus = document.getElementById('loginStatus');
-			const manualStatus = document.getElementById('manualStatus');
-			const igUserIdStatus = document.getElementById('igUserIdStatus');
-			const facebookPageIdStatus = document.getElementById('facebookPageIdStatus');
-			const graphApiTokenStatus = document.getElementById('graphApiTokenStatus');
-			const emailInput = document.getElementById('email');
-			const passwordInput = document.getElementById('password');
-			const userInfo = document.getElementById('userInfo');
-			const manualImageUrl = document.getElementById('manualImageUrl');
-			const manualCaption = document.getElementById('manualCaption');
-			const igUserIdInput = document.getElementById('igUserIdInput');
-			const facebookPageIdInput = document.getElementById('facebookPageIdInput');
-			const graphApiTokenInput = document.getElementById('graphApiTokenInput');
-
-			pendingGrid = document.getElementById('pendingGrid');
-			publishedGrid = document.getElementById('publishedGrid');
-
-			function loadIgUserIdUI() {
-				const saved = window.FBApi.getIgUserId();
-				if (saved) {
-					igUserIdInput.value = saved;
-					igUserIdStatus.textContent = 'âœ“ Instagram ID saved: ' + saved;
-					igUserIdStatus.style.color = '#059669';
-				}
-				const savedPageId = localStorage.getItem('facebookPageId');
-				if (savedPageId) {
-					facebookPageIdInput.value = savedPageId;
-					facebookPageIdStatus.textContent = 'âœ“ Facebook Page ID saved: ' + savedPageId;
-					facebookPageIdStatus.style.color = '#059669';
-				}
-				const savedToken = window.FBApi.getGraphApiToken();
-				if (savedToken) {
-					graphApiTokenInput.value = savedToken;
-					graphApiTokenStatus.textContent = 'âœ“ Token loaded';
-					graphApiTokenStatus.style.color = '#059669';
-				}
-			}
-
-			igUserIdSaveBtn.addEventListener('click', () => {
-				const id = igUserIdInput.value.trim();
-				if (!id) return;
-				window.FBApi.setIgUserId(id);
-				igUserIdStatus.textContent = 'âœ“ Saved';
-				igUserIdStatus.style.color = '#059669';
-			});
-
-			facebookPageIdSaveBtn.addEventListener('click', () => {
-				const pageId = facebookPageIdInput.value.trim();
-				if (!pageId) return;
-				localStorage.setItem('facebookPageId', pageId);
-				facebookPageIdStatus.textContent = 'âœ“ Saved';
-				facebookPageIdStatus.style.color = '#059669';
-			});
-
-			graphApiTokenSaveBtn.addEventListener('click', () => {
-				const token = graphApiTokenInput.value.trim();
-				if (!token) return;
-				window.FBApi.setGraphApiToken(token);
-				graphApiTokenStatus.textContent = 'âœ“ Saved';
-				graphApiTokenStatus.style.color = '#059669';
-			});
-
-			testTokenBtn.addEventListener('click', async () => {
-				testTokenBtn.disabled = true;
-				try {
-					const result = await window.FBApi.testTokenAndResolveIgId();
-					if (result.igUserId) igUserIdInput.value = result.igUserId;
-					graphApiTokenStatus.textContent = 'âœ“ Connected';
-					graphApiTokenStatus.style.color = '#059669';
-				} catch (error) {
-					graphApiTokenStatus.textContent = 'âŒ ' + error.message;
-				} finally {
-					testTokenBtn.disabled = false;
-				}
-			});
-
-			function switchTab(viewId) {
-				[pendingView, publishedView, manualView, settingsView, editView].forEach((view) => view?.classList.add('hidden'));
-				[tabPending, tabPublished, tabManual, tabSettings].forEach((tab) => tab.classList.remove('active'));
-				
-				if (viewId === 'pendingView') {
-					pendingView.classList.remove('hidden'); tabPending.classList.add('active'); loadPendingPosts();
-				} else if (viewId === 'publishedView') {
-					publishedView.classList.remove('hidden'); tabPublished.classList.add('active'); loadPublishedPosts();
-				} else if (viewId === 'manualView') {
-					manualView.classList.remove('hidden'); tabManual.classList.add('active');
-				} else if (viewId === 'settingsView') {
-					settingsView.classList.remove('hidden'); tabSettings.classList.add('active'); loadIgUserIdUI();
-				} else if (viewId === 'editView') {
-					editView.classList.remove('hidden');
-				}
-			}
-
-			window.currentSwitchTab = switchTab;
-
-			tabPending.addEventListener('click', () => switchTab('pendingView'));
-			tabPublished.addEventListener('click', () => switchTab('publishedView'));
-			tabManual.addEventListener('click', () => switchTab('manualView'));
-			tabSettings.addEventListener('click', () => switchTab('settingsView'));
-
-			async function bootstrapAuth() {
-				const session = supabase.getSession();
-				if (session?.user) showDashboard(session.user);
-				else showLogin();
-			}
-
-			function showDashboard(user) {
-				loginCard.classList.add('hidden'); dashboardCard.classList.remove('hidden');
-				userInfo.textContent = `Admin: ${user.email}`;
-				loadPendingPosts();
-			}
-
-			function showLogin() {
-				loginCard.classList.remove('hidden'); dashboardCard.classList.add('hidden');
-			}
-
-			loginBtn.addEventListener('click', async () => {
-				const email = emailInput.value.trim();
-				const password = passwordInput.value;
-				try {
-					const session = await supabase.signIn(email, password);
-					showDashboard(session.user);
-				} catch (error) {
-					loginStatus.textContent = error.message;
-				}
-			});
-
-			logoutBtn.addEventListener('click', async () => {
-				await supabase.signOut(); showLogin();
-			});
-
-			validateImageBtn.addEventListener('click', async () => {
-				const imageUrl = manualImageUrl.value.trim();
-				if (!imageUrl) return;
-				try {
-					await window.FBApi.validateImageUrl(imageUrl);
-					manualStatus.textContent = 'âœ“ Valid';
-					manualStatus.style.color = '#059669';
-				} catch (error) {
-					manualStatus.textContent = error.message;
-					manualStatus.style.color = '#dc2626';
-				}
-			});
-
-			saveManualBtn.addEventListener('click', async () => {
-				const imageUrl = manualImageUrl.value.trim();
-				const caption = manualCaption.value.trim();
-				const post_section = document.getElementById('manualSection').value;
-				const fileInput = document.getElementById('imageFileInput');
-				const file = fileInput.files[0];
-
-				if (!imageUrl && !file) {
-					alert('Please enter a URL or choose a file.');
-					return;
-				}
-
-				saveManualBtn.disabled = true;
-				saveManualBtn.textContent = 'Saving...';
-				manualStatus.textContent = 'Processing...';
-
-				try {
-					let finalUrl = imageUrl;
-
-					// ðŸ› ï¸ Only upload if there's a file AND no URL yet (avoids double upload after crop)
-					if (file && !imageUrl) {
-						// Process file upload
-						const reader = new FileReader();
-						const base64Data = await new Promise((resolve) => {
-							reader.onload = (e) => resolve(e.target.result);
-							reader.readAsDataURL(file);
-						});
-
-						const tempId = 'new_' + Date.now();
-						const compressed = await window.FBApi.compressBase64Image(base64Data, 320, 10);
-						const fileName = `direct_upload_${tempId}.jpg`;
-						finalUrl = await window.FBApi.uploadToSupabaseStorage(compressed, fileName);
-					}
-
-					await window.FBApi.saveToDatabase({ imageUrl: finalUrl, caption, platform: 'instagram', post_section });
-					manualStatus.textContent = 'âœ“ Saved to database';
-					manualStatus.style.color = '#059669';
-					
-					manualImageUrl.value = ''; 
-					manualCaption.value = '';
-					fileInput.value = '';
-					document.getElementById('fileNameDisplay').textContent = 'No file chosen';
-					if (typeof updateAddPostPreview === 'function') updateAddPostPreview('');
-					
-					setTimeout(() => {
-						switchTab('pendingView');
-					}, 1500);
-
-				} catch (error) {
-					manualStatus.textContent = 'âŒ Error: ' + error.message;
-					manualStatus.style.color = '#dc2626';
-				} finally {
-					saveManualBtn.disabled = false;
-					saveManualBtn.textContent = 'Save to Database';
-				}
-			});
-
-			document.getElementById('imageFileInput').addEventListener('change', (e) => {
-				const file = e.target.files[0];
-				if (file) {
-					const reader = new FileReader();
-					reader.onload = (e) => {
-						openCropper('new', e.target.result, true);
-					};
-					reader.readAsDataURL(file);
-					document.getElementById('fileNameDisplay').textContent = file.name;
-				}
-			});
-
-			// Setup Add Post Preview
-			window.updateAddPostPreview = function(url) {
-				const previewImg = document.getElementById('manualImagePreview');
-				const placeholder = document.getElementById('manualImagePreviewPlaceholder');
-				if (url) {
-					previewImg.src = url;
-					previewImg.style.display = 'block';
-					placeholder.style.display = 'none';
-				} else {
-					previewImg.src = '';
-					previewImg.style.display = 'none';
-					placeholder.style.display = 'block';
-				}
-			};
-			document.getElementById('manualImageUrl').addEventListener('input', function() {
-				updateAddPostPreview(this.value.trim());
-			});
-
-			refreshBtn.addEventListener('click', loadPendingPosts);
-			bootstrapAuth();
-		}
-	</script>
+    <div class="container">
+        <!-- Login Panel -->
+        <div id="loginPanel" class="card">
+            <div class="logo-area">
+                <div class="logo-icon">📸</div>
+                <h1>Welcome Back</h1>
+                <p class="subtitle">Access your Instagram management portal</p>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="admin@example.com">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+
+            <button id="loginBtn" class="btn btn-primary">Sign In</button>
+            <div id="errorMsg"></div>
+        </div>
+
+        <!-- Portal Panel -->
+        <div id="portalPanel" class="card hidden">
+            <div class="logo-area">
+                <div class="logo-icon">✨</div>
+                <h1>Select Account</h1>
+                <p class="subtitle" id="userWelcome">Connected as admin</p>
+            </div>
+
+            <div class="portal-grid">
+                <a href="kobitar_sohor/index.html" class="portal-btn">
+                    <span class="title">kobitar_sohor</span>
+                    <span class="desc">Manage poems and visual quotes</span>
+                </a>
+                <a href="gopals_diary/index.html" class="portal-btn">
+                    <span class="title">Gopal's Diary Quote</span>
+                    <span class="desc">Official diary post management</span>
+                </a>
+            </div>
+
+            <a class="logout-link" id="logoutBtn">Log Out</a>
+            <p id="inactivityMsg" style="font-size: 10px; color: var(--text-muted); margin-top: 16px;">Auto-logout after 15m of inactivity</p>
+        </div>
+    </div>
+
+    <!-- Auth Library dependency -->
+    <script src="../admin/auth.js"></script>
+    <script>
+        const loginPanel = document.getElementById('loginPanel');
+        const portalPanel = document.getElementById('portalPanel');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const userWelcome = document.getElementById('userWelcome');
+
+
+        // --- Inactivity Logic ---
+        const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
+        let inactivityTimer;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            if (supabase.getSession()) {
+                inactivityTimer = setTimeout(forceLogout, INACTIVITY_LIMIT);
+            }
+        }
+
+        async function forceLogout() {
+            console.log("Inactivity logout triggered");
+            await supabase.signOut();
+            window.location.reload();
+        }
+
+        // --- Session Logic ---
+        async function checkSession() {
+            const session = supabase.getSession();
+            if (session) {
+                const user = JSON.parse(localStorage.getItem('supabase_user'));
+                showPortal(user);
+                resetInactivityTimer();
+                setupInactivityListeners();
+            } else {
+                showLogin();
+            }
+        }
+
+        function setupInactivityListeners() {
+            ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+                document.addEventListener(evt, resetInactivityTimer, true);
+            });
+        }
+
+        function showPortal(user) {
+            loginPanel.classList.add('hidden');
+            portalPanel.classList.remove('hidden');
+            if (user && user.email) {
+                userWelcome.textContent = `Active: ${user.email}`;
+            }
+        }
+
+        function showLogin() {
+            loginPanel.classList.remove('hidden');
+            portalPanel.classList.add('hidden');
+        }
+
+        // --- Event Listeners ---
+        loginBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                errorMsg.textContent = 'Please fill all fields';
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verifying...';
+            errorMsg.textContent = '';
+
+            try {
+                const session = await supabase.signIn(email, password);
+                window.location.reload(); // Reload to trigger session check and timers
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.signOut();
+            window.location.reload();
+        });
+
+        // Handle ENTER key
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !loginPanel.classList.contains('hidden')) {
+                loginBtn.click();
+            }
+        });
+
+        // Initialize
+        checkSession();
+    </script>
 </body>
-
 </html>
