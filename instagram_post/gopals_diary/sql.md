@@ -1,11 +1,20 @@
+-- ১. বর্তমানে কি কি জব আছে তা দেখা (এটি রান করে রেজাল্ট দেখুন)
+SELECT * FROM cron.job;
+
+-- ২. এই ফাংশন ইউআরএল (instagram-gopals-diary-job) যুক্ত সব শিডিউল মুছে দেওয়া
+SELECT cron.unschedule(jobid) 
+FROM cron.job 
+WHERE command LIKE '%instagram-gopals-diary-job%';
+
+
 -- আগের শিডিউল ডিলিট করা
 select cron.unschedule(jobid) from cron.job where jobname = 'instagram-gopals-diary-job';
 
--- নতুন শিডিউল (প্রতি ১৫ মিনিট অন্তর চেক করবে)
+-- নতুন শিডিউল
 select
   cron.schedule(
     'instagram-gopals-diary-job',
-    '*/15 * * * *',  -- এই অংশটি প্রতি ১৫ মিনিটে একবার চেক করবে
+    '*/15 * * * *',
     $$
     select
       net.http_post(
