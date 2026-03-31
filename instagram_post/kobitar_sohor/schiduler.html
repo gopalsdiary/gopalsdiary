@@ -64,7 +64,10 @@
                 <div class="form-group"><label>Start Date</label><input type="date" id="startDate" required></div>
                 <label>Sections & Counts</label>
                 <div id="sectionList" class="section-list">
-                    <div class="section-row" data-section="gopalsdiary"><span class="section-name">Gopal's Diary</span><span class="section-progress" id="prog_gopalsdiary">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="gopalsdiary"><span class="section-name">Gopal's Diary 1</span><span class="section-progress" id="prog_gopalsdiary">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="gopalsdiary_2"><span class="section-name">Gopal's Diary 2</span><span class="section-progress" id="prog_gopalsdiary_2">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="gopalsdiary_3"><span class="section-name">Gopal's Diary 3</span><span class="section-progress" id="prog_gopalsdiary_3">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
+                    <div class="section-row" data-section="gopalsdiary_4"><span class="section-name">Gopal's Diary 4</span><span class="section-progress" id="prog_gopalsdiary_4">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
                     <div class="section-row" data-section="mehedi"><span class="section-name">Mehedi</span><span class="section-progress" id="prog_mehedi">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
                     <div class="section-row" data-section="kobir"><span class="section-name">Kobir</span><span class="section-progress" id="prog_kobir">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
                     <div class="section-row" data-section="other"><span class="section-name">Other</span><span class="section-progress" id="prog_other">0/0</span><div class="section-input-wrapper"><input type="number" class="post-count-input" value="0" min="0"></div></div>
@@ -146,7 +149,7 @@
         }
 
         async function fetchSectionStats() {
-            const sections = ['gopalsdiary', 'mehedi', 'kobir', 'other'];
+            const sections = ['gopalsdiary', 'gopalsdiary_2', 'gopalsdiary_3', 'gopalsdiary_4', 'mehedi', 'kobir', 'other'];
             for (const s of sections) {
                 try {
                     const { data } = await supabase.from('z_insta_post_db').eq('post_section', s).select('status_kobitar_sohor');

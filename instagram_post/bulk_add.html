@@ -104,7 +104,10 @@
                 <label>Set Global Section (Applies to all)</label>
                 <select id="globalSection" onchange="applyGlobalSection()">
                     <option value="">-- Select --</option>
-                    <option value="gopalsdiary">Gopal's Diary</option>
+                    <option value="gopalsdiary">Gopal's Diary 1</option>
+                    <option value="gopalsdiary_2">Gopal's Diary 2</option>
+                    <option value="gopalsdiary_3">Gopal's Diary 3</option>
+                    <option value="gopalsdiary_4">Gopal's Diary 4</option>
                     <option value="mehedi">Mehedi</option>
                     <option value="kobir">Kobir</option>
                     <option value="other">Other</option>
@@ -167,8 +170,8 @@
 
     let itemsData = [];
 
-    // Compress Base64 Image if > 470kb
-    async function compressBase64(base64Data, targetKB = 470) {
+    // Compress Base64 Image if > targetKB (default 450KB for safety)
+    async function compressBase64(base64Data, targetKB = 450) {
         return new Promise((resolve) => {
             const img = new Image();
             img.src = base64Data;
@@ -176,25 +179,38 @@
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
+
+                // Max dimension for Instagram/Social 1200px
+                const MAX_DIM = 1200;
+                if (width > MAX_DIM || height > MAX_DIM) {
+                    if (width > height) {
+                        height *= MAX_DIM / width;
+                        width = MAX_DIM;
+                    } else {
+                        width *= MAX_DIM / height;
+                        height = MAX_DIM;
+                    }
+                }
+
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
 
-                let quality = 0.95;
-                let resultData = base64Data;
-                let currentKB = (resultData.length * 3 / 4) / 1024;
+                let quality = 0.9;
+                let resultData = canvas.toDataURL('image/jpeg', quality);
+                let currentSizeKB = (resultData.length * 0.75) / 1024;
 
-                if (currentKB <= targetKB) {
-                    resolve(resultData);
-                    return;
-                }
-
-                while (currentKB > targetKB && quality > 0.1) {
+                // Loop to reduce quality if still too large
+                while (currentSizeKB > targetKB && quality > 0.1) {
+                    quality -= 0.1;
                     resultData = canvas.toDataURL('image/jpeg', quality);
-                    currentKB = (resultData.length * 3 / 4) / 1024;
-                    quality -= 0.05;
+                    currentSizeKB = (resultData.length * 0.75) / 1024;
                 }
+                
+                console.log(`Compressed: ${Math.round(currentSizeKB)}KB, Quality: ${quality.toFixed(2)}, Res: ${width}x${height}`);
                 resolve(resultData);
             };
             img.onerror = () => resolve(base64Data);
@@ -208,6 +224,32 @@
             reader.readAsDataURL(file);
             reader.onload = () => resolve(reader.result);
             reader.onerror = error => reject(error);
+        });
+    }
+
+    // Auto Crop to target ratio (centered)
+    async function autoCropImage(base64, targetRatio) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                let sw = img.width, sh = img.height;
+                let cw, ch, sx, sy;
+
+                if ((sw / sh) > targetRatio) {
+                    ch = sh; cw = sh * targetRatio;
+                    sx = (sw - cw) / 2; sy = 0;
+                } else {
+                    cw = sw; ch = sw / targetRatio;
+                    sx = 0; sy = (sh - ch) / 2;
+                }
+
+                canvas.width = cw; canvas.height = ch;
+                ctx.drawImage(img, sx, sy, cw, ch, 0, 0, cw, ch);
+                resolve(canvas.toDataURL('image/jpeg', 0.95));
+            };
         });
     }
 
@@ -241,8 +283,14 @@
         });
 
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.message || 'Upload failed');
+            let errorText = 'Upload failed';
+            try {
+                const err = await response.json();
+                errorText = err.message || err.error || errorText;
+            } catch (e) {
+                try { errorText = await response.text() || errorText; } catch (_) {}
+            }
+            throw new Error(errorText);
         }
 
         return `${SUPABASE_URL}/storage/v1/object/public/${bucketName}/${fileName}`;
@@ -294,8 +342,18 @@
             });
             
             const ratio = img.width / img.height;
-            // Instagram ratio requirement: 0.8 (4:5) to 1.91 (1.91:1)
+            const target = 0.8; // 4:5
+            const tolerance = 0.10; // 10%
+            
+            // If already within 4:5 range or within 10% of 4:5, auto-crop or approve
             if (ratio >= 0.79 && ratio <= 1.92) {
+                item.status = 'ready';
+            } else if (ratio >= (target * (1 - tolerance)) && ratio <= (target * (1 + tolerance))) {
+                // Auto crop to 4:5 if within 10%
+                console.log(`Auto-cropping item ${item.id} (Ratio: ${ratio.toFixed(2)})`);
+                const cropped = await autoCropImage(base64, target);
+                item.base64 = cropped;
+                item.previewUrl = cropped;
                 item.status = 'ready';
             } else {
                 item.status = 'attention';
@@ -309,38 +367,31 @@
     }
 
     async function checkAndStartUploads() {
-        // If there are items still checking or needing attention, do not upload yet.
-        if (itemsData.some(i => i.status === 'checking' || i.status === 'attention')) {
-            checkAllUploaded(); 
-            return;
-        }
-        
-        // Find ready items and start uploading
-        for (let item of itemsData) {
-            if (item.status === 'ready') {
-                item.status = 'uploading';
-                renderGrid();
-                processUpload(item); // runs async without blocking
-            }
-        }
+        // Just update UI status for button enablement
+        checkAllReady();
     }
 
-    async function processUpload(item) {
+    // Now individual upload happens inside the final save process
+    async function uploadSingleItem(item) {
         try {
-            const compressedBase64 = await compressBase64(item.base64, 470);
+            item.status = 'uploading';
+            renderGrid();
+
+            // Target 450KB to stay under the 500KB bucket limit
+            const compressedBase64 = await compressBase64(item.base64, 450);
             const fileName = `bulk_${Date.now()}_${Math.floor(Math.random() * 1000)}.jpg`;
             const uploadedUrl = await uploadBase64ToBucket(compressedBase64, fileName);
             
             item.imageUrl = uploadedUrl;
             item.status = 'uploaded';
-            
             renderGrid();
-            checkAllUploaded();
+            return true;
         } catch (error) {
-            console.error(error);
+            console.error('Upload Process Error:', error);
             item.status = 'error';
+            item._errorMsg = error.message;
             renderGrid();
-            checkAllUploaded();
+            return false;
         }
     }
 
@@ -362,9 +413,13 @@
                             <span class="status-badge status-${item.status}">
                                 ${statusLabel}
                             </span>
+                            ${item.status === 'error' && item._errorMsg ? `<div style="color: #ef4444; font-size: 10px; margin-top: 4px; word-break: break-word;">${item._errorMsg}</div>` : ''}
                             ${item.status === 'attention' ? `<button class="btn btn-ghost" style="padding: 4px 8px; font-size: 11px; margin-top: 4px; border-color: #ef4444; color: #ef4444;" onclick="openCropper('${item.id}')">Crop Image</button>` : ''}
                             <select onchange="updateItemData('${item.id}', 'section', this.value)">
-                                <option value="gopalsdiary" ${item.section === 'gopalsdiary' ? 'selected' : ''}>Gopal's Diary</option>
+                                <option value="gopalsdiary" ${item.section === 'gopalsdiary' ? 'selected' : ''}>Gopal's Diary 1</option>
+                                <option value="gopalsdiary_2" ${item.section === 'gopalsdiary_2' ? 'selected' : ''}>Gopal's Diary 2</option>
+                                <option value="gopalsdiary_3" ${item.section === 'gopalsdiary_3' ? 'selected' : ''}>Gopal's Diary 3</option>
+                                <option value="gopalsdiary_4" ${item.section === 'gopalsdiary_4' ? 'selected' : ''}>Gopal's Diary 4</option>
                                 <option value="mehedi" ${item.section === 'mehedi' ? 'selected' : ''}>Mehedi</option>
                                 <option value="kobir" ${item.section === 'kobir' ? 'selected' : ''}>Kobir</option>
                                 <option value="other" ${item.section === 'other' ? 'selected' : ''}>Other</option>
@@ -411,10 +466,13 @@
         });
     }
 
-    function checkAllUploaded() {
-        const everythingProcessed = itemsData.length > 0 && itemsData.every(i => i.status === 'uploaded' || i.status === 'error');
-        const anyUploaded = itemsData.some(i => i.status === 'uploaded');
-        document.getElementById('saveAllBtn').disabled = !everythingProcessed || !anyUploaded;
+    function checkAllReady() {
+        const hasItems = itemsData.length > 0;
+        const noChecking = !itemsData.some(i => i.status === 'checking');
+        const noAttention = !itemsData.some(i => i.status === 'attention');
+        const anyToProcess = itemsData.some(i => i.status === 'ready' || i.status === 'uploaded');
+        
+        document.getElementById('saveAllBtn').disabled = !hasItems || !noChecking || !noAttention || !anyToProcess;
     }
 
     async function saveAllToDatabase() {
@@ -422,32 +480,59 @@
         const statusTxt = document.getElementById('saveStatus');
         
         btn.disabled = true;
-        btn.textContent = 'Saving...';
+        btn.textContent = 'Processing...';
         statusTxt.textContent = '';
         statusTxt.style.color = 'var(--text-main)';
 
         let successCount = 0;
         let failCount = 0;
 
-        for (const item of itemsData) {
-            if (item.status !== 'uploaded' || !item.imageUrl) continue;
+        const itemsToProcess = itemsData.filter(item => 
+            item.status === 'ready' || item.status === 'uploaded'
+        );
 
-            const payload = {
-                image_url: item.imageUrl,
-                caption: item.caption,
-                platform: 'instagram',
-                status_kobitar_sohor: 'pending',
-                status_gopals_diary: 'pending',
-                post_section: item.section || 'other'
-            };
+        const CONCURRENCY = 5;
+        for (let i = 0; i < itemsToProcess.length; i += CONCURRENCY) {
+            const batch = itemsToProcess.slice(i, i + CONCURRENCY);
+            
+            await Promise.all(batch.map(async (item) => {
+                try {
+                    // 1. Handle Storage Upload
+                    if (item.status === 'ready') {
+                        const success = await uploadSingleItem(item);
+                        if (!success) {
+                            failCount++;
+                            return;
+                        }
+                    }
 
-            try {
-                await supabase.request('z_insta_post_db', 'POST', payload);
-                successCount++;
-            } catch (err) {
-                console.error('Failed to save', item.id, err);
-                failCount++;
-            }
+                    if (item.status !== 'uploaded' || !item.imageUrl) {
+                        failCount++;
+                        return;
+                    }
+
+                    // 2. Handle Database Insertion
+                    const payload = {
+                        image_url: item.imageUrl,
+                        caption: item.caption,
+                        platform: 'instagram',
+                        status_kobitar_sohor: 'pending',
+                        status_gopals_diary: 'pending',
+                        post_section: item.section || 'other'
+                    };
+
+                    await supabase.request('z_insta_post_db', 'POST', payload);
+                    successCount++;
+                } catch (err) {
+                    console.error('Batch Item Error:', item.id, err);
+                    item.status = 'error';
+                    item._errorMsg = 'Error: ' + err.message;
+                    renderGrid();
+                    failCount++;
+                }
+            }));
+            
+            statusTxt.textContent = `Processing batch ${Math.ceil((i + batch.length) / CONCURRENCY)} of ${Math.ceil(itemsToProcess.length / CONCURRENCY)}...`;
         }
 
         if (failCount === 0) {
@@ -461,8 +546,6 @@
             statusTxt.textContent = `Saved ${successCount}, Failed ${failCount}. Check console.`;
             btn.disabled = false;
             btn.textContent = 'Retry Failed';
-            
-            // Allow retry of unsaved ones but we don't track it deeply here just fail and let them manually re-attempt
         }
     }
 
