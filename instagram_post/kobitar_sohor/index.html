@@ -248,6 +248,35 @@
 	@media(max-width: 767px) { .lightbox-details { background: #000; color: #fff; padding: 16px; font-size: 13px; } }
 
     /* Scheduled Table Styles */
+    .time-slot-tag {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 6px 10px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .time-slot-tag input {
+        border: none;
+        background: transparent;
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+        width: 75px;
+        outline: none;
+    }
+    .time-slot-tag span {
+        cursor: pointer;
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: bold;
+        transition: color 0.2s;
+    }
+    .time-slot-tag span:hover {
+        color: #ef4444;
+    }
     .data-table { width: 100%; border-collapse: collapse; margin-top: 16px; min-width: 600px; }
     .data-table th { text-align: left; padding: 12px; font-size: 11px; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #f3f4f6; }
     .data-table td { padding: 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
@@ -388,9 +417,31 @@
 				</div>
                 
                 <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
-                    <div class="card" style="box-shadow: none; border-color: #f1f5f9; padding: 16px; margin: 0;">
-                        <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 10px;">Start Date</label>
-                        <input type="date" id="batchStartDate" style="width: 100%; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+                        <div class="card" style="box-shadow: none; border-color: #f1f5f9; padding: 16px; margin: 0;">
+                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 10px;">Start Date</label>
+                            <input type="date" id="batchStartDate" style="width: 100%; border-radius: 8px;">
+                        </div>
+                        <div class="card" style="box-shadow: none; border-color: #f1f5f9; padding: 16px; margin: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <label style="display: block; font-size: 13px; font-weight: 700;">Daily Schedule Times</label>
+                                <button class="btn-sm btn-ghost" onclick="addTimeSlot()" style="font-size: 10px; padding: 2px 8px;">+ Add Slot</button>
+                            </div>
+                            <div id="batchTimeSlots" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div class="time-slot-tag">
+                                    <input type="time" class="batch-time-input" value="11:00" onchange="updateBatchSummary()">
+                                    <span onclick="this.parentElement.remove(); updateBatchSummary();">✖</span>
+                                </div>
+                                <div class="time-slot-tag">
+                                    <input type="time" class="batch-time-input" value="14:00" onchange="updateBatchSummary()">
+                                    <span onclick="this.parentElement.remove(); updateBatchSummary();">✖</span>
+                                </div>
+                                <div class="time-slot-tag">
+                                    <input type="time" class="batch-time-input" value="18:30" onchange="updateBatchSummary()">
+                                    <span onclick="this.parentElement.remove(); updateBatchSummary();">✖</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -1853,9 +1904,27 @@ window.FBApi = {
         }
 
         function updateBatchSummary() {
+            const timeSlots = document.querySelectorAll('.batch-time-input').length || 1;
             let total = 0; document.querySelectorAll('.post-count-input').forEach(i => total += parseInt(i.value) || 0);
             if(batchSelectedPostsEl) batchSelectedPostsEl.textContent = total;
-            if(batchEstimatedDaysEl) batchEstimatedDaysEl.textContent = Math.ceil(total / 3) || 0;
+            if(batchEstimatedDaysEl) batchEstimatedDaysEl.textContent = Math.ceil(total / timeSlots) || 0;
+        }
+
+        function addTimeSlot(val = "12:00") {
+            const container = document.getElementById('batchTimeSlots');
+            const div = document.createElement('div');
+            div.className = 'time-slot-tag';
+            div.innerHTML = `
+                <input type="time" class="batch-time-input" value="${val}" onchange="updateBatchSummary()">
+                <span onclick="this.parentElement.remove(); updateBatchSummary();">✖</span>
+            `;
+            container.appendChild(div);
+            updateBatchSummary();
+        }
+
+        function generateTimeSlots(count) {
+            // No longer used but kept for internal logic reference if needed
+            return [];
         }
 
         function shuffleArray(a) { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
@@ -1886,13 +1955,16 @@ window.FBApi = {
                 }
                 shuffleArray(pool);
                 
-                const times = ["11:00", "14:00", "18:30"];
+                const times = Array.from(document.querySelectorAll('.batch-time-input')).map(i => i.value).filter(v => v);
+                if (times.length === 0) times.push("12:00");
+                const postsPerDay = times.length;
+                
                 const start = new Date(batchStartDateInput.value);
                 const body = document.getElementById('batchPreviewBody');
                 body.innerHTML = '';
 
                 pool.forEach((post, i) => {
-                    const d = new Date(start.getTime() + Math.floor(i / 3) * 86400000).toISOString().split('T')[0];
+                    const d = new Date(start.getTime() + Math.floor(i / postsPerDay) * 86400000).toISOString().split('T')[0];
                     const tr = document.createElement('tr');
                     tr.dataset.json = JSON.stringify(post);
                     tr.innerHTML = `
@@ -1902,7 +1974,7 @@ window.FBApi = {
                             <div class="caption-text-sm">${escapeHtml(post.caption || '')}</div>
                         </td>
                         <td><input type="date" value="${d}" style="padding:4px; font-size:11px; width:auto;"></td>
-                        <td><input type="time" value="${times[i % 3]}" style="padding:4px; font-size:11px; width:auto;"></td>
+                        <td><input type="time" value="${times[i % postsPerDay]}" style="padding:4px; font-size:11px; width:auto;"></td>
                         <td><button class="remove-btn" onclick="this.closest('tr').remove(); updateBatchSummary();">✖</button></td>
                     `;
                     body.appendChild(tr);
@@ -2158,6 +2230,36 @@ window.FBApi = {
 			const scheduledView = document.getElementById('scheduledView');
 			const settingsView = document.getElementById('settingsView');
 			const editView = document.getElementById('editView');
+
+			function switchTab(viewId) {
+				[pendingView, publishedView, manualView, autoScheduleView, batchPreviewView, batchResultsView, scheduledView, settingsView, editView].forEach((view) => view?.classList.add('hidden'));
+				[tabPending, tabPublished, tabManual, tabAutoSchedule, tabScheduled, tabSettings].forEach((tab) => tab.classList.remove('active'));
+				
+				if (viewId === 'pendingView') {
+					pendingView.classList.remove('hidden'); tabPending.classList.add('active'); loadPendingPosts();
+				} else if (viewId === 'publishedView') {
+					publishedView.classList.remove('hidden'); tabPublished.classList.add('active'); loadPublishedPosts();
+				} else if (viewId === 'manualView') {
+					manualView.classList.remove('hidden'); tabManual.classList.add('active');
+				} else if (viewId === 'autoScheduleView') {
+					autoScheduleView.classList.remove('hidden'); tabAutoSchedule.classList.add('active'); fetchBatchSectionStats();
+				} else if (viewId === 'batchPreviewView') {
+					batchPreviewView.classList.remove('hidden');
+				} else if (viewId === 'batchResultsView') {
+					batchResultsView.classList.remove('hidden');
+				} else if (viewId === 'scheduledView') {
+					scheduledView.classList.remove('hidden'); tabScheduled.classList.add('active'); loadScheduledPosts();
+				} else if (viewId === 'settingsView') {
+					settingsView.classList.remove('hidden'); tabSettings.classList.add('active'); loadIgUserIdUI();
+				} else if (viewId === 'editView') {
+					editView.classList.remove('hidden');
+				}
+			}
+
+			// Make switchTab available globally for onclick handlers and other scripts
+			window.switchTab = switchTab;
+			window.currentSwitchTab = switchTab; // Maintenance for existing window.currentSwitchTab calls
+
 			const loginBtn = document.getElementById('loginBtn');
 			const logoutBtn = document.getElementById('logoutBtn');
 			const refreshBtn = document.getElementById('refreshBtn');
@@ -2243,32 +2345,6 @@ window.FBApi = {
 				}
 			});
 
-			function switchTab(viewId) {
-				[pendingView, publishedView, manualView, autoScheduleView, batchPreviewView, batchResultsView, scheduledView, settingsView, editView].forEach((view) => view?.classList.add('hidden'));
-				[tabPending, tabPublished, tabManual, tabAutoSchedule, tabScheduled, tabSettings].forEach((tab) => tab.classList.remove('active'));
-				
-				if (viewId === 'pendingView') {
-					pendingView.classList.remove('hidden'); tabPending.classList.add('active'); loadPendingPosts();
-				} else if (viewId === 'publishedView') {
-					publishedView.classList.remove('hidden'); tabPublished.classList.add('active'); loadPublishedPosts();
-				} else if (viewId === 'manualView') {
-					manualView.classList.remove('hidden'); tabManual.classList.add('active');
-				} else if (viewId === 'autoScheduleView') {
-					autoScheduleView.classList.remove('hidden'); tabAutoSchedule.classList.add('active'); fetchBatchSectionStats();
-				} else if (viewId === 'batchPreviewView') {
-					batchPreviewView.classList.remove('hidden');
-				} else if (viewId === 'batchResultsView') {
-					batchResultsView.classList.remove('hidden');
-				} else if (viewId === 'scheduledView') {
-					scheduledView.classList.remove('hidden'); tabScheduled.classList.add('active'); loadScheduledPosts();
-				} else if (viewId === 'settingsView') {
-					settingsView.classList.remove('hidden'); tabSettings.classList.add('active'); loadIgUserIdUI();
-				} else if (viewId === 'editView') {
-					editView.classList.remove('hidden');
-				}
-			}
-
-			window.currentSwitchTab = switchTab;
 
 			tabPending.addEventListener('click', () => switchTab('pendingView'));
 			tabPublished.addEventListener('click', () => switchTab('publishedView'));
