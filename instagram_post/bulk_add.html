@@ -91,49 +91,140 @@
             color: white;
             box-shadow: 0 4px 10px rgba(139, 92, 246, 0.25);
         }
+
+        .section-tag { font-size: 9px; padding: 2px 6px; background: #f1f5f9; color: #475569; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+
+        /* Gallery Grid Styles */
+        .gallery-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, 1fr); margin-top: 16px; }
+        @media (min-width: 600px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 900px) { .gallery-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .gallery-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: transform 0.2s; }
+        .gallery-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .gallery-card img { width: 100%; aspect-ratio: 1; object-fit: cover; cursor: pointer; }
+        .gallery-card-body { padding: 10px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .gallery-caption { font-size: 11px; color: var(--text-muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 46px; }
+        .gallery-actions { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; border-top: 1px solid #f8fafc; }
+        .gallery-delete { background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; opacity: 0.6; transition: 0.2s; }
+        .gallery-delete:hover { opacity: 1; }
+
+        /* Full Preview Modal (Instagram Style) */
+        .preview-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .preview-modal.active { display: flex; animation: fadeIn 0.3s; }
+        
+        .preview-inner { 
+            background: white; width: 100%; max-width: 1000px; max-height: 85vh; 
+            display: flex; border-radius: 12px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .preview-left { flex: 1.2; background: #000; display: flex; align-items: center; justify-content: center; }
+        .preview-left img { max-width: 100%; max-height: 85vh; object-fit: contain; }
+
+        .preview-right { 
+            flex: 0.8; background: white; display: flex; flex-direction: column; width: 350px; 
+            border-left: 1px solid var(--border);
+        }
+        .preview-header { padding: 16px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 12px; }
+        .preview-caption-area { 
+            padding: 16px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.6; color: #334155;
+            white-space: pre-wrap; font-family: inherit;
+        }
+        .preview-close-btn { position: absolute; top: -45px; right: 0; color: white; font-size: 32px; cursor: pointer; }
+
+        @media (max-width: 800px) {
+            .preview-inner { flex-direction: column; overflow-y: auto; }
+            .preview-right { flex: none; width: 100%; border-left: none; border-top: 1px solid var(--border); }
+            .preview-left img { max-height: 50vh; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>Bulk Add Instagram Posts</h2>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+            <div>
+                <h2 id="viewTitle" style="margin: 0; font-size: 20px;">Bulk Add Posts</h2>
+                <p id="viewSubtext" style="margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted);">Batch upload images to your gallery.</p>
+            </div>
+            <button id="toggleHistoryBtn" class="btn btn-secondary" onclick="toggleView()">📋 View Stored Posts</button>
+        </div>
         
-        <div class="global-controls">
-            <div>
-                <label>Set Global Section (Applies to all)</label>
-                <select id="globalSection" onchange="applyGlobalSection()">
-                    <option value="">-- Select --</option>
-                    <option value="gopalsdiary">Gopal's Diary 1</option>
-                    <option value="gopalsdiary_2">Gopal's Diary 2</option>
-                    <option value="gopalsdiary_3">Gopal's Diary 3</option>
-                    <option value="gopalsdiary_4">Gopal's Diary 4</option>
-                    <option value="mehedi">Mehedi</option>
-                    <option value="kobir">Kobir</option>
-                    <option value="other">Other</option>
-                </select>
+        <!-- Bulk Add Form Section -->
+        <div id="bulkAddSection">
+            <div class="global-controls">
+                <div>
+                    <label>Set Global Section (Applies to all)</label>
+                    <select id="globalSection" onchange="applyGlobalSection()">
+                        <option value="">-- Select --</option>
+                        <option value="gopalsdiary">Gopal's Diary 1</option>
+                        <option value="gopalsdiary_2">Gopal's Diary 2</option>
+                        <option value="gopalsdiary_3">Gopal's Diary 3</option>
+                        <option value="gopalsdiary_4">Gopal's Diary 4</option>
+                        <option value="mehedi">Mehedi</option>
+                        <option value="kobir">Kobir</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Global Actions</label>
+                    <button class="btn btn-ghost" onclick="applyGlobalCaption()">📋 Apply Custom 1 to All</button>
+                </div>
             </div>
-            <div>
-                <label>Global Actions</label>
-                <button class="btn btn-ghost" onclick="applyGlobalCaption()">📋 Apply Custom 1 to All</button>
+
+            <div class="form-group" style="margin: 20px 0;">
+                <label class="btn btn-secondary" style="cursor: pointer; display: inline-flex; border: 1px solid var(--border);">
+                    📁 Choose Multiple Images
+                    <input type="file" id="imageInput" accept="image/*" multiple class="hidden" onchange="handleFiles(event)">
+                </label>
+                <span id="fileCount" style="margin-left: 10px; font-size: 14px; font-weight: 600;">0 files selected</span>
+            </div>
+
+            <div id="itemsGrid" class="grid"></div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); padding-top: 20px;">
+                <button class="btn btn-ghost" onclick="location.reload()">Clear All</button>
+                <button id="saveAllBtn" class="btn btn-primary" onclick="saveAllToDatabase()" disabled>Save All to Database</button>
+            </div>
+            <div id="saveStatus" style="text-align: right; margin-top: 10px; font-size: 13px; font-weight: 600;"></div>
+        </div>
+
+        <!-- History View Section -->
+        <div id="historySection" class="hidden">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="historySearch" placeholder="Search gallery..." style="flex: 1;" oninput="filterHistory()">
+                <button class="btn btn-ghost" onclick="loadHistory()">↻ Refresh</button>
+            </div>
+            <div id="historyGrid" class="gallery-grid">
+                <div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">Click refresh to see stored posts...</div>
             </div>
         </div>
+    </div>
+    </div>
+</div>
 
-        <div class="form-group">
-            <label class="btn btn-secondary" style="cursor: pointer; display: inline-flex;">
-                📁 Choose Multiple Images
-                <input type="file" id="imageInput" accept="image/*" multiple class="hidden" onchange="handleFiles(event)">
-            </label>
-            <span id="fileCount" style="margin-left: 10px; font-size: 14px; font-weight: 600;">0 files selected</span>
+<!-- Full Image Preview Modal (Split View) -->
+<div id="fullPreviewModal" class="preview-modal" onclick="if(event.target === this) closeGalleryPreview()">
+    <div class="preview-inner">
+        <span class="preview-close-btn" onclick="closeGalleryPreview()">&times;</span>
+        <div class="preview-left">
+            <img id="previewModalImg" src="">
         </div>
-
-        <div id="itemsGrid" class="grid"></div>
-
-        <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); padding-top: 20px;">
-            <a href="bulk_add.html" class="btn btn-ghost" style="text-decoration: none;">Cancel</a>
-            <button id="saveAllBtn" class="btn btn-primary" onclick="saveAllToDatabase()" disabled>Save All to Database</button>
+        <div class="preview-right">
+            <div class="preview-header">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 14px;">📸</div>
+                <div style="font-weight: 700; font-size: 14px;" id="previewModalSection">Section</div>
+            </div>
+            <div id="previewModalCaption" class="preview-caption-area"></div>
         </div>
-        <div id="saveStatus" style="text-align: right; margin-top: 10px; font-size: 14px; font-weight: 600;"></div>
     </div>
 </div>
 
@@ -628,6 +719,117 @@
         closeCropper();
         renderGrid();
         checkAndStartUploads();
+    }
+
+    // --- VIEW TOGGLE & HISTORY ---
+    let historyData = [];
+    let isHistoryView = false;
+
+    function toggleView() {
+        const bulkAddSection = document.getElementById('bulkAddSection');
+        const historySection = document.getElementById('historySection');
+        const btn = document.getElementById('toggleHistoryBtn');
+        const title = document.getElementById('viewTitle');
+        const subtext = document.getElementById('viewSubtext');
+
+        isHistoryView = !isHistoryView;
+
+        if (isHistoryView) {
+            bulkAddSection.classList.add('hidden');
+            historySection.classList.remove('hidden');
+            btn.textContent = '📥 Bulk Add Mode';
+            title.textContent = 'Saved Gallery Posts';
+            subtext.textContent = 'Recently added items in your gallery.';
+            loadHistory();
+        } else {
+            bulkAddSection.classList.remove('hidden');
+            historySection.classList.add('hidden');
+            btn.textContent = '📋 View Stored Posts';
+            title.textContent = 'Bulk Add Instagram Posts';
+            subtext.textContent = 'Batch upload images to your gallery.';
+        }
+    }
+
+    async function loadHistory() {
+        const grid = document.getElementById('historyGrid');
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">Loading gallery history...</div>';
+        
+        try {
+            const { data, error } = await supabase.from('z_insta_post_db').order('created_at', { ascending: false }).limit(60).select('*');
+            if (error) throw error;
+            
+            historyData = data;
+            renderHistory(data);
+        } catch (e) {
+            grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: #ef4444;">Error: ${e.message}</div>`;
+        }
+    }
+
+    function renderHistory(data) {
+        const grid = document.getElementById('historyGrid');
+        if (!data || data.length === 0) {
+            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">No saved posts found.</div>';
+            return;
+        }
+
+        grid.innerHTML = data.map((post) => {
+            const safeCaption = post.caption ? post.caption.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+            return `
+                <div class="gallery-card">
+                    <img src="${post.image_url}" onclick="openGalleryPreview('${post.image_url}', \`${safeCaption}\`, '${post.post_section || 'Gallery'}')">
+                    <div class="gallery-card-body">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="section-tag">${post.post_section || 'other'}</span>
+                            <span style="font-size:9px; color:#b2b8c2;">${new Date(post.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div class="gallery-caption" title="${escapeHtml(post.caption || '')}">${escapeHtml(post.caption || 'No caption')}</div>
+                        <div class="gallery-actions">
+                            <button class="gallery-delete" onclick="deleteHistoryItem('${post.id}')" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function openGalleryPreview(src, caption, section) {
+        document.getElementById('previewModalImg').src = src;
+        document.getElementById('previewModalCaption').innerText = caption || 'No caption provided.';
+        document.getElementById('previewModalSection').innerText = section.toUpperCase();
+        document.getElementById('fullPreviewModal').classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+    }
+
+    function closeGalleryPreview() {
+        document.getElementById('fullPreviewModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function filterHistory() {
+        const q = document.getElementById('historySearch').value.toLowerCase();
+        const filtered = historyData.filter(p => 
+            (p.caption && p.caption.toLowerCase().includes(q)) || 
+            (p.post_section && p.post_section.toLowerCase().includes(q))
+        );
+        renderHistory(filtered);
+    }
+
+    async function deleteHistoryItem(id) {
+        if (!confirm('Are you sure you want to delete this stored post?')) return;
+        try {
+            const { error } = await supabase.from('z_insta_post_db').eq('id', id).delete();
+            if (error) throw error;
+            historyData = historyData.filter(item => item.id !== id);
+            renderHistory(historyData);
+        } catch (e) {
+            alert('Delete failed: ' + e.message);
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // Initialize session validation
