@@ -1720,7 +1720,7 @@
                 const thumbSrc = Img.thumbnail(previewUrl);
                 let gallerySrc = Img.gallery(previewUrl);
                 if (thumbSrc === gallerySrc) gallerySrc = ''; // avoid double loading
-                const lightboxUrl = Img.lightbox(previewUrl);
+                const lightboxUrl = Img.lightbox(photo.image_url);
 
                 const card = document.createElement('div');
                 card.className = 'photo-card';
