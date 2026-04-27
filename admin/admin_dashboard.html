@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1030,9 +1030,9 @@
                     </div>
 
                     <div class="form-group full">
-                        <label for="photoFile">Upload Image (File) or Direct URL</label>
-                        <input type="file" id="photoFile" accept="image/*">
-                        <small>Supported formats: JPG, PNG, GIF, WebP (Max 32MB)</small>
+                        <label for="photoFile">Upload Image(s) - Max 15 at once</label>
+                        <input type="file" id="photoFile" accept="image/*" multiple>
+                        <small>Supported formats: JPG, PNG, GIF, WebP (Max 32MB per file). You can select up to 15 files.</small>
                     </div>
 
                     <div class="form-group full">
@@ -1042,6 +1042,9 @@
                     </div>
 
                     <div class="form-group full">
+                        <div id="uploadProgressContainer" style="display: none; width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+                            <div id="uploadProgressBar" style="width: 0%; height: 100%; background: #0095f6; transition: width 0.3s ease;"></div>
+                        </div>
                         <label id="uploadStatus" class="upload-status"></label>
                     </div>
 
@@ -1193,7 +1196,7 @@
                         throw new Error(data.error?.message || 'Upload failed');
                     }
 
-                    return data.data.url;
+                    return data.data;
                 } catch (error) {
                     console.error('ImgBB upload error:', error);
                     throw new Error(`Failed to upload image: ${error.message}`);
@@ -1215,9 +1218,9 @@
         async function uploadToImgBB(file) {
             try {
                 console.log('📤 Uploading to ImgBB:', file.name);
-                const url = await imgbbUploader.uploadImage(file);
-                console.log('✅ Upload successful:', url);
-                return url;
+                const data = await imgbbUploader.uploadImage(file);
+                console.log('✅ Upload successful:', data.url);
+                return data;
             } catch (error) {
                 console.error('❌ Upload failed:', error.message);
                 throw error;
@@ -1608,122 +1611,156 @@
                 section = document.getElementById('photoSectionText').value.trim() || null;
             }
             
-            const file = document.getElementById('photoFile').files[0];
+            const files = Array.from(document.getElementById('photoFile').files);
             const directUrlInput = (document.getElementById('photoUrl')?.value || '').trim();
             const statusEl = document.getElementById('uploadStatus');
+            const progressContainer = document.getElementById('uploadProgressContainer');
+            const progressBar = document.getElementById('uploadProgressBar');
             
             // Get submit button
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
 
+            // Validate file count
+            if (files.length > 15) {
+                statusEl.textContent = '❌ Maximum 15 files allowed at once.';
+                statusEl.classList.add('error');
+                return;
+            }
+
             try {
                 // Disable button and show uploading state
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '⏳ Uploading...';
-                
                 statusEl.textContent = '';
                 statusEl.classList.remove('error', 'success');
 
-                let imageUrl = null;
-                // Determine image URL: try file upload first, else use direct URL
-                if (file) {
-                    statusEl.textContent = '⏳ Uploading image...';
-                    try {
-                        imageUrl = await uploadToImgBB(file);
-                    } catch (err) {
-                        console.warn('Upload failed, will try direct URL if provided:', err?.message);
-                        if (directUrlInput) {
-                            imageUrl = directUrlInput;
-                        } else {
-                            throw err;
+                const accessToken = localStorage.getItem('supabase_access_token');
+                if (!accessToken) {
+                    throw new Error('No access token found. Please login again.');
+                }
+
+                if (files.length > 0) {
+                    progressContainer.style.display = 'block';
+                    progressBar.style.width = '0%';
+                    
+                    let completed = 0;
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    // Helper to update progress
+                    const updateUI = () => {
+                        completed++;
+                        const percent = (completed / files.length) * 100;
+                        progressBar.style.width = `${percent}%`;
+                        submitBtn.innerHTML = `⏳ Processing ${completed}/${files.length}...`;
+                    };
+
+                    // Process all files in parallel
+                    const uploadPromises = files.map(async (file, index) => {
+                        try {
+                            // 1. Upload to ImgBB
+                            const imageData = await uploadToImgBB(file);
+                            
+                            // 2. Prepare data (auto-number title if multiple files)
+                            const finalTitle = files.length > 1 && title ? `${title} (${index + 1})` : (title || null);
+                            
+                            const insertData = {
+                                title: finalTitle,
+                                description: description || null,
+                                image_url: imageData.url,
+                                thumbnail_url: imageData.thumb?.url || imageData.url,
+                            };
+
+                            if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {
+                                insertData.section = section;
+                            }
+
+                            // 3. Save to Supabase
+                            const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'apikey': SUPABASE_ANON_KEY,
+                                    'Authorization': `Bearer ${accessToken}`,
+                                    'Prefer': 'return=minimal',
+                                },
+                                body: JSON.stringify(insertData),
+                            });
+
+                            if (!response.ok) throw new Error('Database save failed');
+                            
+                            successCount++;
+                        } catch (err) {
+                            console.error(`Error with ${file.name}:`, err);
+                            errorCount++;
+                        } finally {
+                            updateUI();
                         }
+                    });
+
+                    // Wait for all to complete
+                    await Promise.all(uploadPromises);
+
+                    if (successCount > 0) {
+                        statusEl.textContent = `✅ Success: ${successCount} item(s) added.${errorCount > 0 ? ` (${errorCount} failed)` : ''}`;
+                        statusEl.classList.add('success');
+                        document.getElementById('addPhotoForm').reset();
+                    } else {
+                        throw new Error('All uploads failed. Please check your connection or image sizes.');
                     }
                 } else if (directUrlInput) {
-                    imageUrl = directUrlInput;
+                    // Handle single direct URL
+                    submitBtn.innerHTML = '⏳ Saving...';
+                    const insertData = {
+                        title: title || null,
+                        description: description || null,
+                        image_url: directUrlInput,
+                        thumbnail_url: directUrlInput,
+                    };
+
+                    if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {
+                        insertData.section = section;
+                    }
+
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Prefer': 'return=minimal',
+                        },
+                        body: JSON.stringify(insertData),
+                    });
+
+                    if (!response.ok) throw new Error('Failed to save direct URL');
+
+                    statusEl.textContent = '✅ Item added successfully!';
+                    statusEl.classList.add('success');
+                    document.getElementById('addPhotoForm').reset();
                 } else {
-                    statusEl.textContent = '❌ Please upload a file or provide a direct image URL';
+                    statusEl.textContent = '❌ Please upload files or provide a direct image URL';
                     statusEl.classList.add('error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                     return;
                 }
-
-                // Insert to Supabase using REST API
-                const insertData = {
-                    title: title || null,
-                    description: description || null,
-                    image_url: imageUrl,
-                };
-
-                if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {
-                    insertData.section = section;
-                }
-
-                // Use REST API for insert with proper headers
-                const accessToken = localStorage.getItem('supabase_access_token');
                 
-                // Check if token exists
-                if (!accessToken) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                    throw new Error('No access token found. Please login again.');
-                }
-                
-                // Debug: Log request details
-                console.log('📤 POST Request:', {
-                    table: currentTable,
-                    hasToken: !!accessToken,
-                    tokenLength: accessToken.length,
-                    url: `${SUPABASE_URL}/rest/v1/${currentTable}`
-                });
-                
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/${currentTable}?select=*`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Prefer': 'return=representation',
-                    },
-                    body: JSON.stringify(insertData),
-                });
-
-                if (!response.ok) {
-                    // Handle 401 Unauthorized - redirect to login
-                    if (response.status === 401) {
-                        handleAuthError('Token expired');
-                        return;
-                    }
-                    
-                    const errorData = await response.json();
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                    throw new Error(errorData.message || 'Failed to add item');
-                }
-
-                const result = await response.json();
-
-                statusEl.textContent = '✅ Item added successfully!';
-                statusEl.classList.add('success');
-                statusEl.classList.remove('error');
-
-                document.getElementById('addPhotoForm').reset();
-                
-                // Re-enable button after success
+                // Finalize success state
                 setTimeout(() => {
                     statusEl.classList.remove('success');
+                    progressContainer.style.display = 'none';
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
                     closeAddModal();
                     loadPhotos();
-                }, 1500);
+                }, 2500);
 
             } catch (error) {
                 statusEl.textContent = `❌ Error: ${error.message}`;
                 statusEl.classList.add('error');
                 statusEl.classList.remove('success');
-                
-                // Re-enable button on error
+                progressContainer.style.display = 'none';
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnText;
             }
@@ -1797,21 +1834,21 @@
             const editDirectUrlInput = (document.getElementById('editPhotoUrl')?.value || '').trim();
 
             try {
-                let imageUrl = null;
+                let imageData = null;
 
                 if (file) {
                     try {
-                        imageUrl = await uploadToImgBB(file);
+                        imageData = await uploadToImgBB(file);
                     } catch (err) {
                         console.warn('Edit upload failed, will try direct URL if provided:', err?.message);
                         if (editDirectUrlInput) {
-                            imageUrl = editDirectUrlInput;
+                            imageData = { url: editDirectUrlInput, url_viewer: editDirectUrlInput };
                         } else {
                             throw err;
                         }
                     }
                 } else if (editDirectUrlInput) {
-                    imageUrl = editDirectUrlInput;
+                    imageData = { url: editDirectUrlInput, url_viewer: editDirectUrlInput };
                 }
 
                 const updateData = {
@@ -1819,8 +1856,9 @@
                     description: description || null,
                 };
 
-                if (imageUrl) {
-                    updateData.image_url = imageUrl;
+                if (imageData) {
+                    updateData.image_url = imageData.url;
+                    updateData.thumbnail_url = imageData.thumb?.url || imageData.url;
                 }
 
                 if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {

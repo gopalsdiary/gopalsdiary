@@ -600,14 +600,41 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            margin-top: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
             width: 100%;
-            margin-top: 20px;
         }
 
         .btn-download:hover {
-            background: #ffc400;
+            transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(238, 182, 0, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-source {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .btn-source:hover {
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
 
@@ -1032,6 +1059,9 @@
                 <button class="btn-download" onclick="downloadImage()">
                     <span class="material-icons">download</span> Download
                 </button>
+                <a id="lightboxSourceLink" href="#" target="_blank" class="btn-source">
+                    <span class="material-icons" style="font-size: 18px;">open_in_new</span> View on ImgBB
+                </a>
             </div>
         </div>
     </div>
@@ -1683,7 +1713,10 @@
             const fragment = document.createDocumentFragment();
 
             photos.forEach((photo, idx) => {
-                const previewUrl = photo.thumbnail_url || photo.image_url;
+                // If thumbnail_url is a viewer link (not a direct image), use image_url for preview
+                const isViewerLink = photo.thumbnail_url && photo.thumbnail_url.includes('ibb.co/') && !photo.thumbnail_url.includes('i.ibb.co/');
+                const previewUrl = isViewerLink ? photo.image_url : (photo.thumbnail_url || photo.image_url);
+                
                 const thumbSrc = Img.thumbnail(previewUrl);
                 let gallerySrc = Img.gallery(previewUrl);
                 if (thumbSrc === gallerySrc) gallerySrc = ''; // avoid double loading
@@ -1780,6 +1813,17 @@
 
             const cfg = TABLE_CONFIG[data.tableName];
             document.getElementById('lightboxMeta').textContent = cfg ? `${cfg.emoji} ${cfg.name}` : data.tableName;
+
+            // Update View Source link (using thumbnail_url which stores url_viewer)
+            const sourceLink = document.getElementById('lightboxSourceLink');
+            if (sourceLink) {
+                if (data.thumbnail_url && data.thumbnail_url.includes('ibb.co/')) {
+                    sourceLink.href = data.thumbnail_url;
+                    sourceLink.style.display = 'flex';
+                } else {
+                    sourceLink.style.display = 'none';
+                }
+            }
         }
 
         function openLightbox(imgSrc, index, total, photoData, originalUrl) {
