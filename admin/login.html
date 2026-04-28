@@ -1,147 +1,255 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>Admin Login - Gopals Diary</title>
-	<style>
-		:root {
-			--bg: #f6f7f9;
-			--panel: #ffffff;
-			--text: #222;
-			--muted: #6b7280;
-			--primary: #0095f6;
-			--primary-hover: #0080d8;
-			--danger: #dc2626;
-			--border: #e5e7eb;
-		}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-light: #f8fafc;
+            --panel: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
 
-		* { box-sizing: border-box; }
-		html, body {
-			height: 100%;
-		}
-		body {
-			margin: 0;
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
-			background: var(--bg);
-			color: var(--text);
-			display: grid;
-			place-items: center;
-			padding: 24px;
-		}
-		.card {
-			width: 100%;
-			max-width: 420px;
-			background: var(--panel);
-			border: 1px solid var(--border);
-			border-radius: 10px;
-			box-shadow: 0 6px 24px rgba(0,0,0,0.06);
-			padding: 28px;
-		}
-		h1 {
-			margin: 0 0 4px;
-			font-size: 22px;
-		}
-		p.muted {
-			margin: 0 0 20px;
-			color: var(--muted);
-			font-size: 14px;
-		}
-		label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
-		input[type="email"], input[type="password"] {
-			width: 100%;
-			padding: 11px 12px;
-			border: 1px solid var(--border);
-			border-radius: 6px;
-			font-size: 14px;
-			transition: border-color .15s, box-shadow .15s;
-		}
-		input:focus {
-			outline: none;
-			border-color: var(--primary);
-			box-shadow: 0 0 0 3px rgba(0,149,246,.15);
-		}
-		button[type="submit"] {
-			width: 100%;
-			margin-top: 16px;
-			background: var(--primary);
-			color: #fff;
-			border: none;
-			border-radius: 6px;
-			padding: 11px 14px;
-			font-weight: 700;
-			cursor: pointer;
-			transition: background .2s, transform .02s;
-		}
-		button[type="submit"]:hover { background: var(--primary-hover); }
-		button[type="submit"]:active { transform: translateY(1px); }
-		.row {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			gap: 12px;
-			margin-top: 10px;
-		}
-		.helper { font-size: 12px; color: var(--muted); }
-		.error {
-			margin-top: 12px;
-			font-size: 13px;
-			color: var(--danger);
-			background: #fee2e2;
-			border: 1px solid #fecaca;
-			padding: 10px 12px;
-			border-radius: 6px;
-			display: none;
-		}
-		.success {
-			margin-top: 12px;
-			font-size: 13px;
-			color: #065f46;
-			background: #ecfdf5;
-			border: 1px solid #a7f3d0;
-			padding: 10px 12px;
-			border-radius: 6px;
-			display: none;
-		}
-		.brand {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 8px;
-			margin-bottom: 12px;
-		}
-		.brand img {
-			height: 48px;
-			width: 148px;
-			border-radius: 6px;
-			margin-bottom: 6px;
-		}
-	</style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-light);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,0.03) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.05) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.05) 0, transparent 50%);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ambient glow for light mode */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.08) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            z-index: -1;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 
+                0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+                0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            padding: 48px;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand img {
+            height: 62px;
+            margin-bottom: 16px;
+            border-radius: 14px;
+            padding: 4px;
+            border: 1px solid var(--border);
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+        }
+
+        .muted {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            margin-left: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        input {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 13px 16px;
+            font-size: 15px;
+            color: var(--text-main);
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
+            background: #fff;
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        .helper {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 14px;
+            text-align: center;
+            display: block;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            margin-top: 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+
+        button[type="submit"]:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        button[type="submit"]:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .error, .success {
+            margin-top: 20px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fee2e2;
+        }
+
+        .success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #dcfce7;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-	<div class="card">
-		<div class="brand">
-			<img src="/admin/gopalsdiary.png" alt="Logo" style="box-shadow:0 50px 50px #0001;object-fit:cover;background:#fff;border:1px solid #eee;" onerror="this.style.display='none'" />
-			<h1></h1>
-		</div>
-		<p class="muted">Sign in with your email and password to access the dashboard.</p>
+    <div class="card">
+        <div class="brand">
+            <h1>Admin Access</h1>
+        </div>
+        <p class="muted">Enter your credentials to manage Gopals Diary dashboard securely.</p>
 
-		<form id="loginForm" novalidate>
-			<label for="email">Email</label>
-			<input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" placeholder="name@company.com" autocomplete="email" required />
+            </div>
 
-			<label for="password">Password</label>
-			<input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            </div>
 
-			<div class="row">
-				<span class="helper">Only authorized users can access the admin panel.</span>
-			</div>
+            <button id="submitBtn" type="submit">Sign In to Dashboard</button>
+            
+            <span class="helper">Secure encrypted session will be established.</span>
 
-			<button id="submitBtn" type="submit">Sign in</button>
-			<div id="errorBox" class="error"></div>
-			<div id="successBox" class="success">Login successful. Redirecting…</div>
-		</form>
-	</div>
+            <div id="errorBox" class="error"></div>
+            <div id="successBox" class="success">Login successful. Redirecting…</div>
+        </form>
+    </div>
 
 	<!-- Supabase JS v2 -->
 	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -249,7 +357,7 @@
 			}
 
 			submitBtn.disabled = true;
-			submitBtn.textContent = 'Signing in…';
+			submitBtn.innerHTML = '<span class="spinner"></span> Establishing Session...';
 
 			const email    = document.getElementById('email').value.trim();
 			const password = document.getElementById('password').value;
@@ -257,7 +365,7 @@
 			if (!email || !password) {
 				showError('Email and password are required.');
 				submitBtn.disabled = false;
-				submitBtn.textContent = 'Sign in';
+				submitBtn.textContent = 'Sign In to Dashboard';
 				return;
 			}
 
@@ -265,7 +373,7 @@
 			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
 				showError('Please enter a valid email address.');
 				submitBtn.disabled = false;
-				submitBtn.textContent = 'Sign in';
+				submitBtn.textContent = 'Sign In to Dashboard';
 				return;
 			}
 
@@ -304,7 +412,7 @@
 				showError(msg);
 			} finally {
 				submitBtn.disabled = false;
-				submitBtn.textContent = 'Sign in';
+				submitBtn.textContent = 'Sign In to Dashboard';
 			}
 		});
 		}
