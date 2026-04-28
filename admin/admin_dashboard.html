@@ -1668,7 +1668,7 @@
                                 title: finalTitle,
                                 description: description || null,
                                 image_url: imageData.url,
-                                thumbnail_url: imageData.thumb?.url || imageData.url,
+                                thumbnail_url: imageData.medium?.url || imageData.url,
                             };
 
                             if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {
@@ -1858,7 +1858,7 @@
 
                 if (imageData) {
                     updateData.image_url = imageData.url;
-                    updateData.thumbnail_url = imageData.thumb?.url || imageData.url;
+                    updateData.thumbnail_url = imageData.medium?.url || imageData.url;
                 }
 
                 if (tablesWithDropdownSection.includes(currentTable) || tablesWithTextSection.includes(currentTable)) {
